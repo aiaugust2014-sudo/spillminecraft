@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1b1236">
+  <title>Blokk Royale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- Hovedmeny -->
+  <div id="menu" class="screen">
+    <div class="menu-inner">
+      <h1 class="logo"><span class="l1">BLOKK</span><span class="l2">ROYALE</span></h1>
+      <p class="tagline">Grav som i <b>Minecraft</b> · Bygg som i <b>Fortnite</b> · Slåss som i <b>Brawl Stars</b></p>
+      <div id="trophies" class="trophies"></div>
+      <h2>Velg brawler</h2>
+      <div id="brawlerList" class="brawler-list"></div>
+      <div id="brawlerInfo" class="brawler-info"></div>
+      <button id="playBtn" class="big-btn">SPILL!</button>
+      <details class="howto">
+        <summary>Slik spiller du</summary>
+        <ul>
+          <li>🚌 <b>Hopp ut av Kampbussen</b> der du vil lande.</li>
+          <li>⛏️ <b>Grav</b> trær, stein, jern og diamanter for å få materialer.</li>
+          <li>🧱 <b>Bygg vegger</b> av tre, stein eller metall for å beskytte deg.</li>
+          <li>📦 <b>Knus kister</b> for kraftkuber (+10 % liv og skade), bandasjer, skjolddrikker, TNT og vakttårn.</li>
+          <li>🛠️ <b>Craft</b> nye ting av materialene dine – 3 diamanter blir til en kraftkube!</li>
+          <li>🌿 <b>Gjem deg i busker</b> – fiender ser deg ikke før de er helt nær.</li>
+          <li>⚡ <b>Lad opp SUPER</b> ved å treffe fiender, og slipp løs kraften.</li>
+          <li>🌀 <b>Hold deg unna stormen</b> – den krymper hele tiden. Sistemann vinner!</li>
+        </ul>
+        <p><b>PC:</b> WASD = gå · Mus = sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · Esc = pause</p>
+        <p><b>Mobil:</b> Venstre tommel = gå · Høyre tommel = sikt og slipp for å skyte (trykk = auto-sikt) · Knappene for super, hakke, vegg og crafting.</p>
+      </details>
+    </div>
+  </div>
+
+  <!-- Crafting -->
+  <div id="craftPanel" class="panel hidden">
+    <div class="panel-head">
+      <span>🛠️ Crafting</span>
+      <button id="craftClose" class="x-btn">✕</button>
+    </div>
+    <div id="craftMats" class="craft-mats"></div>
+    <div id="craftList"></div>
+  </div>
+
+  <!-- Pause -->
+  <div id="pausePanel" class="screen dim hidden">
+    <div class="box">
+      <h2>Pause</h2>
+      <button id="resumeBtn" class="big-btn">Fortsett</button>
+      <button id="soundBtn" class="mid-btn">🔊 Lyd: PÅ</button>
+      <button id="quitBtn" class="mid-btn">Avslutt til meny</button>
+    </div>
+  </div>
+
+  <!-- Slutt -->
+  <div id="endScreen" class="screen dim hidden">
+    <div class="box">
+      <h1 id="endTitle"></h1>
+      <p id="endSub"></p>
+      <div id="endStats" class="end-stats"></div>
+      <button id="againBtn" class="big-btn">SPILL IGJEN</button>
+      <button id="menuBtn" class="mid-btn">Bytt brawler</button>
+    </div>
+  </div>
+
+  <!-- Mobilknapper -->
+  <div id="touchUI" class="hidden">
+    <button id="btnPause" class="tbtn small">II</button>
+    <button id="btnCraft" class="tbtn small">🛠️</button>
+    <button id="btnWall" class="tbtn">🧱<span>VEGG</span></button>
+    <button id="btnMine" class="tbtn">⛏️<span>GRAV</span></button>
+    <button id="btnSuper" class="tbtn super">⚡<span>SUPER</span></button>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/textures.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/storm.js"></script>
+  <script src="js/combat.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

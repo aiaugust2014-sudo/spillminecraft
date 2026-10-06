@@ -1,0 +1,248 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #1b1236;
+  color: #fff;
+  font-family: "Lilita One", "Arial Black", system-ui, sans-serif;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+#game { position: fixed; inset: 0; display: block; cursor: crosshair; }
+
+.hidden { display: none !important; }
+
+button { font-family: inherit; cursor: pointer; }
+
+/* ---------- Skjermer ---------- */
+.screen {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+}
+.screen.dim { background: rgba(10, 5, 30, 0.6); }
+
+#menu {
+  background: radial-gradient(ellipse at top, rgba(60, 30, 130, 0.55), rgba(10, 5, 30, 0.85));
+  overflow-y: auto;
+  align-items: flex-start;
+  touch-action: pan-y;
+}
+.menu-inner {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  text-align: center;
+}
+
+.logo {
+  font-size: clamp(44px, 11vw, 96px);
+  line-height: 0.95;
+  letter-spacing: 2px;
+  display: flex; flex-direction: column; align-items: center;
+  transform: rotate(-3deg);
+  margin: 6px 0 14px;
+}
+.logo span {
+  -webkit-text-stroke: 3px #000;
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 #000, 0 10px 18px rgba(0, 0, 0, 0.5);
+}
+.logo .l1 { color: #5fd64a; background: linear-gradient(#7cf060, #3f9a32); -webkit-background-clip: text; background-clip: text; }
+.logo .l2 { color: #ffd23f; font-size: 1.15em; }
+
+.tagline { font-size: clamp(13px, 3.4vw, 18px); color: #e6dcff; margin-bottom: 10px; }
+.tagline b { color: #ffd23f; }
+
+.trophies {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 210, 63, 0.5);
+  border-radius: 999px;
+  padding: 6px 16px;
+  margin-bottom: 16px;
+  font-size: 17px;
+}
+
+h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
+
+.brawler-list {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+}
+.card {
+  width: 126px;
+  padding: 8px 6px 10px;
+  border-radius: 14px;
+  border: 3px solid #000;
+  background: linear-gradient(180deg, #4a3a8a, #2a1f5a);
+  color: #fff;
+  box-shadow: 0 5px 0 #000;
+  transition: transform 0.12s;
+}
+.card:hover { transform: translateY(-3px); }
+.card.selected {
+  background: linear-gradient(180deg, var(--c), #2a1f5a 120%);
+  outline: 4px solid #ffd23f;
+  transform: translateY(-4px) scale(1.04);
+}
+.card canvas { width: 96px; height: 96px; image-rendering: pixelated; display: block; margin: 0 auto 4px; }
+.card-name { font-size: 15px; text-shadow: 0 2px 0 #000; }
+.card-role { font-size: 12px; color: #d8d0ff; }
+
+.brawler-info {
+  margin: 16px auto 18px;
+  max-width: 460px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: left;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+}
+.brawler-info h3 { font-family: "Lilita One", sans-serif; font-size: 24px; text-shadow: 0 2px 0 #000; margin-bottom: 8px; }
+.brawler-info p { margin-top: 6px; color: #e8e2ff; }
+.stat { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+.stat span { width: 90px; font-size: 13px; color: #cfc6ff; }
+.statbar { flex: 1; height: 10px; background: rgba(255, 255, 255, 0.12); border-radius: 6px; overflow: hidden; }
+.statbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffd23f, #ff8a1f); }
+
+.big-btn {
+  display: block;
+  margin: 8px auto;
+  min-width: 220px;
+  padding: 14px 36px;
+  font-size: 30px;
+  color: #fff;
+  background: linear-gradient(180deg, #ffd23f, #ff9a1f);
+  border: 4px solid #000;
+  border-radius: 16px;
+  box-shadow: 0 6px 0 #000;
+  -webkit-text-stroke: 1.5px #000;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #000;
+}
+.big-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #000; }
+
+.mid-btn {
+  display: block;
+  margin: 10px auto 0;
+  min-width: 200px;
+  padding: 10px 24px;
+  font-size: 18px;
+  color: #fff;
+  background: linear-gradient(180deg, #5a7bff, #3a4fd0);
+  border: 3px solid #000;
+  border-radius: 12px;
+  box-shadow: 0 4px 0 #000;
+  text-shadow: 0 2px 0 #000;
+}
+
+.howto {
+  margin: 18px auto 0;
+  max-width: 600px;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.howto summary { font-family: "Lilita One", sans-serif; font-size: 18px; cursor: pointer; }
+.howto ul { margin: 8px 0 8px 4px; list-style: none; }
+.howto p { margin-top: 6px; color: #d8d0ff; }
+
+/* ---------- Bokser ---------- */
+.box {
+  background: linear-gradient(180deg, #3a2a7a, #1f1550);
+  border: 4px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 8px 0 #000;
+  padding: 24px 22px;
+  text-align: center;
+  width: min(440px, calc(100% - 32px));
+}
+.box h1 { font-size: clamp(30px, 8vw, 46px); text-shadow: 0 4px 0 #000; margin-bottom: 6px; }
+.box h1.win {
+  color: #ffd23f;
+  animation: pop 0.6s ease-out;
+}
+.box p { color: #e6dcff; margin-bottom: 14px; font-family: system-ui, sans-serif; }
+@keyframes pop { 0% { transform: scale(0.3); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+.end-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.end-stats div { background: rgba(0, 0, 0, 0.35); border-radius: 10px; padding: 8px; }
+.end-stats b { display: block; font-size: 24px; }
+.end-stats span { font-size: 12px; color: #cfc6ff; font-family: system-ui, sans-serif; }
+.plus { color: #6dff7a; }
+.minus { color: #ff7a7a; }
+
+/* ---------- Crafting ---------- */
+.panel {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  z-index: 12;
+  background: #c6c6c6;
+  color: #333;
+  border: 4px solid #000;
+  border-radius: 6px;
+  box-shadow: inset -4px -4px 0 #555, inset 4px 4px 0 #fff, 0 8px 0 rgba(0, 0, 0, 0.5);
+  padding: 12px;
+  touch-action: pan-y;
+}
+.panel-head { display: flex; justify-content: space-between; align-items: center; font-size: 22px; margin-bottom: 6px; }
+.x-btn { background: #8b8b8b; color: #fff; border: 3px solid #000; border-radius: 6px; width: 34px; height: 34px; font-size: 16px; }
+.craft-mats { font-family: system-ui, sans-serif; font-size: 13px; margin-bottom: 8px; }
+.recipe {
+  display: flex; align-items: center; gap: 10px;
+  background: #8b8b8b;
+  border: 2px solid #373737;
+  box-shadow: inset 2px 2px 0 #aaa;
+  padding: 6px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+.recipe canvas { width: 40px; height: 40px; image-rendering: pixelated; background: #6b6b6b; border: 2px solid #373737; }
+.recipe-info { flex: 1; font-family: system-ui, sans-serif; font-size: 13px; text-shadow: 1px 1px 0 #333; }
+.recipe-info b { font-family: "Lilita One", sans-serif; font-size: 16px; font-weight: normal; }
+.recipe .ok { color: #b6ffb0; }
+.recipe .no { color: #ffb0b0; }
+.recipe button {
+  padding: 8px 12px; font-size: 16px; color: #fff;
+  background: linear-gradient(180deg, #5fd64a, #3f9a32);
+  border: 3px solid #000; border-radius: 8px;
+}
+.recipe button:disabled { background: #666; color: #aaa; cursor: not-allowed; }
+.recipe.disabled { opacity: 0.75; }
+
+/* ---------- Mobilknapper ---------- */
+#touchUI { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+.tbtn {
+  position: absolute;
+  pointer-events: auto;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 22px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  line-height: 1;
+  touch-action: none;
+}
+.tbtn span { font-size: 10px; margin-top: 2px; }
+.tbtn.small { width: 44px; height: 44px; font-size: 16px; }
+#btnPause { top: calc(env(safe-area-inset-top, 0px) + 78px); left: 12px; }
+#btnCraft { top: calc(env(safe-area-inset-top, 0px) + 78px); left: 62px; }
+#btnSuper { right: 18px; bottom: 130px; width: 78px; height: 78px; font-size: 26px; }
+#btnSuper.ready { box-shadow: 0 0 18px #ffd23f; border-color: #ffd23f; }
+#btnMine { right: 104px; bottom: 120px; }
+#btnWall { right: 40px; bottom: 216px; }
