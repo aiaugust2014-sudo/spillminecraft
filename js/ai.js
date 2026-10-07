@@ -185,7 +185,7 @@ function botAct(f, b) {
     const visible = canSee(f, t);
     let mx, my;
     if (b.mode === 'fight') {
-      const pref = range * (a.type === 'shotgun' ? 0.45 : 0.7);
+      const pref = range * (a.type === 'shotgun' ? 0.45 : a.type === 'nova' ? 0.35 : 0.7);
       mx = 0; my = 0;
       if (d > pref * 1.15) { mx = Math.cos(ang); my = Math.sin(ang); }
       else if (d < pref * 0.7) { mx = -Math.cos(ang); my = -Math.sin(ang); }
@@ -203,9 +203,9 @@ function botAct(f, b) {
     steer(f, b, mx, my);
 
     if (visible && d < range && b.fireCd <= 0 && f.ammo >= 1 && (b.mode === 'fight' || Math.random() < 0.4)) {
-      const clear = a.type === 'lob' || los(f.x, f.y, t.x, t.y);
+      const clear = a.type === 'lob' || a.type === 'nova' || los(f.x, f.y, t.x, t.y);
       if (clear || Math.random() < 0.3) {
-        const tt = a.type === 'lob' ? 0.55 : d / (a.speed || 1000);
+        const tt = a.type === 'lob' ? 0.55 : a.type === 'nova' ? 0 : d / (a.speed || 1000);
         const px = t.x + t.vx * tt * b.skill, py = t.y + t.vy * tt * b.skill;
         const aimA = Math.atan2(py - f.y, px - f.x) + (1 - b.skill) * 0.5 * rand(-1, 1);
         tryAttack(f, aimA, px, py);

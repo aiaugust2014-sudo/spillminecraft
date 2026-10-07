@@ -8,11 +8,13 @@ let particles = [], texts = [], beams = [], blasts = [], killFeed = [];
 let player = null;
 let nextId = 1;
 
-function createFighter(bi, name, isPlayer) {
+function createFighter(bi, name, isPlayer, level = 1) {
   const br = BRAWLERS[bi];
+  const lvlMul = levelMul(level);
+  const hp = Math.round(br.hp * lvlMul);
   return {
-    id: nextId++, name, isPlayer, br, x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, r: br.r,
-    hp: br.hp, baseHp: br.hp, maxHp: br.hp, shield: 0, cubes: 0,
+    id: nextId++, name, isPlayer, br, level, lvlMul, x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, r: br.r,
+    hp, baseHp: hp, maxHp: hp, shield: 0, cubes: 0,
     ammo: 3, superCharge: 0, superWasReady: false, aim: 0, moveX: 0, moveY: 0,
     mats: { wood: 0, stone: 0, iron: 0, diamond: 0 },
     items: { bandage: 0, potion: 0, tnt: 0, turret: 0 },
@@ -24,7 +26,8 @@ function createFighter(bi, name, isPlayer) {
   };
 }
 
-const pw = (f) => 1 + f.cubes * 0.1;
+// Skademultiplikator: kraftkuber (Brawl Stars) × brawler-nivå (oppgraderinger)
+const pw = (f) => (1 + f.cubes * 0.1) * f.lvlMul;
 const aliveCount = () => fighters.reduce((n, f) => n + (f.alive ? 1 : 0), 0);
 
 function addCubes(f, n) {
@@ -130,7 +133,7 @@ function spawnBullet(x, y, ang, dmg, range, speed, owner, opts = {}) {
     x, y, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ang,
     travel: 0, max: range * TILE, dmg, owner, src: opts.src || null,
     color: opts.color || owner.br.color, r: opts.r || 6, kind: opts.kind || 'bullet',
-    blockMul: opts.blockMul !== undefined ? opts.blockMul : 0.4,
+    blockMul: opts.blockMul !== undefined ? opts.blockMul : 0.4, explode: opts.explode || null,
   });
 }
 
@@ -143,6 +146,8 @@ function lobProjectile(f, tx, ty, kind, opts) {
   projectiles.push(Object.assign({
     lob: true, sx: f.x, sy: f.y - 10, tx, ty, x: f.x, y: f.y, t: 0, dur: 0.35 + d / 1100, kind, owner: f, z: 0,
   }, opts));
+  const p = projectiles[projectiles.length - 1];
+  p.dur = Math.max(p.dur, 0.35 + d / 1100);
 }
 
 function clampTarget(f, tx, ty, maxD) {
@@ -161,7 +166,7 @@ function tryAttack(f, ang, tx, ty) {
   f.ammo -= 1;
   f.shootCd = 0.3;
   f.lastAttack = Game.time;
-  f.revealT = 1.0;
+  if (f.br.id !== 'embla') f.revealT = 1.0;
   f.aim = ang;
   switch (a.type) {
     case 'burst':
@@ -186,6 +191,15 @@ function tryAttack(f, ang, tx, ty) {
       sfxAt('lob', f.x, f.y);
       break;
     }
+    case 'nova':
+      explode(f.x, f.y, a.radius * TILE, a.dmg * m, f, a.dmg * 0.35, 'nova');
+      break;
+    case 'rocket':
+      fireBullet(f, ang, a.dmg * m, a.range, a.speed, {
+        r: 7, kind: 'rocket', color: '#ff7a3a', explode: { radius: a.radius * TILE, dmg: a.dmg * m, blockDmg: a.dmg },
+      });
+      sfxAt('lob', f.x, f.y);
+      break;
   }
   return true;
 }
@@ -224,6 +238,7 @@ function updateProjectiles(dt) {
         p.travel += (sp * dt) / steps;
         const tx = tileOf(p.x), ty = tileOf(p.y);
         if (isSolid(tx, ty)) {
+          if (p.explode) { rocketBoom(p); dead = true; break; }
           if (inMap(tx, ty)) damageBlock(tx, ty, p.dmg * p.blockMul, p.owner, false);
           sparks(p.x, p.y, '#fff2a0', 3);
           dead = true;
@@ -234,6 +249,7 @@ function updateProjectiles(dt) {
           const rr = f.r + p.r;
           const dx = f.x - p.x, dy = f.y - 8 - p.y;
           if (dx * dx + dy * dy < rr * rr) {
+            if (p.explode) { rocketBoom(p); dead = true; break; }
             hurt(f, p.dmg, p.owner, p.kind);
             sparks(p.x, p.y, p.color, 5);
             dead = true;
@@ -244,21 +260,32 @@ function updateProjectiles(dt) {
         for (const tu of turrets) {
           if (tu.owner === p.owner || tu.hp <= 0) continue;
           if (dist(tu.x, tu.y - 10, p.x, p.y) < 20 + p.r) {
+            if (p.explode) { rocketBoom(p); dead = true; break; }
             damageTurret(tu, p.dmg, p.owner);
             sparks(p.x, p.y, '#ccc', 4);
             dead = true;
             break;
           }
         }
-        if (p.travel >= p.max) dead = true;
+        if (p.travel >= p.max) {
+          if (p.explode) rocketBoom(p);
+          dead = true;
+        }
       }
     }
     if (dead) projectiles.splice(i, 1);
   }
 }
 
+function rocketBoom(p) {
+  explode(p.x, p.y, p.explode.radius, p.explode.dmg, p.owner, p.explode.blockDmg, 'rocket');
+}
+
 function landLob(p) {
   switch (p.kind) {
+    case 'rocketlob':
+      explode(p.x, p.y, p.radius, p.dmg, p.owner, p.blockDmg, 'rocket');
+      break;
     case 'potion':
       explode(p.x, p.y, p.radius, p.dmg, p.owner, p.dmg * 0.3, 'potion');
       break;
@@ -271,6 +298,14 @@ function landLob(p) {
       break;
   }
 }
+
+const EXPLOSION_STYLES = {
+  tnt: { n: 34, cols: ['#ffdd55', '#ff8a2a', '#ff4a1a', '#555', '#888'], blast: '255,190,80', big: true, shake: 14 },
+  rocket: { n: 20, cols: ['#ffdd55', '#ff8a2a', '#ff4a1a', '#777'], blast: '255,160,70', big: true, shake: 6 },
+  nova: { n: 24, cols: ['#7cff7a', '#3fbf4a', '#d8ffd0'], blast: '120,255,120', big: false, shake: 3 },
+  ender: { n: 26, cols: ['#c070ff', '#7a2fd0', '#f0d8ff', '#111'], blast: '190,110,255', big: false, shake: 4 },
+  potion: { n: 16, cols: ['#c86bff', '#7cff9a', '#e2b6ff'], blast: '200,120,255', big: false, shake: 0 },
+};
 
 function explode(x, y, radius, dmg, owner, blockDmg, style) {
   for (const f of fighters) {
@@ -290,24 +325,24 @@ function explode(x, y, radius, dmg, owner, blockDmg, style) {
       }
     }
   }
-  const tnt = style === 'tnt';
-  const n = tnt ? 34 : 16;
-  for (let i = 0; i < n; i++) {
+  const st = EXPLOSION_STYLES[style] || EXPLOSION_STYLES.potion;
+  for (let i = 0; i < st.n; i++) {
     const a = rand(0, TAU), s = rand(50, radius * 3);
-    const col = tnt ? choice(['#ffdd55', '#ff8a2a', '#ff4a1a', '#555', '#888']) : choice(['#c86bff', '#7cff9a', '#e2b6ff']);
-    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, z: rand(0, 20), vz: rand(80, 260), life: rand(0.4, 0.9), max: 0.9, color: col, size: rand(5, 11) });
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, z: rand(0, 20), vz: rand(80, 260), life: rand(0.4, 0.9), max: 0.9, color: choice(st.cols), size: rand(5, 11) });
   }
-  blasts.push({ x, y, r: radius, t: 0, dur: tnt ? 0.4 : 0.3, color: tnt ? '255,190,80' : '200,120,255' });
+  blasts.push({ x, y, r: radius, t: 0, dur: st.big ? 0.4 : 0.3, color: st.blast });
   const d = dist(x, y, Game.cam.x, Game.cam.y);
-  if (tnt) shake(clamp(14 - d / 60, 0, 14));
-  sfxAt(tnt ? 'explode' : 'hit', x, y, tnt ? 1 : 0.7);
+  if (st.shake) shake(clamp(st.shake - d / 60, 0, st.shake));
+  sfxAt(st.big ? 'explode' : 'hit', x, y, st.big ? 1 : 0.7);
 }
 
 // ---------------- Super-evner ----------------
 function superRange(f) {
   const s = f.br.sup;
   switch (s.type) {
-    case 'tnt': case 'cloud': return s.range * TILE;
+    case 'tnt': case 'cloud': case 'barrage': return s.range * TILE;
+    case 'teleport': return 8 * TILE;
+    case 'selfblast': return 3 * TILE;
     case 'laser': return 14 * TILE;
     case 'charge': return 6 * TILE;
     default: return 5 * TILE;
@@ -338,6 +373,26 @@ function trySuper(f, ang, tx, ty) {
     case 'fort':
       superFort(f, ang);
       break;
+    case 'selfblast':
+      explode(f.x, f.y, s.radius * TILE, s.dmg * m, f, 2600, 'tnt');
+      break;
+    case 'teleport': {
+      const p = clampTarget(f, tx, ty, s.range * TILE);
+      const spot = findFreeSpot(p.x, p.y, true);
+      for (let i = 0; i < 18; i++) particles.push({ x: f.x, y: f.y, vx: rand(-90, 90), vy: rand(-90, 90), z: rand(0, 40), vz: rand(40, 160), life: 0.6, max: 0.6, color: choice(['#c070ff', '#111']), size: rand(4, 8) });
+      f.x = spot.x; f.y = spot.y;
+      explode(f.x, f.y, s.radius * TILE, s.dmg * m, f, 0, 'ender');
+      break;
+    }
+    case 'barrage': {
+      const c = clampTarget(f, tx, ty, s.range * TILE);
+      for (let k = 0; k < s.count; k++) {
+        const a = rand(0, TAU), r = k === 0 ? 0 : rand(0.6, 2.6) * TILE;
+        lobProjectile(f, c.x + Math.cos(a) * r, c.y + Math.sin(a) * r, 'rocketlob',
+          { dmg: s.dmg * m, radius: s.radius * TILE, blockDmg: 900, dur: 0.5 + k * 0.09 });
+      }
+      break;
+    }
   }
   f.superCharge = 0;
   f.superWasReady = false;
@@ -787,7 +842,7 @@ function updateFighter(f, dt) {
     let mx = f.moveX, my = f.moveY;
     const len = Math.hypot(mx, my);
     if (len > 1) { mx /= len; my /= len; }
-    const spd = f.br.speed * (f.inWater ? 0.6 : 1) * (f.healT > 0 ? 0.85 : 1);
+    const spd = f.br.speed * (f.inWater ? 0.6 : 1) * (f.healT > 0 ? 0.85 : 1) * (f.inBush && f.br.id === 'kalle' ? 1.15 : 1);
     if (len > 0.05) {
       moveFighter(f, mx * spd * dt, my * spd * dt);
       f.walkT += dt * 12;

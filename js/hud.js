@@ -137,8 +137,8 @@ function drawHUD(g) {
   }
 
   // --- Trådkors og musehjelp i Fortnite-kameraet ---
-  if (R3.camMode === 'tps' && !Input.usingTouch && p.state === 'play') {
-    if (document.pointerLockElement === canvas) {
+  if (isLookCam() && p.state === 'play') {
+    if (document.pointerLockElement === canvas || Input.usingTouch) {
       g.strokeStyle = 'rgba(255,255,255,0.9)';
       g.lineWidth = 2;
       g.beginPath();
@@ -148,7 +148,7 @@ function drawHUD(g) {
       g.moveTo(W / 2, H / 2 + 3); g.lineTo(W / 2, H / 2 + 10);
       g.stroke();
     } else if (!Game.craftOpen) {
-      outlinedText(g, '🖱️ Klikk for å styre kameraet med musa  •  V = kamera ovenfra', W / 2, H * 0.74, 16, '#fff');
+      outlinedText(g, '🖱️ Klikk for å styre kameraet med musa  •  V = bytt kameravinkel', W / 2, H * 0.74, 16, '#fff');
     }
   }
 
@@ -215,7 +215,7 @@ function drawHUD(g) {
   // --- Kontrollhjelp ---
   if (!Input.usingTouch && Game.time < 45 && p.state === 'play') {
     const lines = ['WASD: gå   •   Mus: se rundt og sikt', 'Venstreklikk: skyt / bygg / bruk', 'Høyreklikk (eller F): grav med hakka',
-      '1–8 / hjul: velg i hotbar   •   Q: rask vegg', 'E / mellomrom: SUPER   •   C: crafting', 'V: bytt kamera (bak skulderen / ovenfra)'];
+      '1–8 / hjul: velg i hotbar   •   Q: rask vegg', 'E / mellomrom: SUPER   •   C: crafting', 'V: bytt kameravinkel (5 forskjellige)'];
     g.globalAlpha = clamp((45 - Game.time) / 3, 0, 0.9);
     g.fillStyle = 'rgba(0,0,0,0.45)';
     roundRect(g, 10, H - 20 - lines.length * 18, 290, lines.length * 18 + 10, 8); g.fill();
@@ -235,7 +235,7 @@ function drawHUD(g) {
       g.beginPath(); g.arc(st.ox + dx * k, st.oy + dy * k, 26, 0, TAU); g.fill();
     };
     drawStick(Input.touch.move, 'rgba(255,255,255,0.6)');
-    drawStick(Input.touch.aim, 'rgba(255,90,90,0.7)');
+    if (Input.touch.aim && !Input.touch.aim.look) drawStick(Input.touch.aim, 'rgba(255,90,90,0.7)');
     const btn = document.getElementById('btnSuper');
     if (btn) {
       const pct = Math.round(p.superCharge * 100);
@@ -266,11 +266,17 @@ function drawPortrait(canvasEl, br) {
 }
 
 function buildMenu() {
+  if (!ownsBrawler(BRAWLERS[Game.selected]) && Game.state === 'play') Game.selected = BRAWLERS.findIndex(ownsBrawler);
+  $('coins').textContent = `🪙 ${Profile.coins}`;
+  $('trophies').textContent = `🏆 ${Profile.trophies}   •   👑 ${Profile.wins} seire`;
+
+  // --- Brawler-kort (butikk) ---
   const list = $('brawlerList');
   list.innerHTML = '';
   BRAWLERS.forEach((br, i) => {
+    const owned = ownsBrawler(br);
     const card = document.createElement('button');
-    card.className = 'card' + (i === Game.selected ? ' selected' : '');
+    card.className = 'card' + (i === Game.selected ? ' selected' : '') + (owned ? '' : ' locked');
     card.style.setProperty('--c', br.color);
     const cv = document.createElement('canvas');
     cv.width = 96; cv.height = 96;
@@ -279,10 +285,15 @@ function buildMenu() {
     const nm = document.createElement('div');
     nm.className = 'card-name';
     nm.textContent = br.name;
-    const rl = document.createElement('div');
-    rl.className = 'card-role';
-    rl.textContent = br.role;
-    card.append(nm, rl);
+    const tag = document.createElement('div');
+    if (owned) {
+      tag.className = 'card-level';
+      tag.textContent = `Nivå ${brawlerLevel(br)}`;
+    } else {
+      tag.className = 'card-price' + (Profile.coins >= br.price ? ' can' : '');
+      tag.textContent = `🔒 🪙 ${br.price}`;
+    }
+    card.append(nm, tag);
     card.addEventListener('click', () => {
       Game.selected = i;
       storageSet('br_brawler', i);
@@ -291,19 +302,78 @@ function buildMenu() {
     });
     list.appendChild(card);
   });
+
+  // --- Info, kjøp og oppgradering ---
   const br = BRAWLERS[Game.selected];
-  const stat = (label, v, max) => `<div class="stat"><span>${label}</span><div class="statbar"><i style="width:${Math.round((v / max) * 100)}%"></i></div></div>`;
+  const owned = ownsBrawler(br);
+  const lvl = owned ? brawlerLevel(br) : 1;
+  const mul = levelMul(lvl);
+  const stat = (label, v, max) => `<div class="stat"><span>${label}</span><div class="statbar"><i style="width:${Math.round(clamp(v / max, 0, 1) * 100)}%"></i></div></div>`;
   const dmgPerAmmo = br.attack.dmg * (br.attack.count || 1);
+  const stars = '★'.repeat(lvl) + '☆'.repeat(MAX_LEVEL - lvl);
   $('brawlerInfo').innerHTML = `
-    <h3 style="color:${br.color}">${br.name}</h3>
-    ${stat('Liv', br.hp, 5400)}
-    ${stat('Skade', dmgPerAmmo, 1800)}
+    <h3 style="color:${br.color}">${br.name} <small>${br.role}</small></h3>
+    <div class="lvl-stars" title="Nivå ${lvl} av ${MAX_LEVEL}">${stars} <span>Nivå ${lvl}/${MAX_LEVEL}</span></div>
+    ${stat(`Liv (${Math.round(br.hp * mul)})`, br.hp * mul, 7000)}
+    ${stat(`Skade (${Math.round(dmgPerAmmo * mul)})`, dmgPerAmmo * mul, 2400)}
     ${stat('Rekkevidde', br.attack.range, 13)}
-    ${stat('Fart', br.speed - 150, 60)}
+    ${stat('Fart', br.speed - 150, 80)}
     <p><b>Angrep:</b> ${br.attack.label}</p>
     <p><b>Super:</b> ${br.sup.label}</p>
     <p><b>Passiv:</b> ${br.passive}</p>`;
-  $('trophies').textContent = `🏆 ${Game.trophies}   •   👑 ${Game.wins} seire`;
+
+  const act = $('brawlerAction');
+  act.innerHTML = '';
+  const btn = document.createElement('button');
+  if (!owned) {
+    const can = Profile.coins >= br.price;
+    btn.className = 'buy-btn';
+    btn.textContent = `Kjøp for 🪙 ${br.price}`;
+    btn.disabled = !can;
+    btn.addEventListener('click', () => {
+      if (buyBrawler(br)) { Sfx.play('cube'); buildMenu(); }
+    });
+    act.appendChild(btn);
+    if (!can) {
+      const msg = document.createElement('div');
+      msg.className = 'need';
+      msg.textContent = `Du mangler ${br.price - Profile.coins} mynter – spill flere runder!`;
+      act.appendChild(msg);
+    }
+  } else {
+    const cost = upgradeCost(br);
+    btn.className = 'up-btn';
+    if (cost === null) {
+      btn.textContent = '⭐ MAKS NIVÅ ⭐';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = `⬆️ Oppgrader til nivå ${lvl + 1} – 🪙 ${cost}<small>+${Math.round(LEVEL_BONUS * 100)} % liv og skade</small>`;
+      btn.disabled = Profile.coins < cost;
+      btn.addEventListener('click', () => {
+        if (upgradeBrawler(br)) { Sfx.play('ready'); buildMenu(); }
+      });
+    }
+    act.appendChild(btn);
+  }
+  const play = $('playBtn');
+  play.disabled = !owned;
+  play.textContent = owned ? 'SPILL!' : 'KJØP FØRST';
+
+  // --- Kameravinkel ---
+  const cams = $('camPicker');
+  cams.innerHTML = '';
+  for (const m of CAMERA_MODES) {
+    const b = document.createElement('button');
+    b.className = 'cam-btn' + (m.id === R3.camMode ? ' selected' : '');
+    b.innerHTML = `<span>${m.icon}</span><b>${m.name}</b><small>${m.desc}</small>`;
+    b.addEventListener('click', () => { setCameraMode(m.id, true); Sfx.play('click'); buildMenu(); });
+    cams.appendChild(b);
+  }
+}
+
+function updatePauseCamLabel() {
+  const m = camModeInfo();
+  $('pauseCamBtn').textContent = `${m.icon} Kamera: ${m.name} (bytt)`;
 }
 
 function openCraft() {
@@ -318,7 +388,7 @@ function closeCraft() {
   const wasOpen = Game.craftOpen;
   Game.craftOpen = false;
   hide('craftPanel');
-  if (wasOpen && Game.state === 'play' && !Game.over && !Game.paused && R3.camMode === 'tps') lockPointer();
+  if (wasOpen && Game.state === 'play' && !Game.over && !Game.paused && isLookCam()) lockPointer();
 }
 
 function refreshCraft() {
@@ -353,20 +423,19 @@ function refreshCraft() {
 function showEndScreen(win) {
   const p = player;
   const place = win ? 1 : p.place;
-  const table = [10, 8, 6, 4, 2, 0, -1, -2, -3, -4];
-  const delta = (table[place - 1] || -4) + p.kills;
-  Game.trophies = Math.max(0, Game.trophies + delta);
-  if (win) Game.wins++;
-  storageSet('br_trophies', Game.trophies);
-  storageSet('br_wins', Game.wins);
+  const r = giveMatchReward(place, p.kills, win);
   $('endTitle').innerHTML = win ? '#1 VICTORY ROYALE!' : `Du ble nr. ${place}`;
   $('endTitle').className = win ? 'win' : '';
   $('endSub').textContent = win ? 'Du er den siste brawleren på øya! 👑'
     : place <= 3 ? 'Så nære! Prøv igjen!' : 'Stormen venter ikke – prøv igjen!';
   $('endStats').innerHTML = `
     <div><b>${p.kills}</b><span>Elimineringer</span></div>
-    <div><b>${p.cubes}</b><span>Kraftkuber</span></div>
     <div><b>${fmtTime(Game.time)}</b><span>Tid overlevd</span></div>
-    <div><b class="${delta >= 0 ? 'plus' : 'minus'}">${delta >= 0 ? '+' : ''}${delta} 🏆</b><span>Trofeer</span></div>`;
+    <div><b class="${r.trophies >= 0 ? 'plus' : 'minus'}">${r.trophies >= 0 ? '+' : ''}${r.trophies} 🏆</b><span>Trofeer</span></div>
+    <div><b class="coin">+${r.coins} 🪙</b><span>Mynter (nå ${Profile.coins})</span></div>`;
+  const next = BRAWLERS.filter((b) => !ownsBrawler(b)).sort((a, b) => a.price - b.price)[0];
+  $('endHint').textContent = next
+    ? (Profile.coins >= next.price ? `Du har råd til ${next.name}! Gå til «Brawlere» for å kjøpe.` : `${next.price - Profile.coins} mynter igjen til ${next.name}`)
+    : 'Du eier alle brawlerne – oppgrader dem til nivå 7!';
   show('endScreen');
 }

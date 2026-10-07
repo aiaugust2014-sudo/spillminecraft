@@ -19,11 +19,18 @@
     <div class="menu-inner">
       <h1 class="logo"><span class="l1">BLOKK</span><span class="l2">ROYALE</span></h1>
       <p class="tagline">Grav som i <b>Minecraft</b> · Bygg som i <b>Fortnite</b> · Slåss som i <b>Brawl Stars</b></p>
-      <div id="trophies" class="trophies"></div>
-      <h2>Velg brawler</h2>
+      <div class="topbar">
+        <div id="coins" class="coins"></div>
+        <div id="trophies" class="trophies"></div>
+      </div>
+      <h2>Brawlere</h2>
+      <p class="sub">Tjen 🪙 mynter i hver runde. Kjøp nye brawlere og oppgrader dem!</p>
       <div id="brawlerList" class="brawler-list"></div>
       <div id="brawlerInfo" class="brawler-info"></div>
+      <div id="brawlerAction" class="brawler-action"></div>
       <button id="playBtn" class="big-btn">SPILL!</button>
+      <h2>Kameravinkel</h2>
+      <div id="camPicker" class="cam-picker"></div>
       <details class="howto">
         <summary>Slik spiller du</summary>
         <ul>
@@ -35,9 +42,10 @@
           <li>🌿 <b>Gjem deg i busker</b> – fiender ser deg ikke før de er helt nær.</li>
           <li>⚡ <b>Lad opp SUPER</b> ved å treffe fiender, og slipp løs kraften.</li>
           <li>🌀 <b>Hold deg unna stormen</b> – den krymper hele tiden. Sistemann vinner!</li>
+          <li>🪙 <b>Tjen mynter</b> for plassering og elimineringer. Kjøp brawlere og oppgrader dem til nivå 7.</li>
         </ul>
-        <p><b>PC:</b> WASD = gå · Mus = se rundt og sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · V = bytt kamera (bak skulderen / ovenfra) · Esc = pause</p>
-        <p><b>Mobil:</b> Venstre tommel = gå · Høyre tommel = sikt og slipp for å skyte (trykk = auto-sikt) · Knappene for super, hakke, vegg og crafting.</p>
+        <p><b>PC:</b> WASD = gå · Mus = se rundt og sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · V = bytt kameravinkel · Esc = pause</p>
+        <p><b>Mobil:</b> Venstre tommel = gå. I Brawl-kameraene: høyre tommel = sikt og slipp for å skyte (trykk = auto-sikt). I Fortnite-kameraene: høyre tommel = se deg rundt, og SKYT-knappen skyter. 🎥-knappen bytter kamera.</p>
       </details>
     </div>
   </div>
@@ -57,6 +65,7 @@
     <div class="box">
       <h2>Pause</h2>
       <button id="resumeBtn" class="big-btn">Fortsett</button>
+      <button id="pauseCamBtn" class="mid-btn">🎥 Kamera</button>
       <button id="soundBtn" class="mid-btn">🔊 Lyd: PÅ</button>
       <button id="quitBtn" class="mid-btn">Avslutt til meny</button>
     </div>
@@ -68,8 +77,9 @@
       <h1 id="endTitle"></h1>
       <p id="endSub"></p>
       <div id="endStats" class="end-stats"></div>
+      <p id="endHint" class="end-hint"></p>
       <button id="againBtn" class="big-btn">SPILL IGJEN</button>
-      <button id="menuBtn" class="mid-btn">Bytt brawler</button>
+      <button id="menuBtn" class="mid-btn">🛒 Brawlere og butikk</button>
     </div>
   </div>
 
@@ -77,6 +87,8 @@
   <div id="touchUI" class="hidden">
     <button id="btnPause" class="tbtn small">II</button>
     <button id="btnCraft" class="tbtn small">🛠️</button>
+    <button id="btnCam" class="tbtn small">🎥</button>
+    <button id="btnFire" class="tbtn fire hidden">🔫<span>SKYT</span></button>
     <button id="btnWall" class="tbtn">🧱<span>VEGG</span></button>
     <button id="btnMine" class="tbtn">⛏️<span>GRAV</span></button>
     <button id="btnSuper" class="tbtn super">⚡<span>SUPER</span></button>
@@ -88,6 +100,7 @@
   <script src="js/textures.js"></script>
   <script src="js/world.js"></script>
   <script src="js/storm.js"></script>
+  <script src="js/progress.js"></script>
   <script src="js/combat.js"></script>
   <script src="js/ai.js"></script>
   <script src="js/draw2d.js"></script>

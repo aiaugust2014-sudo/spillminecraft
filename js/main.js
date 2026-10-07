@@ -12,9 +12,7 @@ const Game = {
   cam: { x: WORLD_W / 2, y: WORLD_H / 2, zoom: 1, shake: 0 },
   announces: [], slotNameT: -9, superBtn: null, lastPOI: null, spectate: null,
   selected: clamp(storageGet('br_brawler', 0) | 0, 0, BRAWLERS.length - 1),
-  trophies: storageGet('br_trophies', 0) | 0,
-  wins: storageGet('br_wins', 0) | 0,
-  menuT: 0,
+  menuT: 0, reward: null,
 };
 
 function resize() {
@@ -41,11 +39,16 @@ function startGame() {
   generateWorld(Math.floor(Math.random() * 1e9));
   initStorm();
   initBus();
-  player = createFighter(Game.selected, 'Du', true);
+  if (!ownsBrawler(BRAWLERS[Game.selected])) Game.selected = BRAWLERS.findIndex(ownsBrawler);
+  const myLevel = brawlerLevel(BRAWLERS[Game.selected]);
+  player = createFighter(Game.selected, 'Du', true, myLevel);
   fighters.push(player);
+  Game.reward = null;
   const names = shuffle(BOT_NAMES.slice());
   for (let i = 0; i < NUM_FIGHTERS - 1; i++) {
-    const f = createFighter(randi(0, BRAWLERS.length - 1), names[i], false);
+    // Botene er omtrent like sterke som deg
+    const lvl = clamp(myLevel + randi(-1, 1), 1, MAX_LEVEL);
+    const f = createFighter(randi(0, BRAWLERS.length - 1), names[i], false, lvl);
     f.bot = newBrain();
     fighters.push(f);
   }
@@ -90,6 +93,7 @@ function togglePause() {
   if (Game.paused) {
     releasePointer();
     $('soundBtn').textContent = Sfx.enabled ? '🔊 Lyd: PÅ' : '🔇 Lyd: AV';
+    updatePauseCamLabel();
     show('pausePanel');
   } else hide('pausePanel');
 }
@@ -173,17 +177,19 @@ function loop(ts) {
 }
 
 function init() {
+  loadProfile();
+  if (!ownsBrawler(BRAWLERS[Game.selected])) Game.selected = BRAWLERS.findIndex(ownsBrawler);
   buildTextures();
   initRenderer3D();
   resize();
   window.addEventListener('resize', resize);
   setupInput();
-  $('playBtn').addEventListener('click', () => { Sfx.init(); Sfx.play('click'); startGame(); if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer(); });
-  $('againBtn').addEventListener('click', () => { Sfx.play('click'); startGame(); if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer(); });
+  $('playBtn').addEventListener('click', () => { Sfx.init(); Sfx.play('click'); startGame(); if (isLookCam()) lockPointer(); });
+  $('againBtn').addEventListener('click', () => { Sfx.play('click'); startGame(); if (isLookCam()) lockPointer(); });
   $('menuBtn').addEventListener('click', () => { Sfx.play('click'); goToMenu(); });
   $('resumeBtn').addEventListener('click', () => {
     togglePause();
-    if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer();
+    if (isLookCam()) lockPointer();
   });
   $('quitBtn').addEventListener('click', () => goToMenu());
   $('soundBtn').addEventListener('click', () => {
@@ -191,6 +197,7 @@ function init() {
     $('soundBtn').textContent = on ? '🔊 Lyd: PÅ' : '🔇 Lyd: AV';
   });
   $('craftClose').addEventListener('click', () => closeCraft());
+  $('pauseCamBtn').addEventListener('click', () => { cycleCamera(); updatePauseCamLabel(); });
   goToMenu();
   requestAnimationFrame(loop);
 }

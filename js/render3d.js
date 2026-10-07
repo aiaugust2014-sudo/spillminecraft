@@ -15,7 +15,7 @@ const R3 = {
   particles: null, stormWall: null, nextRing: null, nextRingR: -1,
   bus: null, aimGroup: null, aimRect: null, aimSector: null, aimSectorKey: '', aimRing: null,
   ghost: null, mineBox: null, raycaster: null, groundPlane: null,
-  camMode: 'tps', yaw: -Math.PI / 2, pitch: 0.42, lowGfx: false,
+  camMode: 'fortnite', yaw: -Math.PI / 2, pitch: 0.42, lowGfx: false,
   iconTex: {}, mats: {}, tmpM: null, tmpV: null, tmpQ: null, tmpS: null, tmpC: null,
 };
 
@@ -74,7 +74,7 @@ function initRenderer3D() {
   scene.fog = new THREE.Fog('#8fd3ff', 40, 90);
   R3.scene = scene;
   R3.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 500);
-  R3.camMode = R3.lowGfx ? 'top' : storageGet('br_cam', 'tps');
+  R3.camMode = camModeInfo(storageGet('br_cam', 'fortnite')).id;
 
   R3.hemi = new THREE.HemisphereLight(0xe8f6ff, 0x5a7a40, 1.9);
   scene.add(R3.hemi);
@@ -342,13 +342,17 @@ function syncOverlays() {
   const p = player;
   R3.aimGroup.visible = false; R3.aimRing.visible = false; R3.ghost.visible = false; R3.mineBox.visible = false;
   if (!p || !p.alive || p.state !== 'play' || Game.over) return;
-  const showAim = !(Input.usingTouch && !Input.touch.aim);
+  const showAim = !Input.usingTouch || isLookCam() || !!Input.touch.aim;
   const slot = HOTBAR[p.slot];
   const px = p.x / TILE, pz = p.y / TILE;
   if (showAim) {
     if (slot === 'weapon') {
       const a = p.br.attack;
-      if (a.type === 'lob') {
+      if (a.type === 'nova') {
+        R3.aimRing.visible = true;
+        R3.aimRing.position.set(px, 0.05, pz);
+        R3.aimRing.scale.setScalar(a.radius);
+      } else if (a.type === 'lob') {
         const t = clampTarget(p, Input.wx, Input.wy, a.range * TILE);
         R3.aimRing.visible = true;
         R3.aimRing.position.set(t.x / TILE, 0.05, t.y / TILE);
@@ -383,7 +387,8 @@ function syncOverlays() {
       R3.aimRing.scale.setScalar(slot === 'tnt' ? 2.3 : 0.45);
     }
   }
-  const mt = mineTarget(p, p.aim, Input.usingTouch ? null : Input.wx, Input.usingTouch ? null : Input.wy);
+  const free = Input.usingTouch && !isLookCam();
+  const mt = mineTarget(p, p.aim, free ? null : Input.wx, free ? null : Input.wy);
   if (mt) {
     const b = getBlock(mt.tx, mt.ty);
     R3.mineBox.visible = true;
@@ -439,6 +444,21 @@ function buildCharacterModel(br) {
     box(head, 1.6, 1.6, 0.6, '#ff3a3a', -2.4, hs * 0.55, fz);
     box(head, 1.6, 1.6, 0.6, '#ff3a3a', 2.4, hs * 0.55, fz);
     box(head, 2.2, 4.5, 1.8, '#a8a397', 0, hs * 0.35, fz + 0.6);
+  } else if (L.creeper) {
+    // Det klassiske creeper-fjeset
+    for (const sx2 of [-2.4, 2.4]) box(head, 2.6, 2.6, 0.5, '#111', sx2, hs * 0.62, fz);
+    box(head, 2.2, 3.4, 0.5, '#111', 0, hs * 0.36, fz);
+    for (const sx2 of [-1.7, 1.7]) box(head, 1.4, 2.4, 0.5, '#111', sx2, hs * 0.22, fz);
+    box(body, bw + 0.2, 2, 5.4, '#3d8b40', 0, 18, 0);
+    box(body, 3, 3, 5.4, '#6fd36f', -2, 13, 0);
+  } else if (L.ender) {
+    const eyeM = basicMat('#e070ff');
+    for (const sx2 of [-2.6, 2.6]) {
+      const e = new THREE.Mesh(UNIT_BOX, eyeM);
+      e.scale.set(3.2, 1.3, 0.5);
+      e.position.set(sx2, hs * 0.52, fz);
+      head.add(e);
+    }
   } else {
     box(head, 2.4, 1.8, 0.5, '#ffffff', -2.4, hs * 0.52, fz);
     box(head, 2.4, 1.8, 0.5, '#ffffff', 2.4, hs * 0.52, fz);
@@ -452,6 +472,10 @@ function buildCharacterModel(br) {
     box(head, hs + 1.6, hs, 1.4, L.hood, 0, hs / 2, -hs / 2 - 0.6);
     box(head, 1.4, hs, hs + 1.6, L.hood, -hs / 2 - 0.6, hs / 2, 0);
     box(head, 1.4, hs, hs + 1.6, L.hood, hs / 2 + 0.6, hs / 2, 0);
+  }
+  if (L.goggles) {
+    box(head, hs + 0.8, 1.6, hs + 0.8, '#3a2a1a', 0, hs * 0.78, 0);
+    for (const sx2 of [-2.4, 2.4]) box(head, 3.4, 2.8, 1, L.goggles, sx2, hs * 0.78, fz + 0.4);
   }
   if (L.helmet) {
     box(head, hs + 1.2, 4, hs + 1.2, L.helmet, 0, hs + 1, 0);
@@ -484,6 +508,12 @@ function buildCharacterModel(br) {
   if (t === 'lob') {
     box(gun, 4, 4.5, 4, '#3fd0ff', 0, -13, 0);
     box(gun, 1.8, 2, 1.8, '#cfe8ff', 0, -16, 0);
+  } else if (t === 'nova') {
+    // Ingen våpen – Kalle eksploderer selv
+  } else if (t === 'rocket') {
+    box(gun, 4.8, 17, 4.8, L.gun, 0, -13, 0);
+    box(gun, 3.6, 1.5, 3.6, '#ff5a3a', 0, -21.5, 0);
+    box(gun, 2, 4, 2, '#222', 0, -9, 3);
   } else if (t === 'single') {
     box(gun, 2, 10, 2, L.gun, 0, -14, 0);
     box(gun, 12, 1.2, 1.2, '#3a2410', 0, -17, 0);
@@ -549,7 +579,7 @@ function syncFighters() {
       R3.scene.add(md.root);
       R3.models.set(f.id, md);
     }
-    const hidden = isHiddenFromPlayer(f);
+    const hidden = isHiddenFromPlayer(f) || (f === player && R3.camMode === 'fps' && f.state === 'play');
     md.root.visible = !hidden;
     if (hidden) continue;
     const glide = f.state === 'glide';
@@ -608,7 +638,10 @@ function makeProjectileMesh(p) {
   if (p.lob) {
     const g = new THREE.Group();
     let body;
-    if (p.kind === 'tnt') {
+    if (p.kind === 'rocketlob') {
+      body = new THREE.Mesh(UNIT_BOX, basicMat('#e74c3c'));
+      body.scale.set(0.16, 0.16, 0.42);
+    } else if (p.kind === 'tnt') {
       const t = iconTexture('tnt');
       body = new THREE.Mesh(UNIT_BOX, new THREE.MeshLambertMaterial({ map: t }));
       body.scale.setScalar(p.big ? 0.6 : 0.45);
@@ -623,6 +656,22 @@ function makeProjectileMesh(p) {
     g.add(mark);
     g.userData.body = body;
     g.userData.mark = mark;
+    return g;
+  }
+  if (p.kind === 'rocket') {
+    const g = new THREE.Group();
+    const bodyM = new THREE.Mesh(UNIT_BOX, basicMat('#d63a2a'));
+    bodyM.scale.set(0.14, 0.14, 0.46);
+    const nose = new THREE.Mesh(UNIT_BOX, basicMat('#f2f2f2'));
+    nose.scale.set(0.1, 0.1, 0.12);
+    nose.position.z = 0.28;
+    const fin = new THREE.Mesh(UNIT_BOX, basicMat('#333'));
+    fin.scale.set(0.3, 0.04, 0.1);
+    fin.position.z = -0.2;
+    const flame = new THREE.Mesh(UNIT_BOX, basicMat('#ffb030'));
+    flame.scale.set(0.09, 0.09, 0.2);
+    flame.position.z = -0.32;
+    g.add(bodyM, nose, fin, flame);
     return g;
   }
   if (p.kind === 'arrow') {
@@ -776,38 +825,53 @@ function updateCamera3D(dt) {
       const bx = Bus.x / TILE, bz = Bus.y / TILE;
       const fx = Math.cos(R3.yaw), fz = Math.sin(R3.yaw);
       const want = R3.tmpV.set(bx - fx * 16, 22, bz - fz * 16);
-      if (R3.camMode === 'top') want.set(bx, 32 * aspectBoost, bz + 20 * aspectBoost);
+      if (!isLookCam()) want.set(bx, 32 * aspectBoost, bz + 20 * aspectBoost);
       cam.position.lerp(want, 1 - Math.pow(0.02, dt));
       cam.lookAt(bx, 6, bz);
       fogNear = 60; fogFar = 170;
     } else if (tg) {
       const gl = tg.state === 'glide' ? clamp(tg.glideT / 3.4, 0, 1) : 0;
       const x = tg.x / TILE, z = tg.y / TILE, y = gl * 8;
-      if (R3.camMode === 'top' || tg !== player) {
-        const h = (13 + gl * 10) * aspectBoost, back = (9 + gl * 6) * aspectBoost;
+      let mode = tg === player ? R3.camMode : 'brawl';
+      if (mode === 'fps' && gl > 0) mode = 'fortnite';
+      if (mode === 'brawl' || mode === 'bird') {
+        const bird = mode === 'bird';
+        const h = ((bird ? 24 : 13) + gl * 10) * aspectBoost, back = ((bird ? 2.5 : 9) + gl * 6) * aspectBoost;
         const want = R3.tmpV.set(x + sh(), y + h + sh(), z + back);
         cam.position.lerp(want, 1 - Math.pow(0.0005, dt));
-        cam.lookAt(x, y, z - 0.6);
-        fogNear = 30 + gl * 30; fogFar = 75 + gl * 60;
+        cam.lookAt(x, y, z - (bird ? 0.2 : 0.6));
+        fogNear = (bird ? 40 : 30) + gl * 30; fogFar = (bird ? 95 : 75) + gl * 60;
+      } else if (mode === 'fps') {
+        // Førsteperson: kameraet sitter i øynene til brawleren
+        const fx = Math.cos(R3.yaw), fz = Math.sin(R3.yaw);
+        const look = R3.pitch - 0.45;
+        const eye = CHAR_H * (tg.br.r / 17) * 0.88 + (tg.inWater ? -0.25 : 0);
+        cam.position.set(x + fx * 0.22 + sh(), y + eye + sh(), z + fz * 0.22);
+        cam.lookAt(cam.position.x + fx * Math.cos(look), cam.position.y - Math.sin(look), cam.position.z + fz * Math.cos(look));
+        fogNear = 24; fogFar = 60;
       } else {
+        // Fortnite (bak karakteren) og Skulder (tett over skulderen)
+        const close = mode === 'shoulder';
         const fx = Math.cos(R3.yaw), fz = Math.sin(R3.yaw);
         const rx = -fz, rz = fx;
-        const hx = x + rx * 0.85, hz = z + rz * 0.85, hy = y + 1.55;
-        const maxD = 5.2 + gl * 4;
+        const side = close ? 1.0 : 0.55;
+        const hx = x + rx * side, hz = z + rz * side, hy = y + (close ? 1.5 : 1.65);
+        const maxD = (close ? 3.0 : 6.2) + gl * 4;
         // Er det trangt bak deg, løftes kameraet over veggene i stedet for å krype inntil deg
         let pitch = R3.pitch, dist = 0;
         for (const pc of [R3.pitch, 0.75, 0.95, 1.15, 1.3]) {
           if (pc < R3.pitch) continue;
           const d = cameraClearDistance(hx, hy, hz, -fx * Math.cos(pc), Math.sin(pc), -fz * Math.cos(pc), maxD);
           if (d > dist + 0.01) { dist = d; pitch = pc; }
-          if (d >= Math.min(maxD, 3.6)) break;
+          if (d >= Math.min(maxD, 2.8)) break;
         }
         R3.camPitchNow = lerp(R3.camPitchNow || pitch, pitch, 1 - Math.pow(0.001, dt));
         pitch = R3.camPitchNow;
         dist = cameraClearDistance(hx, hy, hz, -fx * Math.cos(pitch), Math.sin(pitch), -fz * Math.cos(pitch), maxD);
         cam.position.set(hx - fx * dist * Math.cos(pitch) + sh(), hy + dist * Math.sin(pitch) + sh(), hz - fz * dist * Math.cos(pitch));
-        cam.lookAt(hx + fx * 6, hy - 0.4, hz + fz * 6);
-        fogNear = 26; fogFar = 62;
+        const ahead = close ? 6 : 8;
+        cam.lookAt(hx + fx * ahead, hy - (close ? 0.3 : 0.5), hz + fz * ahead);
+        fogNear = 26; fogFar = 64;
       }
     }
   }
@@ -851,13 +915,23 @@ function worldToScreen(x, h, y) {
   return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H };
 }
 
-function toggleCameraMode() {
-  if (Input.usingTouch) return;
-  R3.camMode = R3.camMode === 'tps' ? 'top' : 'tps';
+const camModeInfo = (id = R3.camMode) => CAMERA_MODES.find((m) => m.id === id) || CAMERA_MODES[0];
+const isLookCam = () => camModeInfo().look;
+
+function setCameraMode(id, quiet) {
+  const prevLook = isLookCam();
+  R3.camMode = camModeInfo(id).id;
   storageSet('br_cam', R3.camMode);
-  if (R3.camMode === 'top' && document.pointerLockElement) document.exitPointerLock();
-  if (R3.camMode === 'tps' && player) R3.yaw = player.aim;
-  announce(R3.camMode === 'tps' ? '🎥 Fortnite-kamera (bak skulderen)' : '🎥 Brawl-kamera (ovenfra)', '#fff', 0.7);
+  if (!isLookCam() && document.pointerLockElement) releasePointer();
+  if (isLookCam() && !prevLook && player) R3.yaw = player.aim;
+  if (Input.usingTouch) updateTouchButtons();
+  const m = camModeInfo();
+  if (!quiet && Game.state === 'play') announce(`${m.icon} Kamera: ${m.name} – ${m.desc}`, '#fff', 0.7);
+}
+
+function cycleCamera() {
+  const i = CAMERA_MODES.findIndex((m) => m.id === R3.camMode);
+  setCameraMode(CAMERA_MODES[(i + 1) % CAMERA_MODES.length].id);
 }
 
 // ---------------- 2D-lag oppå 3D: navn, livsbarer, skadetall ----------------
@@ -887,6 +961,7 @@ function drawWorldOverlay(g) {
   const camPos = R3.camera.position;
   for (const f of fighters) {
     if (!f.alive || f.state === 'bus' || isHiddenFromPlayer(f)) continue;
+    if (f === player && R3.camMode === 'fps' && f.state === 'play') continue;
     const glide = f.state === 'glide';
     const lift = glide ? 1 + 8 * clamp(f.glideT / 3.4, 0, 1) + 2.4 : 0;
     const s = worldToScreen(f.x, lift + CHAR_H * (f.br.r / 17) + 0.45, f.y);

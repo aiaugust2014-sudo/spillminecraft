@@ -9,12 +9,25 @@ Grav som i Minecraft, bygg som i Fortnite og slåss som i Brawl Stars. Ti brawle
 Ingen installasjon trengs. Åpne `blokk-royale.html` (hele spillet i én fil) eller `index.html` i nettleseren (Chrome, Edge, Firefox eller Safari).
 Spillet virker både på PC og mobil/nettbrett. Det er i ekte 3D (Three.js/WebGL), så en nyere nettleser trengs.
 
-### To kameraer – trykk **V** for å bytte
+### 5 kameravinkler – trykk **V** (eller 🎥 på mobil) for å bytte
 
-- **Fortnite-kamera** (bak skulderen): Klikk i spillet, så styrer musa kameraet. Du sikter med trådkorset, og W går dit kameraet ser.
-- **Brawl-kamera** (ovenfra): Du ser slagmarken skrått ovenfra og sikter med musepekeren. Dette brukes alltid på mobil.
+| Kamera | Slik er det |
+|---|---|
+| 🎮 **Fortnite** | Bak karakteren. Musa (eller høyre tommel) styrer kameraet, og du sikter med trådkorset. |
+| 🎯 **Skulder** | Tett over skulderen, for presis sikting |
+| 👀 **Førsteperson** | Du ser med øynene til brawleren, som i Minecraft |
+| ⭐ **Brawl** | Skrått ovenfra, og du sikter med musepekeren |
+| 🦅 **Fugleperspektiv** | Rett ovenfra, så du ser mye av kartet |
 
-> Tips: Slår du på **GitHub Pages** for repoet (Settings → Pages → «Deploy from a branch»), kan du spille på `https://<brukernavn>.github.io/spillminecraft/` – også på mobilen.
+Du kan også velge kamera i menyen og i pausemenyen.
+
+## Mynter, butikk og oppgraderinger 🪙
+
+- Du får **mynter** etter hver runde: opptil 150 for plasseringen og 20 for hver eliminering.
+- Du starter med **Kubekriger** og 200 mynter. De andre brawlerne **kjøper** du i menyen.
+- Hver brawler kan **oppgraderes** fra nivå 1 til nivå 7. Hvert nivå gir +8 % liv og skade.
+- Bot-ene får omtrent samme nivå som deg, så det forblir spennende.
+- Alt lagres i nettleseren.
 
 ## Hva er hentet fra hvert spill?
 
@@ -28,13 +41,16 @@ Spillet virker både på PC og mobil/nettbrett. Det er i ekte 3D (Three.js/WebGL
 
 ## Brawlere
 
-| Brawler | Rolle | Angrep | SUPER | Passiv |
-|---|---|---|---|---|
-| **Kubekriger** | Allrounder | 3 raske skudd | TNT-kast som sprenger blokker | Graver 50 % raskere |
-| **Skarpskytter Siri** | Snikskytter | Armbrøst med lang rekkevidde | Diamantlaser gjennom alt | Ser fiender i busker lenger unna |
-| **Tanks-Tor** | Tank | Hagle på kort hold | Golem-stormløp som knuser vegger | Tåler stormen bedre |
-| **Heksa Hedda** | Kaster | Trylledrikk som kastes over vegger | Giftsky | Bandasjer helbreder dobbelt |
-| **Bygg-Bjørn** | Bygger | 3 spiker i vifte | Metallvegg + vakttårn | Bygger til halv pris |
+| Brawler | Pris | Rolle | Angrep | SUPER | Passiv |
+|---|---|---|---|---|---|
+| **Kubekriger** | Gratis | Allrounder | 3 raske skudd | TNT-kast som sprenger blokker | Graver 50 % raskere |
+| **Skarpskytter Siri** | 🪙 150 | Snikskytter | Armbrøst med lang rekkevidde | Diamantlaser gjennom alt | Ser fiender i busker lenger unna |
+| **Tanks-Tor** | 🪙 250 | Tank | Hagle på kort hold | Golem-stormløp som knuser vegger | Tåler stormen bedre |
+| **Heksa Hedda** | 🪙 350 | Kaster | Trylledrikk som kastes over vegger | Giftsky | Bandasjer helbreder dobbelt |
+| **Bygg-Bjørn** | 🪙 450 | Bygger | 3 spiker i vifte | Metallvegg + vakttårn | Bygger til halv pris |
+| **Creeper-Kalle** | 🪙 600 | Nærkamp | Sssst-puls rundt seg | KABOOM – kjempeeksplosjon | Raskere i busker |
+| **Ender-Embla** | 🪙 900 | Snikmorder | 2 raske enderkuler | Teleport dit du sikter | Avsløres ikke i busker når hun skyter |
+| **Rakett-Rakel** | 🪙 1500 | Artilleri | Raketter som eksploderer | Rakettregn – 7 raketter | Knuser blokker ekstra lett |
 
 ## Kontroller
 
@@ -44,7 +60,7 @@ Spillet virker både på PC og mobil/nettbrett. Det er i ekte 3D (Three.js/WebGL
 |---|---|
 | WASD / piltaster | Gå |
 | Mus | Se rundt og sikt (klikk først for å låse musa i Fortnite-kameraet) |
-| V | Bytt kamera: bak skulderen / ovenfra |
+| V | Bytt kameravinkel (5 stykker) |
 | Venstreklikk | Skyt / bygg / bruk det du har valgt i hotbaren |
 | Høyreklikk eller F | Grav med hakka (slår også fiender) |
 | 1–8 eller musehjulet | Velg plass i hotbaren |
@@ -53,7 +69,10 @@ Spillet virker både på PC og mobil/nettbrett. Det er i ekte 3D (Three.js/WebGL
 | C | Crafting |
 | Esc | Pause (slipper også musa) |
 
-**Mobil:** Venstre tommel styrer. Med høyre tommel sikter du, og når du slipper, skyter du (trykker du bare, sikter spillet automatisk). Egne knapper for SUPER, GRAV, VEGG og crafting.
+**Mobil:** Venstre tommel styrer.
+- I Fortnite-, Skulder- og Førsteperson-kameraet ser du deg rundt med høyre tommel og skyter med SKYT-knappen.
+- I Brawl- og Fugleperspektiv-kameraet sikter du med høyre tommel og skyter når du slipper. Trykker du bare, sikter spillet automatisk.
+- Egne knapper for SUPER, GRAV, VEGG, crafting og 🎥 kamera.
 
 ## Crafting-oppskrifter
 
@@ -85,6 +104,7 @@ js/hud.js       – HUD og menyer
 js/input.js     – tastatur, mus og berøring
 js/textures.js  – pikselteksturer
 js/audio.js     – lydeffekter
+js/progress.js  – mynter, kjøp og oppgraderinger (lagres i nettleseren)
 js/main.js      – hovedløkka
 vendor/         – Three.js
 build-single.py – lager blokk-royale.html

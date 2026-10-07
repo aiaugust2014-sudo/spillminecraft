@@ -247,3 +247,69 @@ h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
 #btnSuper.ready { box-shadow: 0 0 18px #ffd23f; border-color: #ffd23f; }
 #btnMine { right: 104px; bottom: 120px; }
 #btnWall { right: 40px; bottom: 216px; }
+
+/* ---------- Butikk og nivåer ---------- */
+.topbar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .trophies { margin-bottom: 0; }
+.coins {
+  display: inline-block;
+  background: linear-gradient(180deg, #ffe36a, #f0a81a);
+  color: #4a2c00;
+  border: 3px solid #000;
+  border-radius: 999px;
+  padding: 4px 16px;
+  font-size: 20px;
+  box-shadow: 0 3px 0 #000;
+}
+.sub { color: #d8d0ff; font-family: system-ui, sans-serif; font-size: 14px; margin: -6px 0 12px; }
+.card { position: relative; }
+.card.locked canvas { filter: grayscale(0.85) brightness(0.6); }
+.card-level { font-size: 12px; color: #fff; background: rgba(0, 0, 0, 0.45); border-radius: 8px; padding: 1px 8px; display: inline-block; margin-top: 2px; }
+.card-price { font-size: 13px; color: #ffd8a0; margin-top: 2px; }
+.card-price.can { color: #7dff8a; }
+.brawler-info h3 small { font-size: 14px; color: #cfc6ff; margin-left: 6px; }
+.lvl-stars { color: #ffd23f; font-size: 18px; letter-spacing: 2px; margin-bottom: 6px; }
+.lvl-stars span { color: #e6dcff; font-size: 13px; letter-spacing: 0; margin-left: 6px; font-family: system-ui, sans-serif; }
+.brawler-action { margin: -6px auto 8px; }
+.buy-btn, .up-btn {
+  display: block;
+  margin: 0 auto;
+  min-width: 260px;
+  padding: 10px 22px;
+  font-size: 20px;
+  color: #fff;
+  border: 3px solid #000;
+  border-radius: 14px;
+  box-shadow: 0 5px 0 #000;
+  text-shadow: 0 2px 0 #000;
+}
+.buy-btn { background: linear-gradient(180deg, #4cd964, #2a9d3f); }
+.up-btn { background: linear-gradient(180deg, #b06bff, #7a3fd0); }
+.up-btn small { display: block; font-size: 12px; font-family: system-ui, sans-serif; text-shadow: none; opacity: 0.9; }
+.buy-btn:disabled, .up-btn:disabled { background: #5a5470; color: #c8c2dc; cursor: not-allowed; }
+.buy-btn:not(:disabled):active, .up-btn:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 #000; }
+.need { margin-top: 8px; color: #ffcf9a; font-family: system-ui, sans-serif; font-size: 13px; }
+.big-btn:disabled { background: #5a5470; cursor: not-allowed; }
+.end-hint { margin: 0 0 12px; color: #ffe36a !important; }
+.coin { color: #ffd23f; }
+
+/* ---------- Kameravalg ---------- */
+.cam-picker { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+.cam-btn {
+  width: 132px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 3px solid #000;
+  background: linear-gradient(180deg, #4a3a8a, #2a1f5a);
+  color: #fff;
+  box-shadow: 0 4px 0 #000;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.cam-btn span { font-size: 22px; }
+.cam-btn b { font-weight: normal; font-size: 15px; }
+.cam-btn small { font-size: 11px; color: #cfc6ff; font-family: system-ui, sans-serif; }
+.cam-btn.selected { outline: 4px solid #ffd23f; background: linear-gradient(180deg, #6a52c8, #3a2a7a); }
+
+/* ---------- Mobil: kamera og skyt ---------- */
+#btnCam { top: calc(env(safe-area-inset-top, 0px) + 78px); left: 112px; }
+#btnFire { right: 118px; bottom: 210px; width: 78px; height: 78px; font-size: 24px; background: rgba(200, 40, 40, 0.55); }

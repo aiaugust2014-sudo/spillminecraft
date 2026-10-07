@@ -38,7 +38,12 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillStyle = C(L.shirt); g.fillRect(0, -3, 10, 6);
       g.fillStyle = C(L.skin); g.fillRect(9, -3, 4, 6);
       g.fillStyle = C(L.gun);
-      if (br.attack.type === 'lob') {
+      if (br.attack.type === 'nova') {
+        g.fillStyle = C(L.skin); g.fillRect(9, -3, 5, 6);
+      } else if (br.attack.type === 'rocket') {
+        g.fillRect(6, -5, 22, 10);
+        g.fillStyle = C('#ff5a3a'); g.fillRect(26, -5, 3, 10);
+      } else if (br.attack.type === 'lob') {
         g.fillRect(12, -6, 8, 9);
         g.fillStyle = C('#cfe8ff'); g.fillRect(14, -9, 4, 3);
       } else if (br.attack.type === 'single') {
@@ -79,7 +84,14 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
   }
   if (!back) {
     const ex = face * 2.5;
-    if (L.golem) {
+    if (L.creeper) {
+      g.fillStyle = C('#111');
+      g.fillRect(-6, hy + 5, 4, 4); g.fillRect(2, hy + 5, 4, 4);
+      g.fillRect(-2, hy + 9, 4, 5); g.fillRect(-4, hy + 11, 2, 4); g.fillRect(2, hy + 11, 2, 4);
+    } else if (L.ender) {
+      g.fillStyle = C('#e070ff');
+      g.fillRect(ex - 8, hy + 8, 6, 2); g.fillRect(ex + 2, hy + 8, 6, 2);
+    } else if (L.golem) {
       g.fillStyle = C('#5b5850'); g.fillRect(-hs / 2, hy + 6, hs, 3);
       g.fillStyle = C('#d33'); g.fillRect(ex - 6, hy + 9, 3, 3); g.fillRect(ex + 3, hy + 9, 3, 3);
       g.fillStyle = C('#a8a397'); g.fillRect(ex - 2, hy + 9, 4, 8);
@@ -91,6 +103,10 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillRect(ex + 2 + (face > 0 ? 2 : 0), hy + 8, 2, 3);
       g.fillStyle = C('rgba(0,0,0,0.25)'); g.fillRect(ex - 3, hy + 13, 6, 2);
     }
+  }
+  if (L.goggles) {
+    g.fillStyle = C('#3a2a1a'); g.fillRect(-hs / 2, hy + 2, hs, 3);
+    g.fillStyle = C(L.goggles); g.fillRect(-7, hy + 1, 5, 5); g.fillRect(2, hy + 1, 5, 5);
   }
   if (L.hood) {
     g.fillStyle = C(L.hood);

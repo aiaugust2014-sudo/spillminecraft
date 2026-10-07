@@ -64,7 +64,7 @@ const RECIPES = [
 // ------------------------------------------------------------
 const BRAWLERS = [
   {
-    id: 'kube', name: 'Kubekriger', role: 'Allrounder', hp: 3800, speed: 210, reload: 1.25, r: 17,
+    id: 'kube', price: 0, name: 'Kubekriger', role: 'Allrounder', hp: 3800, speed: 210, reload: 1.25, r: 17,
     color: '#2fa4d9', superNeed: 2600,
     look: { shirt: '#2fa4d9', pants: '#3346a8', skin: '#e0ac7a', hair: '#4a2f1b', gun: '#555' },
     attack: { type: 'burst', count: 3, gap: 0.09, dmg: 420, range: 9, speed: 950, spread: 0.05,
@@ -73,7 +73,7 @@ const BRAWLERS = [
     passive: 'Graver 50 % raskere',
   },
   {
-    id: 'siri', name: 'Skarpskytter Siri', role: 'Snikskytter', hp: 2700, speed: 205, reload: 1.9, r: 16,
+    id: 'siri', price: 150, name: 'Skarpskytter Siri', role: 'Snikskytter', hp: 2700, speed: 205, reload: 1.9, r: 16,
     color: '#3e9c4f', superNeed: 2300,
     look: { shirt: '#3e9c4f', pants: '#6b4a2b', skin: '#f1c9a0', hair: '#e8c34a', hood: '#2d6b37', gun: '#7a5230' },
     attack: { type: 'single', dmg: 1150, range: 13, speed: 1500, label: 'Armbrøst – lang rekkevidde, stor skade' },
@@ -81,8 +81,8 @@ const BRAWLERS = [
     passive: 'Ser fiender i busker på lengre avstand',
   },
   {
-    id: 'tor', name: 'Tanks-Tor', role: 'Tank', hp: 5400, speed: 192, reload: 1.55, r: 20,
-    color: '#c9c5bb', superNeed: 2400,
+    id: 'tor', price: 250, name: 'Tanks-Tor', role: 'Tank', hp: 5000, speed: 192, reload: 1.55, r: 20,
+    color: '#c9c5bb', superNeed: 2800,
     look: { shirt: '#cfcac0', pants: '#a39e93', skin: '#c4bfb4', hair: null, golem: true, gun: '#444' },
     attack: { type: 'shotgun', count: 5, spread: 0.6, dmg: 300, range: 5, speed: 850,
       label: 'Jernhagle – 5 kuler på kort hold' },
@@ -90,7 +90,7 @@ const BRAWLERS = [
     passive: 'Tar 35 % mindre stormskade',
   },
   {
-    id: 'hedda', name: 'Heksa Hedda', role: 'Kaster', hp: 3000, speed: 205, reload: 1.6, r: 16,
+    id: 'hedda', price: 350, name: 'Heksa Hedda', role: 'Kaster', hp: 3000, speed: 205, reload: 1.6, r: 16,
     color: '#a05ad0', superNeed: 2600,
     look: { shirt: '#7b3fa0', pants: '#4b2463', skin: '#b9e09a', hair: '#222', witch: '#2a1638', gun: '#3fd0ff' },
     attack: { type: 'lob', dmg: 1050, radius: 1.4, range: 8, label: 'Trylledrikk – kastes OVER vegger' },
@@ -98,14 +98,60 @@ const BRAWLERS = [
     passive: 'Bandasjer helbreder dobbelt',
   },
   {
-    id: 'bjorn', name: 'Bygg-Bjørn', role: 'Bygger', hp: 4400, speed: 200, reload: 1.2, r: 18,
+    id: 'bjorn', price: 450, name: 'Bygg-Bjørn', role: 'Bygger', hp: 4700, speed: 200, reload: 1.2, r: 18,
     color: '#f08a24', superNeed: 2200,
     look: { shirt: '#f08a24', pants: '#2c3e70', skin: '#e8b88a', hair: '#7a4b22', helmet: '#f5c518', gun: '#666' },
-    attack: { type: 'spread', count: 3, spread: 0.24, dmg: 390, range: 7.5, speed: 950,
+    attack: { type: 'spread', count: 3, spread: 0.24, dmg: 420, range: 7.5, speed: 950,
       label: 'Spikerpistol – 3 spiker i vifte' },
     sup: { type: 'fort', label: 'Byggeboom – metallvegg + vakttårn på et blunk' },
     passive: 'Bygger til halv pris',
   },
+  {
+    id: 'kalle', price: 600, name: 'Creeper-Kalle', role: 'Nærkamp', hp: 4700, speed: 212, reload: 1.3, r: 18,
+    color: '#5cc85f', superNeed: 2300,
+    look: { shirt: '#4caf50', pants: '#2e7d32', skin: '#66cc66', hair: null, creeper: true, gun: null },
+    attack: { type: 'nova', dmg: 880, radius: 2.1, range: 2.1, label: 'Sssst-puls – skader alle rundt deg' },
+    sup: { type: 'selfblast', dmg: 2300, radius: 3.6, label: 'KABOOM – kjempeeksplosjon rundt deg (du overlever!)' },
+    passive: 'Sniker 15 % raskere gjennom busker',
+  },
+  {
+    id: 'embla', price: 900, name: 'Ender-Embla', role: 'Snikmorder', hp: 3600, speed: 225, reload: 1.1, r: 16,
+    color: '#a64dff', superNeed: 2000,
+    look: { shirt: '#1d1426', pants: '#120d19', skin: '#231a2e', hair: '#0b0710', ender: true, gun: '#c070ff' },
+    attack: { type: 'burst', count: 2, gap: 0.12, dmg: 590, range: 7, speed: 1100, spread: 0.04,
+      label: 'Enderkuler – 2 raske skudd' },
+    sup: { type: 'teleport', dmg: 1300, radius: 2.0, range: 9, label: 'Teleport – hopp dit du sikter og slå til' },
+    passive: 'Blir ikke avslørt i busker når hun skyter',
+  },
+  {
+    id: 'rakel', price: 1500, name: 'Rakett-Rakel', role: 'Artilleri', hp: 3400, speed: 200, reload: 1.7, r: 17,
+    color: '#e74c3c', superNeed: 2800,
+    look: { shirt: '#c0392b', pants: '#2c3e50', skin: '#f1c9a0', hair: '#e67e22', goggles: '#ffd23f', gun: '#3d5a3d' },
+    attack: { type: 'rocket', dmg: 950, radius: 1.3, range: 10, speed: 760, label: 'Rakettkaster – eksploderer ved treff' },
+    sup: { type: 'barrage', dmg: 900, radius: 1.5, count: 7, range: 10, label: 'Rakettregn – 7 raketter over et stort område' },
+    passive: 'Rakettene knuser blokker ekstra lett',
+  },
+];
+
+// ------------------------------------------------------------
+//  Butikk, nivåer og belønninger
+// ------------------------------------------------------------
+const MAX_LEVEL = 7;
+const LEVEL_BONUS = 0.08;                            // +8 % liv og skade per nivå
+const LEVEL_COST = [0, 0, 60, 120, 200, 320, 480, 700]; // pris for å nå nivå N
+const PLACE_COINS = [150, 110, 90, 75, 60, 50, 40, 30, 25, 20];
+const KILL_COINS = 20;
+const START_COINS = 200;
+
+// ------------------------------------------------------------
+//  Kameravinkler
+// ------------------------------------------------------------
+const CAMERA_MODES = [
+  { id: 'fortnite', icon: '🎮', name: 'Fortnite', desc: 'Bak karakteren', look: true },
+  { id: 'shoulder', icon: '🎯', name: 'Skulder', desc: 'Tett over skulderen', look: true },
+  { id: 'fps', icon: '👀', name: 'Førsteperson', desc: 'Se med øynene (Minecraft)', look: true },
+  { id: 'brawl', icon: '⭐', name: 'Brawl', desc: 'Skrått ovenfra', look: false },
+  { id: 'bird', icon: '🦅', name: 'Fugleperspektiv', desc: 'Rett ovenfra', look: false },
 ];
 
 const BOT_NAMES = [

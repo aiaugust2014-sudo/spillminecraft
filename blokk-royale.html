@@ -259,6 +259,72 @@ h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
 #btnMine { right: 104px; bottom: 120px; }
 #btnWall { right: 40px; bottom: 216px; }
 
+/* ---------- Butikk og nivåer ---------- */
+.topbar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .trophies { margin-bottom: 0; }
+.coins {
+  display: inline-block;
+  background: linear-gradient(180deg, #ffe36a, #f0a81a);
+  color: #4a2c00;
+  border: 3px solid #000;
+  border-radius: 999px;
+  padding: 4px 16px;
+  font-size: 20px;
+  box-shadow: 0 3px 0 #000;
+}
+.sub { color: #d8d0ff; font-family: system-ui, sans-serif; font-size: 14px; margin: -6px 0 12px; }
+.card { position: relative; }
+.card.locked canvas { filter: grayscale(0.85) brightness(0.6); }
+.card-level { font-size: 12px; color: #fff; background: rgba(0, 0, 0, 0.45); border-radius: 8px; padding: 1px 8px; display: inline-block; margin-top: 2px; }
+.card-price { font-size: 13px; color: #ffd8a0; margin-top: 2px; }
+.card-price.can { color: #7dff8a; }
+.brawler-info h3 small { font-size: 14px; color: #cfc6ff; margin-left: 6px; }
+.lvl-stars { color: #ffd23f; font-size: 18px; letter-spacing: 2px; margin-bottom: 6px; }
+.lvl-stars span { color: #e6dcff; font-size: 13px; letter-spacing: 0; margin-left: 6px; font-family: system-ui, sans-serif; }
+.brawler-action { margin: -6px auto 8px; }
+.buy-btn, .up-btn {
+  display: block;
+  margin: 0 auto;
+  min-width: 260px;
+  padding: 10px 22px;
+  font-size: 20px;
+  color: #fff;
+  border: 3px solid #000;
+  border-radius: 14px;
+  box-shadow: 0 5px 0 #000;
+  text-shadow: 0 2px 0 #000;
+}
+.buy-btn { background: linear-gradient(180deg, #4cd964, #2a9d3f); }
+.up-btn { background: linear-gradient(180deg, #b06bff, #7a3fd0); }
+.up-btn small { display: block; font-size: 12px; font-family: system-ui, sans-serif; text-shadow: none; opacity: 0.9; }
+.buy-btn:disabled, .up-btn:disabled { background: #5a5470; color: #c8c2dc; cursor: not-allowed; }
+.buy-btn:not(:disabled):active, .up-btn:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 #000; }
+.need { margin-top: 8px; color: #ffcf9a; font-family: system-ui, sans-serif; font-size: 13px; }
+.big-btn:disabled { background: #5a5470; cursor: not-allowed; }
+.end-hint { margin: 0 0 12px; color: #ffe36a !important; }
+.coin { color: #ffd23f; }
+
+/* ---------- Kameravalg ---------- */
+.cam-picker { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+.cam-btn {
+  width: 132px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 3px solid #000;
+  background: linear-gradient(180deg, #4a3a8a, #2a1f5a);
+  color: #fff;
+  box-shadow: 0 4px 0 #000;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.cam-btn span { font-size: 22px; }
+.cam-btn b { font-weight: normal; font-size: 15px; }
+.cam-btn small { font-size: 11px; color: #cfc6ff; font-family: system-ui, sans-serif; }
+.cam-btn.selected { outline: 4px solid #ffd23f; background: linear-gradient(180deg, #6a52c8, #3a2a7a); }
+
+/* ---------- Mobil: kamera og skyt ---------- */
+#btnCam { top: calc(env(safe-area-inset-top, 0px) + 78px); left: 112px; }
+#btnFire { right: 118px; bottom: 210px; width: 78px; height: 78px; font-size: 24px; background: rgba(200, 40, 40, 0.55); }
+
 </style>
 </head>
 <body>
@@ -270,11 +336,18 @@ h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
     <div class="menu-inner">
       <h1 class="logo"><span class="l1">BLOKK</span><span class="l2">ROYALE</span></h1>
       <p class="tagline">Grav som i <b>Minecraft</b> · Bygg som i <b>Fortnite</b> · Slåss som i <b>Brawl Stars</b></p>
-      <div id="trophies" class="trophies"></div>
-      <h2>Velg brawler</h2>
+      <div class="topbar">
+        <div id="coins" class="coins"></div>
+        <div id="trophies" class="trophies"></div>
+      </div>
+      <h2>Brawlere</h2>
+      <p class="sub">Tjen 🪙 mynter i hver runde. Kjøp nye brawlere og oppgrader dem!</p>
       <div id="brawlerList" class="brawler-list"></div>
       <div id="brawlerInfo" class="brawler-info"></div>
+      <div id="brawlerAction" class="brawler-action"></div>
       <button id="playBtn" class="big-btn">SPILL!</button>
+      <h2>Kameravinkel</h2>
+      <div id="camPicker" class="cam-picker"></div>
       <details class="howto">
         <summary>Slik spiller du</summary>
         <ul>
@@ -286,9 +359,10 @@ h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
           <li>🌿 <b>Gjem deg i busker</b> – fiender ser deg ikke før de er helt nær.</li>
           <li>⚡ <b>Lad opp SUPER</b> ved å treffe fiender, og slipp løs kraften.</li>
           <li>🌀 <b>Hold deg unna stormen</b> – den krymper hele tiden. Sistemann vinner!</li>
+          <li>🪙 <b>Tjen mynter</b> for plassering og elimineringer. Kjøp brawlere og oppgrader dem til nivå 7.</li>
         </ul>
-        <p><b>PC:</b> WASD = gå · Mus = se rundt og sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · V = bytt kamera (bak skulderen / ovenfra) · Esc = pause</p>
-        <p><b>Mobil:</b> Venstre tommel = gå · Høyre tommel = sikt og slipp for å skyte (trykk = auto-sikt) · Knappene for super, hakke, vegg og crafting.</p>
+        <p><b>PC:</b> WASD = gå · Mus = se rundt og sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · V = bytt kameravinkel · Esc = pause</p>
+        <p><b>Mobil:</b> Venstre tommel = gå. I Brawl-kameraene: høyre tommel = sikt og slipp for å skyte (trykk = auto-sikt). I Fortnite-kameraene: høyre tommel = se deg rundt, og SKYT-knappen skyter. 🎥-knappen bytter kamera.</p>
       </details>
     </div>
   </div>
@@ -308,6 +382,7 @@ h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
     <div class="box">
       <h2>Pause</h2>
       <button id="resumeBtn" class="big-btn">Fortsett</button>
+      <button id="pauseCamBtn" class="mid-btn">🎥 Kamera</button>
       <button id="soundBtn" class="mid-btn">🔊 Lyd: PÅ</button>
       <button id="quitBtn" class="mid-btn">Avslutt til meny</button>
     </div>
@@ -319,8 +394,9 @@ h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
       <h1 id="endTitle"></h1>
       <p id="endSub"></p>
       <div id="endStats" class="end-stats"></div>
+      <p id="endHint" class="end-hint"></p>
       <button id="againBtn" class="big-btn">SPILL IGJEN</button>
-      <button id="menuBtn" class="mid-btn">Bytt brawler</button>
+      <button id="menuBtn" class="mid-btn">🛒 Brawlere og butikk</button>
     </div>
   </div>
 
@@ -328,6 +404,8 @@ h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
   <div id="touchUI" class="hidden">
     <button id="btnPause" class="tbtn small">II</button>
     <button id="btnCraft" class="tbtn small">🛠️</button>
+    <button id="btnCam" class="tbtn small">🎥</button>
+    <button id="btnFire" class="tbtn fire hidden">🔫<span>SKYT</span></button>
     <button id="btnWall" class="tbtn">🧱<span>VEGG</span></button>
     <button id="btnMine" class="tbtn">⛏️<span>GRAV</span></button>
     <button id="btnSuper" class="tbtn super">⚡<span>SUPER</span></button>
@@ -412,7 +490,7 @@ const RECIPES = [
 // ------------------------------------------------------------
 const BRAWLERS = [
   {
-    id: 'kube', name: 'Kubekriger', role: 'Allrounder', hp: 3800, speed: 210, reload: 1.25, r: 17,
+    id: 'kube', price: 0, name: 'Kubekriger', role: 'Allrounder', hp: 3800, speed: 210, reload: 1.25, r: 17,
     color: '#2fa4d9', superNeed: 2600,
     look: { shirt: '#2fa4d9', pants: '#3346a8', skin: '#e0ac7a', hair: '#4a2f1b', gun: '#555' },
     attack: { type: 'burst', count: 3, gap: 0.09, dmg: 420, range: 9, speed: 950, spread: 0.05,
@@ -421,7 +499,7 @@ const BRAWLERS = [
     passive: 'Graver 50 % raskere',
   },
   {
-    id: 'siri', name: 'Skarpskytter Siri', role: 'Snikskytter', hp: 2700, speed: 205, reload: 1.9, r: 16,
+    id: 'siri', price: 150, name: 'Skarpskytter Siri', role: 'Snikskytter', hp: 2700, speed: 205, reload: 1.9, r: 16,
     color: '#3e9c4f', superNeed: 2300,
     look: { shirt: '#3e9c4f', pants: '#6b4a2b', skin: '#f1c9a0', hair: '#e8c34a', hood: '#2d6b37', gun: '#7a5230' },
     attack: { type: 'single', dmg: 1150, range: 13, speed: 1500, label: 'Armbrøst – lang rekkevidde, stor skade' },
@@ -429,8 +507,8 @@ const BRAWLERS = [
     passive: 'Ser fiender i busker på lengre avstand',
   },
   {
-    id: 'tor', name: 'Tanks-Tor', role: 'Tank', hp: 5400, speed: 192, reload: 1.55, r: 20,
-    color: '#c9c5bb', superNeed: 2400,
+    id: 'tor', price: 250, name: 'Tanks-Tor', role: 'Tank', hp: 5000, speed: 192, reload: 1.55, r: 20,
+    color: '#c9c5bb', superNeed: 2800,
     look: { shirt: '#cfcac0', pants: '#a39e93', skin: '#c4bfb4', hair: null, golem: true, gun: '#444' },
     attack: { type: 'shotgun', count: 5, spread: 0.6, dmg: 300, range: 5, speed: 850,
       label: 'Jernhagle – 5 kuler på kort hold' },
@@ -438,7 +516,7 @@ const BRAWLERS = [
     passive: 'Tar 35 % mindre stormskade',
   },
   {
-    id: 'hedda', name: 'Heksa Hedda', role: 'Kaster', hp: 3000, speed: 205, reload: 1.6, r: 16,
+    id: 'hedda', price: 350, name: 'Heksa Hedda', role: 'Kaster', hp: 3000, speed: 205, reload: 1.6, r: 16,
     color: '#a05ad0', superNeed: 2600,
     look: { shirt: '#7b3fa0', pants: '#4b2463', skin: '#b9e09a', hair: '#222', witch: '#2a1638', gun: '#3fd0ff' },
     attack: { type: 'lob', dmg: 1050, radius: 1.4, range: 8, label: 'Trylledrikk – kastes OVER vegger' },
@@ -446,14 +524,60 @@ const BRAWLERS = [
     passive: 'Bandasjer helbreder dobbelt',
   },
   {
-    id: 'bjorn', name: 'Bygg-Bjørn', role: 'Bygger', hp: 4400, speed: 200, reload: 1.2, r: 18,
+    id: 'bjorn', price: 450, name: 'Bygg-Bjørn', role: 'Bygger', hp: 4700, speed: 200, reload: 1.2, r: 18,
     color: '#f08a24', superNeed: 2200,
     look: { shirt: '#f08a24', pants: '#2c3e70', skin: '#e8b88a', hair: '#7a4b22', helmet: '#f5c518', gun: '#666' },
-    attack: { type: 'spread', count: 3, spread: 0.24, dmg: 390, range: 7.5, speed: 950,
+    attack: { type: 'spread', count: 3, spread: 0.24, dmg: 420, range: 7.5, speed: 950,
       label: 'Spikerpistol – 3 spiker i vifte' },
     sup: { type: 'fort', label: 'Byggeboom – metallvegg + vakttårn på et blunk' },
     passive: 'Bygger til halv pris',
   },
+  {
+    id: 'kalle', price: 600, name: 'Creeper-Kalle', role: 'Nærkamp', hp: 4700, speed: 212, reload: 1.3, r: 18,
+    color: '#5cc85f', superNeed: 2300,
+    look: { shirt: '#4caf50', pants: '#2e7d32', skin: '#66cc66', hair: null, creeper: true, gun: null },
+    attack: { type: 'nova', dmg: 880, radius: 2.1, range: 2.1, label: 'Sssst-puls – skader alle rundt deg' },
+    sup: { type: 'selfblast', dmg: 2300, radius: 3.6, label: 'KABOOM – kjempeeksplosjon rundt deg (du overlever!)' },
+    passive: 'Sniker 15 % raskere gjennom busker',
+  },
+  {
+    id: 'embla', price: 900, name: 'Ender-Embla', role: 'Snikmorder', hp: 3600, speed: 225, reload: 1.1, r: 16,
+    color: '#a64dff', superNeed: 2000,
+    look: { shirt: '#1d1426', pants: '#120d19', skin: '#231a2e', hair: '#0b0710', ender: true, gun: '#c070ff' },
+    attack: { type: 'burst', count: 2, gap: 0.12, dmg: 590, range: 7, speed: 1100, spread: 0.04,
+      label: 'Enderkuler – 2 raske skudd' },
+    sup: { type: 'teleport', dmg: 1300, radius: 2.0, range: 9, label: 'Teleport – hopp dit du sikter og slå til' },
+    passive: 'Blir ikke avslørt i busker når hun skyter',
+  },
+  {
+    id: 'rakel', price: 1500, name: 'Rakett-Rakel', role: 'Artilleri', hp: 3400, speed: 200, reload: 1.7, r: 17,
+    color: '#e74c3c', superNeed: 2800,
+    look: { shirt: '#c0392b', pants: '#2c3e50', skin: '#f1c9a0', hair: '#e67e22', goggles: '#ffd23f', gun: '#3d5a3d' },
+    attack: { type: 'rocket', dmg: 950, radius: 1.3, range: 10, speed: 760, label: 'Rakettkaster – eksploderer ved treff' },
+    sup: { type: 'barrage', dmg: 900, radius: 1.5, count: 7, range: 10, label: 'Rakettregn – 7 raketter over et stort område' },
+    passive: 'Rakettene knuser blokker ekstra lett',
+  },
+];
+
+// ------------------------------------------------------------
+//  Butikk, nivåer og belønninger
+// ------------------------------------------------------------
+const MAX_LEVEL = 7;
+const LEVEL_BONUS = 0.08;                            // +8 % liv og skade per nivå
+const LEVEL_COST = [0, 0, 60, 120, 200, 320, 480, 700]; // pris for å nå nivå N
+const PLACE_COINS = [150, 110, 90, 75, 60, 50, 40, 30, 25, 20];
+const KILL_COINS = 20;
+const START_COINS = 200;
+
+// ------------------------------------------------------------
+//  Kameravinkler
+// ------------------------------------------------------------
+const CAMERA_MODES = [
+  { id: 'fortnite', icon: '🎮', name: 'Fortnite', desc: 'Bak karakteren', look: true },
+  { id: 'shoulder', icon: '🎯', name: 'Skulder', desc: 'Tett over skulderen', look: true },
+  { id: 'fps', icon: '👀', name: 'Førsteperson', desc: 'Se med øynene (Minecraft)', look: true },
+  { id: 'brawl', icon: '⭐', name: 'Brawl', desc: 'Skrått ovenfra', look: false },
+  { id: 'bird', icon: '🦅', name: 'Fugleperspektiv', desc: 'Rett ovenfra', look: false },
 ];
 
 const BOT_NAMES = [
@@ -1424,6 +1548,78 @@ function landFighter(f) {
 
 </script>
   <script>
+// ===== js/progress.js =====
+'use strict';
+// ============================================================
+//  Profil: mynter, trofeer, hvilke brawlere du eier og nivåene deres
+//  (lagres i nettleseren)
+// ============================================================
+
+const Profile = { coins: 0, trophies: 0, wins: 0, owned: new Set(), levels: {} };
+
+function loadProfile() {
+  const s = storageGet('br_save', null);
+  if (s) {
+    Profile.coins = s.coins | 0;
+    Profile.trophies = s.trophies | 0;
+    Profile.wins = s.wins | 0;
+    Profile.owned = new Set(Array.isArray(s.owned) ? s.owned : []);
+    Profile.levels = s.levels && typeof s.levels === 'object' ? s.levels : {};
+  } else {
+    // Ny profil (tar med trofeer fra den gamle versjonen)
+    Profile.coins = START_COINS;
+    Profile.trophies = storageGet('br_trophies', 0) | 0;
+    Profile.wins = storageGet('br_wins', 0) | 0;
+    Profile.owned = new Set();
+    Profile.levels = {};
+  }
+  for (const br of BRAWLERS) if (br.price === 0) Profile.owned.add(br.id);
+  saveProfile();
+}
+
+function saveProfile() {
+  storageSet('br_save', {
+    coins: Profile.coins, trophies: Profile.trophies, wins: Profile.wins,
+    owned: [...Profile.owned], levels: Profile.levels,
+  });
+}
+
+const ownsBrawler = (br) => Profile.owned.has(br.id);
+const brawlerLevel = (br) => clamp(Profile.levels[br.id] | 0 || 1, 1, MAX_LEVEL);
+const levelMul = (level) => 1 + (level - 1) * LEVEL_BONUS;
+const upgradeCost = (br) => (brawlerLevel(br) >= MAX_LEVEL ? null : LEVEL_COST[brawlerLevel(br) + 1]);
+
+function buyBrawler(br) {
+  if (ownsBrawler(br) || Profile.coins < br.price) return false;
+  Profile.coins -= br.price;
+  Profile.owned.add(br.id);
+  saveProfile();
+  return true;
+}
+
+function upgradeBrawler(br) {
+  const cost = upgradeCost(br);
+  if (!ownsBrawler(br) || cost === null || Profile.coins < cost) return false;
+  Profile.coins -= cost;
+  Profile.levels[br.id] = brawlerLevel(br) + 1;
+  saveProfile();
+  return true;
+}
+
+// Mynter og trofeer etter en runde
+function giveMatchReward(place, kills, win) {
+  const coins = (PLACE_COINS[place - 1] || 15) + kills * KILL_COINS;
+  const table = [10, 8, 6, 4, 2, 0, -1, -2, -3, -4];
+  const trophies = (table[place - 1] || -4) + kills;
+  Profile.coins += coins;
+  Profile.trophies = Math.max(0, Profile.trophies + trophies);
+  if (win) Profile.wins++;
+  saveProfile();
+  return { coins, trophies };
+}
+
+</script>
+  <script>
 // ===== js/combat.js =====
 'use strict';
 // ============================================================
@@ -1435,11 +1631,13 @@ let particles = [], texts = [], beams = [], blasts = [], killFeed = [];
 let player = null;
 let nextId = 1;
 
-function createFighter(bi, name, isPlayer) {
+function createFighter(bi, name, isPlayer, level = 1) {
   const br = BRAWLERS[bi];
+  const lvlMul = levelMul(level);
+  const hp = Math.round(br.hp * lvlMul);
   return {
-    id: nextId++, name, isPlayer, br, x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, r: br.r,
-    hp: br.hp, baseHp: br.hp, maxHp: br.hp, shield: 0, cubes: 0,
+    id: nextId++, name, isPlayer, br, level, lvlMul, x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, r: br.r,
+    hp, baseHp: hp, maxHp: hp, shield: 0, cubes: 0,
     ammo: 3, superCharge: 0, superWasReady: false, aim: 0, moveX: 0, moveY: 0,
     mats: { wood: 0, stone: 0, iron: 0, diamond: 0 },
     items: { bandage: 0, potion: 0, tnt: 0, turret: 0 },
@@ -1451,7 +1649,8 @@ function createFighter(bi, name, isPlayer) {
   };
 }
 
-const pw = (f) => 1 + f.cubes * 0.1;
+// Skademultiplikator: kraftkuber (Brawl Stars) × brawler-nivå (oppgraderinger)
+const pw = (f) => (1 + f.cubes * 0.1) * f.lvlMul;
 const aliveCount = () => fighters.reduce((n, f) => n + (f.alive ? 1 : 0), 0);
 
 function addCubes(f, n) {
@@ -1557,7 +1756,7 @@ function spawnBullet(x, y, ang, dmg, range, speed, owner, opts = {}) {
     x, y, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ang,
     travel: 0, max: range * TILE, dmg, owner, src: opts.src || null,
     color: opts.color || owner.br.color, r: opts.r || 6, kind: opts.kind || 'bullet',
-    blockMul: opts.blockMul !== undefined ? opts.blockMul : 0.4,
+    blockMul: opts.blockMul !== undefined ? opts.blockMul : 0.4, explode: opts.explode || null,
   });
 }
 
@@ -1570,6 +1769,8 @@ function lobProjectile(f, tx, ty, kind, opts) {
   projectiles.push(Object.assign({
     lob: true, sx: f.x, sy: f.y - 10, tx, ty, x: f.x, y: f.y, t: 0, dur: 0.35 + d / 1100, kind, owner: f, z: 0,
   }, opts));
+  const p = projectiles[projectiles.length - 1];
+  p.dur = Math.max(p.dur, 0.35 + d / 1100);
 }
 
 function clampTarget(f, tx, ty, maxD) {
@@ -1588,7 +1789,7 @@ function tryAttack(f, ang, tx, ty) {
   f.ammo -= 1;
   f.shootCd = 0.3;
   f.lastAttack = Game.time;
-  f.revealT = 1.0;
+  if (f.br.id !== 'embla') f.revealT = 1.0;
   f.aim = ang;
   switch (a.type) {
     case 'burst':
@@ -1613,6 +1814,15 @@ function tryAttack(f, ang, tx, ty) {
       sfxAt('lob', f.x, f.y);
       break;
     }
+    case 'nova':
+      explode(f.x, f.y, a.radius * TILE, a.dmg * m, f, a.dmg * 0.35, 'nova');
+      break;
+    case 'rocket':
+      fireBullet(f, ang, a.dmg * m, a.range, a.speed, {
+        r: 7, kind: 'rocket', color: '#ff7a3a', explode: { radius: a.radius * TILE, dmg: a.dmg * m, blockDmg: a.dmg },
+      });
+      sfxAt('lob', f.x, f.y);
+      break;
   }
   return true;
 }
@@ -1651,6 +1861,7 @@ function updateProjectiles(dt) {
         p.travel += (sp * dt) / steps;
         const tx = tileOf(p.x), ty = tileOf(p.y);
         if (isSolid(tx, ty)) {
+          if (p.explode) { rocketBoom(p); dead = true; break; }
           if (inMap(tx, ty)) damageBlock(tx, ty, p.dmg * p.blockMul, p.owner, false);
           sparks(p.x, p.y, '#fff2a0', 3);
           dead = true;
@@ -1661,6 +1872,7 @@ function updateProjectiles(dt) {
           const rr = f.r + p.r;
           const dx = f.x - p.x, dy = f.y - 8 - p.y;
           if (dx * dx + dy * dy < rr * rr) {
+            if (p.explode) { rocketBoom(p); dead = true; break; }
             hurt(f, p.dmg, p.owner, p.kind);
             sparks(p.x, p.y, p.color, 5);
             dead = true;
@@ -1671,21 +1883,32 @@ function updateProjectiles(dt) {
         for (const tu of turrets) {
           if (tu.owner === p.owner || tu.hp <= 0) continue;
           if (dist(tu.x, tu.y - 10, p.x, p.y) < 20 + p.r) {
+            if (p.explode) { rocketBoom(p); dead = true; break; }
             damageTurret(tu, p.dmg, p.owner);
             sparks(p.x, p.y, '#ccc', 4);
             dead = true;
             break;
           }
         }
-        if (p.travel >= p.max) dead = true;
+        if (p.travel >= p.max) {
+          if (p.explode) rocketBoom(p);
+          dead = true;
+        }
       }
     }
     if (dead) projectiles.splice(i, 1);
   }
 }
 
+function rocketBoom(p) {
+  explode(p.x, p.y, p.explode.radius, p.explode.dmg, p.owner, p.explode.blockDmg, 'rocket');
+}
+
 function landLob(p) {
   switch (p.kind) {
+    case 'rocketlob':
+      explode(p.x, p.y, p.radius, p.dmg, p.owner, p.blockDmg, 'rocket');
+      break;
     case 'potion':
       explode(p.x, p.y, p.radius, p.dmg, p.owner, p.dmg * 0.3, 'potion');
       break;
@@ -1698,6 +1921,14 @@ function landLob(p) {
       break;
   }
 }
+
+const EXPLOSION_STYLES = {
+  tnt: { n: 34, cols: ['#ffdd55', '#ff8a2a', '#ff4a1a', '#555', '#888'], blast: '255,190,80', big: true, shake: 14 },
+  rocket: { n: 20, cols: ['#ffdd55', '#ff8a2a', '#ff4a1a', '#777'], blast: '255,160,70', big: true, shake: 6 },
+  nova: { n: 24, cols: ['#7cff7a', '#3fbf4a', '#d8ffd0'], blast: '120,255,120', big: false, shake: 3 },
+  ender: { n: 26, cols: ['#c070ff', '#7a2fd0', '#f0d8ff', '#111'], blast: '190,110,255', big: false, shake: 4 },
+  potion: { n: 16, cols: ['#c86bff', '#7cff9a', '#e2b6ff'], blast: '200,120,255', big: false, shake: 0 },
+};
 
 function explode(x, y, radius, dmg, owner, blockDmg, style) {
   for (const f of fighters) {
@@ -1717,24 +1948,24 @@ function explode(x, y, radius, dmg, owner, blockDmg, style) {
       }
     }
   }
-  const tnt = style === 'tnt';
-  const n = tnt ? 34 : 16;
-  for (let i = 0; i < n; i++) {
+  const st = EXPLOSION_STYLES[style] || EXPLOSION_STYLES.potion;
+  for (let i = 0; i < st.n; i++) {
     const a = rand(0, TAU), s = rand(50, radius * 3);
-    const col = tnt ? choice(['#ffdd55', '#ff8a2a', '#ff4a1a', '#555', '#888']) : choice(['#c86bff', '#7cff9a', '#e2b6ff']);
-    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, z: rand(0, 20), vz: rand(80, 260), life: rand(0.4, 0.9), max: 0.9, color: col, size: rand(5, 11) });
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, z: rand(0, 20), vz: rand(80, 260), life: rand(0.4, 0.9), max: 0.9, color: choice(st.cols), size: rand(5, 11) });
   }
-  blasts.push({ x, y, r: radius, t: 0, dur: tnt ? 0.4 : 0.3, color: tnt ? '255,190,80' : '200,120,255' });
+  blasts.push({ x, y, r: radius, t: 0, dur: st.big ? 0.4 : 0.3, color: st.blast });
   const d = dist(x, y, Game.cam.x, Game.cam.y);
-  if (tnt) shake(clamp(14 - d / 60, 0, 14));
-  sfxAt(tnt ? 'explode' : 'hit', x, y, tnt ? 1 : 0.7);
+  if (st.shake) shake(clamp(st.shake - d / 60, 0, st.shake));
+  sfxAt(st.big ? 'explode' : 'hit', x, y, st.big ? 1 : 0.7);
 }
 
 // ---------------- Super-evner ----------------
 function superRange(f) {
   const s = f.br.sup;
   switch (s.type) {
-    case 'tnt': case 'cloud': return s.range * TILE;
+    case 'tnt': case 'cloud': case 'barrage': return s.range * TILE;
+    case 'teleport': return 8 * TILE;
+    case 'selfblast': return 3 * TILE;
     case 'laser': return 14 * TILE;
     case 'charge': return 6 * TILE;
     default: return 5 * TILE;
@@ -1765,6 +1996,26 @@ function trySuper(f, ang, tx, ty) {
     case 'fort':
       superFort(f, ang);
       break;
+    case 'selfblast':
+      explode(f.x, f.y, s.radius * TILE, s.dmg * m, f, 2600, 'tnt');
+      break;
+    case 'teleport': {
+      const p = clampTarget(f, tx, ty, s.range * TILE);
+      const spot = findFreeSpot(p.x, p.y, true);
+      for (let i = 0; i < 18; i++) particles.push({ x: f.x, y: f.y, vx: rand(-90, 90), vy: rand(-90, 90), z: rand(0, 40), vz: rand(40, 160), life: 0.6, max: 0.6, color: choice(['#c070ff', '#111']), size: rand(4, 8) });
+      f.x = spot.x; f.y = spot.y;
+      explode(f.x, f.y, s.radius * TILE, s.dmg * m, f, 0, 'ender');
+      break;
+    }
+    case 'barrage': {
+      const c = clampTarget(f, tx, ty, s.range * TILE);
+      for (let k = 0; k < s.count; k++) {
+        const a = rand(0, TAU), r = k === 0 ? 0 : rand(0.6, 2.6) * TILE;
+        lobProjectile(f, c.x + Math.cos(a) * r, c.y + Math.sin(a) * r, 'rocketlob',
+          { dmg: s.dmg * m, radius: s.radius * TILE, blockDmg: 900, dur: 0.5 + k * 0.09 });
+      }
+      break;
+    }
   }
   f.superCharge = 0;
   f.superWasReady = false;
@@ -2214,7 +2465,7 @@ function updateFighter(f, dt) {
     let mx = f.moveX, my = f.moveY;
     const len = Math.hypot(mx, my);
     if (len > 1) { mx /= len; my /= len; }
-    const spd = f.br.speed * (f.inWater ? 0.6 : 1) * (f.healT > 0 ? 0.85 : 1);
+    const spd = f.br.speed * (f.inWater ? 0.6 : 1) * (f.healT > 0 ? 0.85 : 1) * (f.inBush && f.br.id === 'kalle' ? 1.15 : 1);
     if (len > 0.05) {
       moveFighter(f, mx * spd * dt, my * spd * dt);
       f.walkT += dt * 12;
@@ -2429,7 +2680,7 @@ function botAct(f, b) {
     const visible = canSee(f, t);
     let mx, my;
     if (b.mode === 'fight') {
-      const pref = range * (a.type === 'shotgun' ? 0.45 : 0.7);
+      const pref = range * (a.type === 'shotgun' ? 0.45 : a.type === 'nova' ? 0.35 : 0.7);
       mx = 0; my = 0;
       if (d > pref * 1.15) { mx = Math.cos(ang); my = Math.sin(ang); }
       else if (d < pref * 0.7) { mx = -Math.cos(ang); my = -Math.sin(ang); }
@@ -2447,9 +2698,9 @@ function botAct(f, b) {
     steer(f, b, mx, my);
 
     if (visible && d < range && b.fireCd <= 0 && f.ammo >= 1 && (b.mode === 'fight' || Math.random() < 0.4)) {
-      const clear = a.type === 'lob' || los(f.x, f.y, t.x, t.y);
+      const clear = a.type === 'lob' || a.type === 'nova' || los(f.x, f.y, t.x, t.y);
       if (clear || Math.random() < 0.3) {
-        const tt = a.type === 'lob' ? 0.55 : d / (a.speed || 1000);
+        const tt = a.type === 'lob' ? 0.55 : a.type === 'nova' ? 0 : d / (a.speed || 1000);
         const px = t.x + t.vx * tt * b.skill, py = t.y + t.vy * tt * b.skill;
         const aimA = Math.atan2(py - f.y, px - f.x) + (1 - b.skill) * 0.5 * rand(-1, 1);
         tryAttack(f, aimA, px, py);
@@ -2534,7 +2785,12 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillStyle = C(L.shirt); g.fillRect(0, -3, 10, 6);
       g.fillStyle = C(L.skin); g.fillRect(9, -3, 4, 6);
       g.fillStyle = C(L.gun);
-      if (br.attack.type === 'lob') {
+      if (br.attack.type === 'nova') {
+        g.fillStyle = C(L.skin); g.fillRect(9, -3, 5, 6);
+      } else if (br.attack.type === 'rocket') {
+        g.fillRect(6, -5, 22, 10);
+        g.fillStyle = C('#ff5a3a'); g.fillRect(26, -5, 3, 10);
+      } else if (br.attack.type === 'lob') {
         g.fillRect(12, -6, 8, 9);
         g.fillStyle = C('#cfe8ff'); g.fillRect(14, -9, 4, 3);
       } else if (br.attack.type === 'single') {
@@ -2575,7 +2831,14 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
   }
   if (!back) {
     const ex = face * 2.5;
-    if (L.golem) {
+    if (L.creeper) {
+      g.fillStyle = C('#111');
+      g.fillRect(-6, hy + 5, 4, 4); g.fillRect(2, hy + 5, 4, 4);
+      g.fillRect(-2, hy + 9, 4, 5); g.fillRect(-4, hy + 11, 2, 4); g.fillRect(2, hy + 11, 2, 4);
+    } else if (L.ender) {
+      g.fillStyle = C('#e070ff');
+      g.fillRect(ex - 8, hy + 8, 6, 2); g.fillRect(ex + 2, hy + 8, 6, 2);
+    } else if (L.golem) {
       g.fillStyle = C('#5b5850'); g.fillRect(-hs / 2, hy + 6, hs, 3);
       g.fillStyle = C('#d33'); g.fillRect(ex - 6, hy + 9, 3, 3); g.fillRect(ex + 3, hy + 9, 3, 3);
       g.fillStyle = C('#a8a397'); g.fillRect(ex - 2, hy + 9, 4, 8);
@@ -2587,6 +2850,10 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillRect(ex + 2 + (face > 0 ? 2 : 0), hy + 8, 2, 3);
       g.fillStyle = C('rgba(0,0,0,0.25)'); g.fillRect(ex - 3, hy + 13, 6, 2);
     }
+  }
+  if (L.goggles) {
+    g.fillStyle = C('#3a2a1a'); g.fillRect(-hs / 2, hy + 2, hs, 3);
+    g.fillStyle = C(L.goggles); g.fillRect(-7, hy + 1, 5, 5); g.fillRect(2, hy + 1, 5, 5);
   }
   if (L.hood) {
     g.fillStyle = C(L.hood);
@@ -2673,7 +2940,7 @@ const R3 = {
   particles: null, stormWall: null, nextRing: null, nextRingR: -1,
   bus: null, aimGroup: null, aimRect: null, aimSector: null, aimSectorKey: '', aimRing: null,
   ghost: null, mineBox: null, raycaster: null, groundPlane: null,
-  camMode: 'tps', yaw: -Math.PI / 2, pitch: 0.42, lowGfx: false,
+  camMode: 'fortnite', yaw: -Math.PI / 2, pitch: 0.42, lowGfx: false,
   iconTex: {}, mats: {}, tmpM: null, tmpV: null, tmpQ: null, tmpS: null, tmpC: null,
 };
 
@@ -2732,7 +2999,7 @@ function initRenderer3D() {
   scene.fog = new THREE.Fog('#8fd3ff', 40, 90);
   R3.scene = scene;
   R3.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 500);
-  R3.camMode = R3.lowGfx ? 'top' : storageGet('br_cam', 'tps');
+  R3.camMode = camModeInfo(storageGet('br_cam', 'fortnite')).id;
 
   R3.hemi = new THREE.HemisphereLight(0xe8f6ff, 0x5a7a40, 1.9);
   scene.add(R3.hemi);
@@ -3000,13 +3267,17 @@ function syncOverlays() {
   const p = player;
   R3.aimGroup.visible = false; R3.aimRing.visible = false; R3.ghost.visible = false; R3.mineBox.visible = false;
   if (!p || !p.alive || p.state !== 'play' || Game.over) return;
-  const showAim = !(Input.usingTouch && !Input.touch.aim);
+  const showAim = !Input.usingTouch || isLookCam() || !!Input.touch.aim;
   const slot = HOTBAR[p.slot];
   const px = p.x / TILE, pz = p.y / TILE;
   if (showAim) {
     if (slot === 'weapon') {
       const a = p.br.attack;
-      if (a.type === 'lob') {
+      if (a.type === 'nova') {
+        R3.aimRing.visible = true;
+        R3.aimRing.position.set(px, 0.05, pz);
+        R3.aimRing.scale.setScalar(a.radius);
+      } else if (a.type === 'lob') {
         const t = clampTarget(p, Input.wx, Input.wy, a.range * TILE);
         R3.aimRing.visible = true;
         R3.aimRing.position.set(t.x / TILE, 0.05, t.y / TILE);
@@ -3041,7 +3312,8 @@ function syncOverlays() {
       R3.aimRing.scale.setScalar(slot === 'tnt' ? 2.3 : 0.45);
     }
   }
-  const mt = mineTarget(p, p.aim, Input.usingTouch ? null : Input.wx, Input.usingTouch ? null : Input.wy);
+  const free = Input.usingTouch && !isLookCam();
+  const mt = mineTarget(p, p.aim, free ? null : Input.wx, free ? null : Input.wy);
   if (mt) {
     const b = getBlock(mt.tx, mt.ty);
     R3.mineBox.visible = true;
@@ -3097,6 +3369,21 @@ function buildCharacterModel(br) {
     box(head, 1.6, 1.6, 0.6, '#ff3a3a', -2.4, hs * 0.55, fz);
     box(head, 1.6, 1.6, 0.6, '#ff3a3a', 2.4, hs * 0.55, fz);
     box(head, 2.2, 4.5, 1.8, '#a8a397', 0, hs * 0.35, fz + 0.6);
+  } else if (L.creeper) {
+    // Det klassiske creeper-fjeset
+    for (const sx2 of [-2.4, 2.4]) box(head, 2.6, 2.6, 0.5, '#111', sx2, hs * 0.62, fz);
+    box(head, 2.2, 3.4, 0.5, '#111', 0, hs * 0.36, fz);
+    for (const sx2 of [-1.7, 1.7]) box(head, 1.4, 2.4, 0.5, '#111', sx2, hs * 0.22, fz);
+    box(body, bw + 0.2, 2, 5.4, '#3d8b40', 0, 18, 0);
+    box(body, 3, 3, 5.4, '#6fd36f', -2, 13, 0);
+  } else if (L.ender) {
+    const eyeM = basicMat('#e070ff');
+    for (const sx2 of [-2.6, 2.6]) {
+      const e = new THREE.Mesh(UNIT_BOX, eyeM);
+      e.scale.set(3.2, 1.3, 0.5);
+      e.position.set(sx2, hs * 0.52, fz);
+      head.add(e);
+    }
   } else {
     box(head, 2.4, 1.8, 0.5, '#ffffff', -2.4, hs * 0.52, fz);
     box(head, 2.4, 1.8, 0.5, '#ffffff', 2.4, hs * 0.52, fz);
@@ -3110,6 +3397,10 @@ function buildCharacterModel(br) {
     box(head, hs + 1.6, hs, 1.4, L.hood, 0, hs / 2, -hs / 2 - 0.6);
     box(head, 1.4, hs, hs + 1.6, L.hood, -hs / 2 - 0.6, hs / 2, 0);
     box(head, 1.4, hs, hs + 1.6, L.hood, hs / 2 + 0.6, hs / 2, 0);
+  }
+  if (L.goggles) {
+    box(head, hs + 0.8, 1.6, hs + 0.8, '#3a2a1a', 0, hs * 0.78, 0);
+    for (const sx2 of [-2.4, 2.4]) box(head, 3.4, 2.8, 1, L.goggles, sx2, hs * 0.78, fz + 0.4);
   }
   if (L.helmet) {
     box(head, hs + 1.2, 4, hs + 1.2, L.helmet, 0, hs + 1, 0);
@@ -3142,6 +3433,12 @@ function buildCharacterModel(br) {
   if (t === 'lob') {
     box(gun, 4, 4.5, 4, '#3fd0ff', 0, -13, 0);
     box(gun, 1.8, 2, 1.8, '#cfe8ff', 0, -16, 0);
+  } else if (t === 'nova') {
+    // Ingen våpen – Kalle eksploderer selv
+  } else if (t === 'rocket') {
+    box(gun, 4.8, 17, 4.8, L.gun, 0, -13, 0);
+    box(gun, 3.6, 1.5, 3.6, '#ff5a3a', 0, -21.5, 0);
+    box(gun, 2, 4, 2, '#222', 0, -9, 3);
   } else if (t === 'single') {
     box(gun, 2, 10, 2, L.gun, 0, -14, 0);
     box(gun, 12, 1.2, 1.2, '#3a2410', 0, -17, 0);
@@ -3207,7 +3504,7 @@ function syncFighters() {
       R3.scene.add(md.root);
       R3.models.set(f.id, md);
     }
-    const hidden = isHiddenFromPlayer(f);
+    const hidden = isHiddenFromPlayer(f) || (f === player && R3.camMode === 'fps' && f.state === 'play');
     md.root.visible = !hidden;
     if (hidden) continue;
     const glide = f.state === 'glide';
@@ -3266,7 +3563,10 @@ function makeProjectileMesh(p) {
   if (p.lob) {
     const g = new THREE.Group();
     let body;
-    if (p.kind === 'tnt') {
+    if (p.kind === 'rocketlob') {
+      body = new THREE.Mesh(UNIT_BOX, basicMat('#e74c3c'));
+      body.scale.set(0.16, 0.16, 0.42);
+    } else if (p.kind === 'tnt') {
       const t = iconTexture('tnt');
       body = new THREE.Mesh(UNIT_BOX, new THREE.MeshLambertMaterial({ map: t }));
       body.scale.setScalar(p.big ? 0.6 : 0.45);
@@ -3281,6 +3581,22 @@ function makeProjectileMesh(p) {
     g.add(mark);
     g.userData.body = body;
     g.userData.mark = mark;
+    return g;
+  }
+  if (p.kind === 'rocket') {
+    const g = new THREE.Group();
+    const bodyM = new THREE.Mesh(UNIT_BOX, basicMat('#d63a2a'));
+    bodyM.scale.set(0.14, 0.14, 0.46);
+    const nose = new THREE.Mesh(UNIT_BOX, basicMat('#f2f2f2'));
+    nose.scale.set(0.1, 0.1, 0.12);
+    nose.position.z = 0.28;
+    const fin = new THREE.Mesh(UNIT_BOX, basicMat('#333'));
+    fin.scale.set(0.3, 0.04, 0.1);
+    fin.position.z = -0.2;
+    const flame = new THREE.Mesh(UNIT_BOX, basicMat('#ffb030'));
+    flame.scale.set(0.09, 0.09, 0.2);
+    flame.position.z = -0.32;
+    g.add(bodyM, nose, fin, flame);
     return g;
   }
   if (p.kind === 'arrow') {
@@ -3434,38 +3750,53 @@ function updateCamera3D(dt) {
       const bx = Bus.x / TILE, bz = Bus.y / TILE;
       const fx = Math.cos(R3.yaw), fz = Math.sin(R3.yaw);
       const want = R3.tmpV.set(bx - fx * 16, 22, bz - fz * 16);
-      if (R3.camMode === 'top') want.set(bx, 32 * aspectBoost, bz + 20 * aspectBoost);
+      if (!isLookCam()) want.set(bx, 32 * aspectBoost, bz + 20 * aspectBoost);
       cam.position.lerp(want, 1 - Math.pow(0.02, dt));
       cam.lookAt(bx, 6, bz);
       fogNear = 60; fogFar = 170;
     } else if (tg) {
       const gl = tg.state === 'glide' ? clamp(tg.glideT / 3.4, 0, 1) : 0;
       const x = tg.x / TILE, z = tg.y / TILE, y = gl * 8;
-      if (R3.camMode === 'top' || tg !== player) {
-        const h = (13 + gl * 10) * aspectBoost, back = (9 + gl * 6) * aspectBoost;
+      let mode = tg === player ? R3.camMode : 'brawl';
+      if (mode === 'fps' && gl > 0) mode = 'fortnite';
+      if (mode === 'brawl' || mode === 'bird') {
+        const bird = mode === 'bird';
+        const h = ((bird ? 24 : 13) + gl * 10) * aspectBoost, back = ((bird ? 2.5 : 9) + gl * 6) * aspectBoost;
         const want = R3.tmpV.set(x + sh(), y + h + sh(), z + back);
         cam.position.lerp(want, 1 - Math.pow(0.0005, dt));
-        cam.lookAt(x, y, z - 0.6);
-        fogNear = 30 + gl * 30; fogFar = 75 + gl * 60;
+        cam.lookAt(x, y, z - (bird ? 0.2 : 0.6));
+        fogNear = (bird ? 40 : 30) + gl * 30; fogFar = (bird ? 95 : 75) + gl * 60;
+      } else if (mode === 'fps') {
+        // Førsteperson: kameraet sitter i øynene til brawleren
+        const fx = Math.cos(R3.yaw), fz = Math.sin(R3.yaw);
+        const look = R3.pitch - 0.45;
+        const eye = CHAR_H * (tg.br.r / 17) * 0.88 + (tg.inWater ? -0.25 : 0);
+        cam.position.set(x + fx * 0.22 + sh(), y + eye + sh(), z + fz * 0.22);
+        cam.lookAt(cam.position.x + fx * Math.cos(look), cam.position.y - Math.sin(look), cam.position.z + fz * Math.cos(look));
+        fogNear = 24; fogFar = 60;
       } else {
+        // Fortnite (bak karakteren) og Skulder (tett over skulderen)
+        const close = mode === 'shoulder';
         const fx = Math.cos(R3.yaw), fz = Math.sin(R3.yaw);
         const rx = -fz, rz = fx;
-        const hx = x + rx * 0.85, hz = z + rz * 0.85, hy = y + 1.55;
-        const maxD = 5.2 + gl * 4;
+        const side = close ? 1.0 : 0.55;
+        const hx = x + rx * side, hz = z + rz * side, hy = y + (close ? 1.5 : 1.65);
+        const maxD = (close ? 3.0 : 6.2) + gl * 4;
         // Er det trangt bak deg, løftes kameraet over veggene i stedet for å krype inntil deg
         let pitch = R3.pitch, dist = 0;
         for (const pc of [R3.pitch, 0.75, 0.95, 1.15, 1.3]) {
           if (pc < R3.pitch) continue;
           const d = cameraClearDistance(hx, hy, hz, -fx * Math.cos(pc), Math.sin(pc), -fz * Math.cos(pc), maxD);
           if (d > dist + 0.01) { dist = d; pitch = pc; }
-          if (d >= Math.min(maxD, 3.6)) break;
+          if (d >= Math.min(maxD, 2.8)) break;
         }
         R3.camPitchNow = lerp(R3.camPitchNow || pitch, pitch, 1 - Math.pow(0.001, dt));
         pitch = R3.camPitchNow;
         dist = cameraClearDistance(hx, hy, hz, -fx * Math.cos(pitch), Math.sin(pitch), -fz * Math.cos(pitch), maxD);
         cam.position.set(hx - fx * dist * Math.cos(pitch) + sh(), hy + dist * Math.sin(pitch) + sh(), hz - fz * dist * Math.cos(pitch));
-        cam.lookAt(hx + fx * 6, hy - 0.4, hz + fz * 6);
-        fogNear = 26; fogFar = 62;
+        const ahead = close ? 6 : 8;
+        cam.lookAt(hx + fx * ahead, hy - (close ? 0.3 : 0.5), hz + fz * ahead);
+        fogNear = 26; fogFar = 64;
       }
     }
   }
@@ -3509,13 +3840,23 @@ function worldToScreen(x, h, y) {
   return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H };
 }
 
-function toggleCameraMode() {
-  if (Input.usingTouch) return;
-  R3.camMode = R3.camMode === 'tps' ? 'top' : 'tps';
+const camModeInfo = (id = R3.camMode) => CAMERA_MODES.find((m) => m.id === id) || CAMERA_MODES[0];
+const isLookCam = () => camModeInfo().look;
+
+function setCameraMode(id, quiet) {
+  const prevLook = isLookCam();
+  R3.camMode = camModeInfo(id).id;
   storageSet('br_cam', R3.camMode);
-  if (R3.camMode === 'top' && document.pointerLockElement) document.exitPointerLock();
-  if (R3.camMode === 'tps' && player) R3.yaw = player.aim;
-  announce(R3.camMode === 'tps' ? '🎥 Fortnite-kamera (bak skulderen)' : '🎥 Brawl-kamera (ovenfra)', '#fff', 0.7);
+  if (!isLookCam() && document.pointerLockElement) releasePointer();
+  if (isLookCam() && !prevLook && player) R3.yaw = player.aim;
+  if (Input.usingTouch) updateTouchButtons();
+  const m = camModeInfo();
+  if (!quiet && Game.state === 'play') announce(`${m.icon} Kamera: ${m.name} – ${m.desc}`, '#fff', 0.7);
+}
+
+function cycleCamera() {
+  const i = CAMERA_MODES.findIndex((m) => m.id === R3.camMode);
+  setCameraMode(CAMERA_MODES[(i + 1) % CAMERA_MODES.length].id);
 }
 
 // ---------------- 2D-lag oppå 3D: navn, livsbarer, skadetall ----------------
@@ -3545,6 +3886,7 @@ function drawWorldOverlay(g) {
   const camPos = R3.camera.position;
   for (const f of fighters) {
     if (!f.alive || f.state === 'bus' || isHiddenFromPlayer(f)) continue;
+    if (f === player && R3.camMode === 'fps' && f.state === 'play') continue;
     const glide = f.state === 'glide';
     const lift = glide ? 1 + 8 * clamp(f.glideT / 3.4, 0, 1) + 2.4 : 0;
     const s = worldToScreen(f.x, lift + CHAR_H * (f.br.r / 17) + 0.45, f.y);
@@ -3751,8 +4093,8 @@ function drawHUD(g) {
   }
 
   // --- Trådkors og musehjelp i Fortnite-kameraet ---
-  if (R3.camMode === 'tps' && !Input.usingTouch && p.state === 'play') {
-    if (document.pointerLockElement === canvas) {
+  if (isLookCam() && p.state === 'play') {
+    if (document.pointerLockElement === canvas || Input.usingTouch) {
       g.strokeStyle = 'rgba(255,255,255,0.9)';
       g.lineWidth = 2;
       g.beginPath();
@@ -3762,7 +4104,7 @@ function drawHUD(g) {
       g.moveTo(W / 2, H / 2 + 3); g.lineTo(W / 2, H / 2 + 10);
       g.stroke();
     } else if (!Game.craftOpen) {
-      outlinedText(g, '🖱️ Klikk for å styre kameraet med musa  •  V = kamera ovenfra', W / 2, H * 0.74, 16, '#fff');
+      outlinedText(g, '🖱️ Klikk for å styre kameraet med musa  •  V = bytt kameravinkel', W / 2, H * 0.74, 16, '#fff');
     }
   }
 
@@ -3829,7 +4171,7 @@ function drawHUD(g) {
   // --- Kontrollhjelp ---
   if (!Input.usingTouch && Game.time < 45 && p.state === 'play') {
     const lines = ['WASD: gå   •   Mus: se rundt og sikt', 'Venstreklikk: skyt / bygg / bruk', 'Høyreklikk (eller F): grav med hakka',
-      '1–8 / hjul: velg i hotbar   •   Q: rask vegg', 'E / mellomrom: SUPER   •   C: crafting', 'V: bytt kamera (bak skulderen / ovenfra)'];
+      '1–8 / hjul: velg i hotbar   •   Q: rask vegg', 'E / mellomrom: SUPER   •   C: crafting', 'V: bytt kameravinkel (5 forskjellige)'];
     g.globalAlpha = clamp((45 - Game.time) / 3, 0, 0.9);
     g.fillStyle = 'rgba(0,0,0,0.45)';
     roundRect(g, 10, H - 20 - lines.length * 18, 290, lines.length * 18 + 10, 8); g.fill();
@@ -3849,7 +4191,7 @@ function drawHUD(g) {
       g.beginPath(); g.arc(st.ox + dx * k, st.oy + dy * k, 26, 0, TAU); g.fill();
     };
     drawStick(Input.touch.move, 'rgba(255,255,255,0.6)');
-    drawStick(Input.touch.aim, 'rgba(255,90,90,0.7)');
+    if (Input.touch.aim && !Input.touch.aim.look) drawStick(Input.touch.aim, 'rgba(255,90,90,0.7)');
     const btn = document.getElementById('btnSuper');
     if (btn) {
       const pct = Math.round(p.superCharge * 100);
@@ -3880,11 +4222,17 @@ function drawPortrait(canvasEl, br) {
 }
 
 function buildMenu() {
+  if (!ownsBrawler(BRAWLERS[Game.selected]) && Game.state === 'play') Game.selected = BRAWLERS.findIndex(ownsBrawler);
+  $('coins').textContent = `🪙 ${Profile.coins}`;
+  $('trophies').textContent = `🏆 ${Profile.trophies}   •   👑 ${Profile.wins} seire`;
+
+  // --- Brawler-kort (butikk) ---
   const list = $('brawlerList');
   list.innerHTML = '';
   BRAWLERS.forEach((br, i) => {
+    const owned = ownsBrawler(br);
     const card = document.createElement('button');
-    card.className = 'card' + (i === Game.selected ? ' selected' : '');
+    card.className = 'card' + (i === Game.selected ? ' selected' : '') + (owned ? '' : ' locked');
     card.style.setProperty('--c', br.color);
     const cv = document.createElement('canvas');
     cv.width = 96; cv.height = 96;
@@ -3893,10 +4241,15 @@ function buildMenu() {
     const nm = document.createElement('div');
     nm.className = 'card-name';
     nm.textContent = br.name;
-    const rl = document.createElement('div');
-    rl.className = 'card-role';
-    rl.textContent = br.role;
-    card.append(nm, rl);
+    const tag = document.createElement('div');
+    if (owned) {
+      tag.className = 'card-level';
+      tag.textContent = `Nivå ${brawlerLevel(br)}`;
+    } else {
+      tag.className = 'card-price' + (Profile.coins >= br.price ? ' can' : '');
+      tag.textContent = `🔒 🪙 ${br.price}`;
+    }
+    card.append(nm, tag);
     card.addEventListener('click', () => {
       Game.selected = i;
       storageSet('br_brawler', i);
@@ -3905,19 +4258,78 @@ function buildMenu() {
     });
     list.appendChild(card);
   });
+
+  // --- Info, kjøp og oppgradering ---
   const br = BRAWLERS[Game.selected];
-  const stat = (label, v, max) => `<div class="stat"><span>${label}</span><div class="statbar"><i style="width:${Math.round((v / max) * 100)}%"></i></div></div>`;
+  const owned = ownsBrawler(br);
+  const lvl = owned ? brawlerLevel(br) : 1;
+  const mul = levelMul(lvl);
+  const stat = (label, v, max) => `<div class="stat"><span>${label}</span><div class="statbar"><i style="width:${Math.round(clamp(v / max, 0, 1) * 100)}%"></i></div></div>`;
   const dmgPerAmmo = br.attack.dmg * (br.attack.count || 1);
+  const stars = '★'.repeat(lvl) + '☆'.repeat(MAX_LEVEL - lvl);
   $('brawlerInfo').innerHTML = `
-    <h3 style="color:${br.color}">${br.name}</h3>
-    ${stat('Liv', br.hp, 5400)}
-    ${stat('Skade', dmgPerAmmo, 1800)}
+    <h3 style="color:${br.color}">${br.name} <small>${br.role}</small></h3>
+    <div class="lvl-stars" title="Nivå ${lvl} av ${MAX_LEVEL}">${stars} <span>Nivå ${lvl}/${MAX_LEVEL}</span></div>
+    ${stat(`Liv (${Math.round(br.hp * mul)})`, br.hp * mul, 7000)}
+    ${stat(`Skade (${Math.round(dmgPerAmmo * mul)})`, dmgPerAmmo * mul, 2400)}
     ${stat('Rekkevidde', br.attack.range, 13)}
-    ${stat('Fart', br.speed - 150, 60)}
+    ${stat('Fart', br.speed - 150, 80)}
     <p><b>Angrep:</b> ${br.attack.label}</p>
     <p><b>Super:</b> ${br.sup.label}</p>
     <p><b>Passiv:</b> ${br.passive}</p>`;
-  $('trophies').textContent = `🏆 ${Game.trophies}   •   👑 ${Game.wins} seire`;
+
+  const act = $('brawlerAction');
+  act.innerHTML = '';
+  const btn = document.createElement('button');
+  if (!owned) {
+    const can = Profile.coins >= br.price;
+    btn.className = 'buy-btn';
+    btn.textContent = `Kjøp for 🪙 ${br.price}`;
+    btn.disabled = !can;
+    btn.addEventListener('click', () => {
+      if (buyBrawler(br)) { Sfx.play('cube'); buildMenu(); }
+    });
+    act.appendChild(btn);
+    if (!can) {
+      const msg = document.createElement('div');
+      msg.className = 'need';
+      msg.textContent = `Du mangler ${br.price - Profile.coins} mynter – spill flere runder!`;
+      act.appendChild(msg);
+    }
+  } else {
+    const cost = upgradeCost(br);
+    btn.className = 'up-btn';
+    if (cost === null) {
+      btn.textContent = '⭐ MAKS NIVÅ ⭐';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = `⬆️ Oppgrader til nivå ${lvl + 1} – 🪙 ${cost}<small>+${Math.round(LEVEL_BONUS * 100)} % liv og skade</small>`;
+      btn.disabled = Profile.coins < cost;
+      btn.addEventListener('click', () => {
+        if (upgradeBrawler(br)) { Sfx.play('ready'); buildMenu(); }
+      });
+    }
+    act.appendChild(btn);
+  }
+  const play = $('playBtn');
+  play.disabled = !owned;
+  play.textContent = owned ? 'SPILL!' : 'KJØP FØRST';
+
+  // --- Kameravinkel ---
+  const cams = $('camPicker');
+  cams.innerHTML = '';
+  for (const m of CAMERA_MODES) {
+    const b = document.createElement('button');
+    b.className = 'cam-btn' + (m.id === R3.camMode ? ' selected' : '');
+    b.innerHTML = `<span>${m.icon}</span><b>${m.name}</b><small>${m.desc}</small>`;
+    b.addEventListener('click', () => { setCameraMode(m.id, true); Sfx.play('click'); buildMenu(); });
+    cams.appendChild(b);
+  }
+}
+
+function updatePauseCamLabel() {
+  const m = camModeInfo();
+  $('pauseCamBtn').textContent = `${m.icon} Kamera: ${m.name} (bytt)`;
 }
 
 function openCraft() {
@@ -3932,7 +4344,7 @@ function closeCraft() {
   const wasOpen = Game.craftOpen;
   Game.craftOpen = false;
   hide('craftPanel');
-  if (wasOpen && Game.state === 'play' && !Game.over && !Game.paused && R3.camMode === 'tps') lockPointer();
+  if (wasOpen && Game.state === 'play' && !Game.over && !Game.paused && isLookCam()) lockPointer();
 }
 
 function refreshCraft() {
@@ -3967,21 +4379,20 @@ function refreshCraft() {
 function showEndScreen(win) {
   const p = player;
   const place = win ? 1 : p.place;
-  const table = [10, 8, 6, 4, 2, 0, -1, -2, -3, -4];
-  const delta = (table[place - 1] || -4) + p.kills;
-  Game.trophies = Math.max(0, Game.trophies + delta);
-  if (win) Game.wins++;
-  storageSet('br_trophies', Game.trophies);
-  storageSet('br_wins', Game.wins);
+  const r = giveMatchReward(place, p.kills, win);
   $('endTitle').innerHTML = win ? '#1 VICTORY ROYALE!' : `Du ble nr. ${place}`;
   $('endTitle').className = win ? 'win' : '';
   $('endSub').textContent = win ? 'Du er den siste brawleren på øya! 👑'
     : place <= 3 ? 'Så nære! Prøv igjen!' : 'Stormen venter ikke – prøv igjen!';
   $('endStats').innerHTML = `
     <div><b>${p.kills}</b><span>Elimineringer</span></div>
-    <div><b>${p.cubes}</b><span>Kraftkuber</span></div>
     <div><b>${fmtTime(Game.time)}</b><span>Tid overlevd</span></div>
-    <div><b class="${delta >= 0 ? 'plus' : 'minus'}">${delta >= 0 ? '+' : ''}${delta} 🏆</b><span>Trofeer</span></div>`;
+    <div><b class="${r.trophies >= 0 ? 'plus' : 'minus'}">${r.trophies >= 0 ? '+' : ''}${r.trophies} 🏆</b><span>Trofeer</span></div>
+    <div><b class="coin">+${r.coins} 🪙</b><span>Mynter (nå ${Profile.coins})</span></div>`;
+  const next = BRAWLERS.filter((b) => !ownsBrawler(b)).sort((a, b) => a.price - b.price)[0];
+  $('endHint').textContent = next
+    ? (Profile.coins >= next.price ? `Du har råd til ${next.name}! Gå til «Brawlere» for å kjøpe.` : `${next.price - Profile.coins} mynter igjen til ${next.name}`)
+    : 'Du eier alle brawlerne – oppgrader dem til nivå 7!';
   show('endScreen');
 }
 
@@ -3996,7 +4407,7 @@ function showEndScreen(win) {
 const Input = {
   keys: {}, mouse: { x: 0, y: 0, left: false, right: false, leftPressed: false },
   wx: 0, wy: 0, usingTouch: false, unlockT: 0, expectUnlock: false,
-  touch: { move: null, aim: null, mineHeld: false },
+  touch: { move: null, aim: null, mineHeld: false, fireHeld: false },
 };
 
 function selectSlot(i) {
@@ -4019,7 +4430,7 @@ function setupInput() {
     }
     if (Game.paused) return;
     if (e.code === 'KeyC') { Game.craftOpen ? closeCraft() : openCraft(); return; }
-    if (e.code === 'KeyV') { toggleCameraMode(); return; }
+    if (e.code === 'KeyV') { cycleCamera(); return; }
     if (!p || !p.alive) return;
     if (e.code.startsWith('Digit')) {
       const n = parseInt(e.code.slice(5), 10);
@@ -4059,7 +4470,7 @@ function setupInput() {
         const sb = Game.superBtn;
         if (sb && player && dist(e.clientX, e.clientY, sb.x, sb.y) < sb.r) { trySuper(player, player.aim, null, null); return; }
       }
-      if (R3.camMode === 'tps' && player && player.alive && !Game.over && !Game.craftOpen) lockPointer();
+      if (isLookCam() && player && player.alive && !Game.over && !Game.craftOpen) lockPointer();
     }
     if (e.button === 0) {
       Input.mouse.left = true;
@@ -4078,7 +4489,7 @@ function setupInput() {
     Input.unlockT = performance.now();
     Input.mouse.left = Input.mouse.right = false;
     if (Input.expectUnlock) { Input.expectUnlock = false; return; }
-    if (Game.state === 'play' && !Game.paused && !Game.over && R3.camMode === 'tps') togglePause();
+    if (Game.state === 'play' && !Game.paused && !Game.over && isLookCam() && !Input.usingTouch) togglePause();
   });
   canvas.addEventListener('wheel', (e) => {
     if (Game.state !== 'play' || !player) return;
@@ -4090,7 +4501,7 @@ function setupInput() {
   canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
     Sfx.init();
-    if (!Input.usingTouch) { Input.usingTouch = true; R3.camMode = 'top'; releasePointer(); showTouchUI(); }
+    if (!Input.usingTouch) { Input.usingTouch = true; releasePointer(); showTouchUI(); }
     if (Game.state !== 'play' || Game.paused) return;
     for (const t of e.changedTouches) {
       const x = t.clientX, y = t.clientY;
@@ -4098,7 +4509,7 @@ function setupInput() {
       const slot = hotbarHit(x, y);
       if (slot >= 0) { onTouchSlot(slot); continue; }
       if (x < W * 0.45 && !Input.touch.move) Input.touch.move = { id: t.identifier, ox: x, oy: y, x, y };
-      else if (!Input.touch.aim) Input.touch.aim = { id: t.identifier, ox: x, oy: y, x, y, dragged: false };
+      else if (!Input.touch.aim) Input.touch.aim = { id: t.identifier, ox: x, oy: y, x, y, lx: x, ly: y, dragged: false, look: isLookCam() };
     }
   }, { passive: false });
   canvas.addEventListener('touchmove', (e) => {
@@ -4108,6 +4519,12 @@ function setupInput() {
       if (!st) continue;
       st.x = t.clientX; st.y = t.clientY;
       if (st === Input.touch.aim && Math.hypot(st.x - st.ox, st.y - st.oy) > 18) st.dragged = true;
+      if (st === Input.touch.aim && st.look) {
+        // Fortnite på mobil: dra med høyre tommel for å se deg rundt
+        R3.yaw += (st.x - st.lx) * 0.0065;
+        R3.pitch = clamp(R3.pitch + (st.y - st.ly) * 0.004, 0.06, 1.25);
+        st.lx = st.x; st.ly = st.y;
+      }
     }
   }, { passive: false });
   const end = (e) => {
@@ -4117,7 +4534,9 @@ function setupInput() {
         const a = Input.touch.aim;
         Input.touch.aim = null;
         if (player && player.alive && player.state === 'play' && !Game.paused) {
-          if (a.dragged) {
+          if (a.look) {
+            if (!a.dragged) touchAction(player.aim, 1, true);
+          } else if (a.dragged) {
             const ang = Math.atan2(a.y - a.oy, a.x - a.ox);
             const frac = clamp(Math.hypot(a.x - a.ox, a.y - a.oy) / 60, 0.2, 1);
             touchAction(ang, frac);
@@ -4138,6 +4557,7 @@ function setupInput() {
   };
   hold('btnSuper', () => {
     if (!player || player.state !== 'play') return;
+    if (isLookCam()) { trySuper(player, player.aim, Input.wx, Input.wy); return; }
     const t = autoTarget(superRange(player));
     if (t) trySuper(player, angTo(player, t), t.x, t.y);
     else trySuper(player, player.aim, null, null);
@@ -4150,6 +4570,8 @@ function setupInput() {
   });
   hold('btnCraft', () => { Game.craftOpen ? closeCraft() : openCraft(); });
   hold('btnPause', () => togglePause());
+  hold('btnCam', () => cycleCamera());
+  hold('btnFire', () => { Input.touch.fireHeld = true; Input.mouse.leftPressed = true; }, () => { Input.touch.fireHeld = false; });
 }
 
 function lockPointer() {
@@ -4167,7 +4589,13 @@ function releasePointer() {
   }
 }
 
-function showTouchUI() { if (Game.state === 'play') show('touchUI'); }
+function showTouchUI() { if (Game.state === 'play') { show('touchUI'); updateTouchButtons(); } }
+
+// SKYT-knappen trengs bare i kameraene der du ser deg rundt (Fortnite, Skulder, Førsteperson)
+function updateTouchButtons() {
+  $('btnFire').classList.toggle('hidden', !isLookCam());
+  $('touchUI').classList.toggle('look', isLookCam());
+}
 function hideTouchUI() { hide('touchUI'); }
 
 function onTouchSlot(slot) {
@@ -4189,11 +4617,18 @@ function autoTarget(range) {
   return best;
 }
 
-function touchAction(ang, frac) {
+function touchAction(ang, frac, atCrosshair) {
   const p = player;
   p.aim = ang;
   const nm = HOTBAR[p.slot];
   const a = p.br.attack;
+  if (atCrosshair) {
+    // Trykk i Fortnite-kameraet: bruk det som er valgt mot trådkorset
+    if (nm === 'weapon') tryAttack(p, p.aim, Input.wx, Input.wy);
+    else if (nm in MAT_BLOCK) placeBuild(p, tileOf(Input.wx), tileOf(Input.wy), nm);
+    else useItem(p, nm, Input.wx, Input.wy);
+    return;
+  }
   if (nm === 'weapon') {
     const d = a.range * TILE * frac;
     tryAttack(p, ang, p.x + Math.cos(ang) * d, p.y + Math.sin(ang) * d);
@@ -4235,8 +4670,8 @@ function handlePlayerInput() {
     const dx = tm.x - tm.ox, dy = tm.y - tm.oy, d = Math.hypot(dx, dy);
     if (d > 8) { mx = (dx / d) * Math.min(1, d / 50); my = (dy / d) * Math.min(1, d / 50); }
   }
-  if (R3.camMode === 'tps' && !Input.usingTouch) {
-    // Fortnite-kamera: W er alltid fremover der kameraet ser
+  if (isLookCam()) {
+    // Fortnite-kamera: fremover er alltid dit kameraet ser
     const fx = Math.cos(R3.yaw), fy = Math.sin(R3.yaw);
     const fwd = -my, right = mx;
     mx = fx * fwd - fy * right;
@@ -4244,7 +4679,8 @@ function handlePlayerInput() {
   }
   p.moveX = mx; p.moveY = my;
 
-  if (Input.usingTouch) {
+  const look = isLookCam();
+  if (Input.usingTouch && !look) {
     const ta = Input.touch.aim;
     if (ta && ta.dragged) p.aim = Math.atan2(ta.y - ta.oy, ta.x - ta.ox);
     else if (Math.hypot(mx, my) > 0.2) p.aim = Math.atan2(my, mx);
@@ -4255,7 +4691,7 @@ function handlePlayerInput() {
     Input.wx = p.x + Math.cos(p.aim) * d;
     Input.wy = p.y + Math.sin(p.aim) * d;
   } else {
-    const tps = R3.camMode === 'tps';
+    const tps = look;
     const hit = tps ? screenToWorld(W / 2, H / 2) : screenToWorld(Input.mouse.x, Input.mouse.y);
     if (hit && (!tps || dist(hit.x, hit.y, p.x, p.y) < 40 * TILE)) { Input.wx = hit.x; Input.wy = hit.y; }
     else { Input.wx = p.x + Math.cos(R3.yaw) * 12 * TILE; Input.wy = p.y + Math.sin(R3.yaw) * 12 * TILE; }
@@ -4267,7 +4703,7 @@ function handlePlayerInput() {
   if (p.state !== 'play') { Input.mouse.leftPressed = false; return; }
 
   const nm = HOTBAR[p.slot];
-  if (Input.mouse.left && !Game.craftOpen) {
+  if ((Input.mouse.left || Input.touch.fireHeld) && !Game.craftOpen) {
     if (nm === 'weapon') tryAttack(p, p.aim, Input.wx, Input.wy);
     else if (nm in MAT_BLOCK) {
       if (p.buildCd <= 0 && placeBuild(p, tileOf(Input.wx), tileOf(Input.wy), nm)) p.buildCd = 0.12;
@@ -4278,7 +4714,8 @@ function handlePlayerInput() {
   Input.mouse.leftPressed = false;
 
   if (Input.mouse.right || Input.keys.KeyF || Input.touch.mineHeld) {
-    tryMine(p, p.aim, Input.usingTouch ? null : Input.wx, Input.usingTouch ? null : Input.wy);
+    const free = Input.usingTouch && !look;
+    tryMine(p, p.aim, free ? null : Input.wx, free ? null : Input.wy);
   }
 }
 
@@ -4299,9 +4736,7 @@ const Game = {
   cam: { x: WORLD_W / 2, y: WORLD_H / 2, zoom: 1, shake: 0 },
   announces: [], slotNameT: -9, superBtn: null, lastPOI: null, spectate: null,
   selected: clamp(storageGet('br_brawler', 0) | 0, 0, BRAWLERS.length - 1),
-  trophies: storageGet('br_trophies', 0) | 0,
-  wins: storageGet('br_wins', 0) | 0,
-  menuT: 0,
+  menuT: 0, reward: null,
 };
 
 function resize() {
@@ -4328,11 +4763,16 @@ function startGame() {
   generateWorld(Math.floor(Math.random() * 1e9));
   initStorm();
   initBus();
-  player = createFighter(Game.selected, 'Du', true);
+  if (!ownsBrawler(BRAWLERS[Game.selected])) Game.selected = BRAWLERS.findIndex(ownsBrawler);
+  const myLevel = brawlerLevel(BRAWLERS[Game.selected]);
+  player = createFighter(Game.selected, 'Du', true, myLevel);
   fighters.push(player);
+  Game.reward = null;
   const names = shuffle(BOT_NAMES.slice());
   for (let i = 0; i < NUM_FIGHTERS - 1; i++) {
-    const f = createFighter(randi(0, BRAWLERS.length - 1), names[i], false);
+    // Botene er omtrent like sterke som deg
+    const lvl = clamp(myLevel + randi(-1, 1), 1, MAX_LEVEL);
+    const f = createFighter(randi(0, BRAWLERS.length - 1), names[i], false, lvl);
     f.bot = newBrain();
     fighters.push(f);
   }
@@ -4377,6 +4817,7 @@ function togglePause() {
   if (Game.paused) {
     releasePointer();
     $('soundBtn').textContent = Sfx.enabled ? '🔊 Lyd: PÅ' : '🔇 Lyd: AV';
+    updatePauseCamLabel();
     show('pausePanel');
   } else hide('pausePanel');
 }
@@ -4460,17 +4901,19 @@ function loop(ts) {
 }
 
 function init() {
+  loadProfile();
+  if (!ownsBrawler(BRAWLERS[Game.selected])) Game.selected = BRAWLERS.findIndex(ownsBrawler);
   buildTextures();
   initRenderer3D();
   resize();
   window.addEventListener('resize', resize);
   setupInput();
-  $('playBtn').addEventListener('click', () => { Sfx.init(); Sfx.play('click'); startGame(); if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer(); });
-  $('againBtn').addEventListener('click', () => { Sfx.play('click'); startGame(); if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer(); });
+  $('playBtn').addEventListener('click', () => { Sfx.init(); Sfx.play('click'); startGame(); if (isLookCam()) lockPointer(); });
+  $('againBtn').addEventListener('click', () => { Sfx.play('click'); startGame(); if (isLookCam()) lockPointer(); });
   $('menuBtn').addEventListener('click', () => { Sfx.play('click'); goToMenu(); });
   $('resumeBtn').addEventListener('click', () => {
     togglePause();
-    if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer();
+    if (isLookCam()) lockPointer();
   });
   $('quitBtn').addEventListener('click', () => goToMenu());
   $('soundBtn').addEventListener('click', () => {
@@ -4478,6 +4921,7 @@ function init() {
     $('soundBtn').textContent = on ? '🔊 Lyd: PÅ' : '🔇 Lyd: AV';
   });
   $('craftClose').addEventListener('click', () => closeCraft());
+  $('pauseCamBtn').addEventListener('click', () => { cycleCamera(); updatePauseCamLabel(); });
   goToMenu();
   requestAnimationFrame(loop);
 }

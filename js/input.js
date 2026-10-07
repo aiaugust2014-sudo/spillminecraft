@@ -6,7 +6,7 @@
 const Input = {
   keys: {}, mouse: { x: 0, y: 0, left: false, right: false, leftPressed: false },
   wx: 0, wy: 0, usingTouch: false, unlockT: 0, expectUnlock: false,
-  touch: { move: null, aim: null, mineHeld: false },
+  touch: { move: null, aim: null, mineHeld: false, fireHeld: false },
 };
 
 function selectSlot(i) {
@@ -29,7 +29,7 @@ function setupInput() {
     }
     if (Game.paused) return;
     if (e.code === 'KeyC') { Game.craftOpen ? closeCraft() : openCraft(); return; }
-    if (e.code === 'KeyV') { toggleCameraMode(); return; }
+    if (e.code === 'KeyV') { cycleCamera(); return; }
     if (!p || !p.alive) return;
     if (e.code.startsWith('Digit')) {
       const n = parseInt(e.code.slice(5), 10);
@@ -69,7 +69,7 @@ function setupInput() {
         const sb = Game.superBtn;
         if (sb && player && dist(e.clientX, e.clientY, sb.x, sb.y) < sb.r) { trySuper(player, player.aim, null, null); return; }
       }
-      if (R3.camMode === 'tps' && player && player.alive && !Game.over && !Game.craftOpen) lockPointer();
+      if (isLookCam() && player && player.alive && !Game.over && !Game.craftOpen) lockPointer();
     }
     if (e.button === 0) {
       Input.mouse.left = true;
@@ -88,7 +88,7 @@ function setupInput() {
     Input.unlockT = performance.now();
     Input.mouse.left = Input.mouse.right = false;
     if (Input.expectUnlock) { Input.expectUnlock = false; return; }
-    if (Game.state === 'play' && !Game.paused && !Game.over && R3.camMode === 'tps') togglePause();
+    if (Game.state === 'play' && !Game.paused && !Game.over && isLookCam() && !Input.usingTouch) togglePause();
   });
   canvas.addEventListener('wheel', (e) => {
     if (Game.state !== 'play' || !player) return;
@@ -100,7 +100,7 @@ function setupInput() {
   canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
     Sfx.init();
-    if (!Input.usingTouch) { Input.usingTouch = true; R3.camMode = 'top'; releasePointer(); showTouchUI(); }
+    if (!Input.usingTouch) { Input.usingTouch = true; releasePointer(); showTouchUI(); }
     if (Game.state !== 'play' || Game.paused) return;
     for (const t of e.changedTouches) {
       const x = t.clientX, y = t.clientY;
@@ -108,7 +108,7 @@ function setupInput() {
       const slot = hotbarHit(x, y);
       if (slot >= 0) { onTouchSlot(slot); continue; }
       if (x < W * 0.45 && !Input.touch.move) Input.touch.move = { id: t.identifier, ox: x, oy: y, x, y };
-      else if (!Input.touch.aim) Input.touch.aim = { id: t.identifier, ox: x, oy: y, x, y, dragged: false };
+      else if (!Input.touch.aim) Input.touch.aim = { id: t.identifier, ox: x, oy: y, x, y, lx: x, ly: y, dragged: false, look: isLookCam() };
     }
   }, { passive: false });
   canvas.addEventListener('touchmove', (e) => {
@@ -118,6 +118,12 @@ function setupInput() {
       if (!st) continue;
       st.x = t.clientX; st.y = t.clientY;
       if (st === Input.touch.aim && Math.hypot(st.x - st.ox, st.y - st.oy) > 18) st.dragged = true;
+      if (st === Input.touch.aim && st.look) {
+        // Fortnite på mobil: dra med høyre tommel for å se deg rundt
+        R3.yaw += (st.x - st.lx) * 0.0065;
+        R3.pitch = clamp(R3.pitch + (st.y - st.ly) * 0.004, 0.06, 1.25);
+        st.lx = st.x; st.ly = st.y;
+      }
     }
   }, { passive: false });
   const end = (e) => {
@@ -127,7 +133,9 @@ function setupInput() {
         const a = Input.touch.aim;
         Input.touch.aim = null;
         if (player && player.alive && player.state === 'play' && !Game.paused) {
-          if (a.dragged) {
+          if (a.look) {
+            if (!a.dragged) touchAction(player.aim, 1, true);
+          } else if (a.dragged) {
             const ang = Math.atan2(a.y - a.oy, a.x - a.ox);
             const frac = clamp(Math.hypot(a.x - a.ox, a.y - a.oy) / 60, 0.2, 1);
             touchAction(ang, frac);
@@ -148,6 +156,7 @@ function setupInput() {
   };
   hold('btnSuper', () => {
     if (!player || player.state !== 'play') return;
+    if (isLookCam()) { trySuper(player, player.aim, Input.wx, Input.wy); return; }
     const t = autoTarget(superRange(player));
     if (t) trySuper(player, angTo(player, t), t.x, t.y);
     else trySuper(player, player.aim, null, null);
@@ -160,6 +169,8 @@ function setupInput() {
   });
   hold('btnCraft', () => { Game.craftOpen ? closeCraft() : openCraft(); });
   hold('btnPause', () => togglePause());
+  hold('btnCam', () => cycleCamera());
+  hold('btnFire', () => { Input.touch.fireHeld = true; Input.mouse.leftPressed = true; }, () => { Input.touch.fireHeld = false; });
 }
 
 function lockPointer() {
@@ -177,7 +188,13 @@ function releasePointer() {
   }
 }
 
-function showTouchUI() { if (Game.state === 'play') show('touchUI'); }
+function showTouchUI() { if (Game.state === 'play') { show('touchUI'); updateTouchButtons(); } }
+
+// SKYT-knappen trengs bare i kameraene der du ser deg rundt (Fortnite, Skulder, Førsteperson)
+function updateTouchButtons() {
+  $('btnFire').classList.toggle('hidden', !isLookCam());
+  $('touchUI').classList.toggle('look', isLookCam());
+}
 function hideTouchUI() { hide('touchUI'); }
 
 function onTouchSlot(slot) {
@@ -199,11 +216,18 @@ function autoTarget(range) {
   return best;
 }
 
-function touchAction(ang, frac) {
+function touchAction(ang, frac, atCrosshair) {
   const p = player;
   p.aim = ang;
   const nm = HOTBAR[p.slot];
   const a = p.br.attack;
+  if (atCrosshair) {
+    // Trykk i Fortnite-kameraet: bruk det som er valgt mot trådkorset
+    if (nm === 'weapon') tryAttack(p, p.aim, Input.wx, Input.wy);
+    else if (nm in MAT_BLOCK) placeBuild(p, tileOf(Input.wx), tileOf(Input.wy), nm);
+    else useItem(p, nm, Input.wx, Input.wy);
+    return;
+  }
   if (nm === 'weapon') {
     const d = a.range * TILE * frac;
     tryAttack(p, ang, p.x + Math.cos(ang) * d, p.y + Math.sin(ang) * d);
@@ -245,8 +269,8 @@ function handlePlayerInput() {
     const dx = tm.x - tm.ox, dy = tm.y - tm.oy, d = Math.hypot(dx, dy);
     if (d > 8) { mx = (dx / d) * Math.min(1, d / 50); my = (dy / d) * Math.min(1, d / 50); }
   }
-  if (R3.camMode === 'tps' && !Input.usingTouch) {
-    // Fortnite-kamera: W er alltid fremover der kameraet ser
+  if (isLookCam()) {
+    // Fortnite-kamera: fremover er alltid dit kameraet ser
     const fx = Math.cos(R3.yaw), fy = Math.sin(R3.yaw);
     const fwd = -my, right = mx;
     mx = fx * fwd - fy * right;
@@ -254,7 +278,8 @@ function handlePlayerInput() {
   }
   p.moveX = mx; p.moveY = my;
 
-  if (Input.usingTouch) {
+  const look = isLookCam();
+  if (Input.usingTouch && !look) {
     const ta = Input.touch.aim;
     if (ta && ta.dragged) p.aim = Math.atan2(ta.y - ta.oy, ta.x - ta.ox);
     else if (Math.hypot(mx, my) > 0.2) p.aim = Math.atan2(my, mx);
@@ -265,7 +290,7 @@ function handlePlayerInput() {
     Input.wx = p.x + Math.cos(p.aim) * d;
     Input.wy = p.y + Math.sin(p.aim) * d;
   } else {
-    const tps = R3.camMode === 'tps';
+    const tps = look;
     const hit = tps ? screenToWorld(W / 2, H / 2) : screenToWorld(Input.mouse.x, Input.mouse.y);
     if (hit && (!tps || dist(hit.x, hit.y, p.x, p.y) < 40 * TILE)) { Input.wx = hit.x; Input.wy = hit.y; }
     else { Input.wx = p.x + Math.cos(R3.yaw) * 12 * TILE; Input.wy = p.y + Math.sin(R3.yaw) * 12 * TILE; }
@@ -277,7 +302,7 @@ function handlePlayerInput() {
   if (p.state !== 'play') { Input.mouse.leftPressed = false; return; }
 
   const nm = HOTBAR[p.slot];
-  if (Input.mouse.left && !Game.craftOpen) {
+  if ((Input.mouse.left || Input.touch.fireHeld) && !Game.craftOpen) {
     if (nm === 'weapon') tryAttack(p, p.aim, Input.wx, Input.wy);
     else if (nm in MAT_BLOCK) {
       if (p.buildCd <= 0 && placeBuild(p, tileOf(Input.wx), tileOf(Input.wy), nm)) p.buildCd = 0.12;
@@ -288,6 +313,7 @@ function handlePlayerInput() {
   Input.mouse.leftPressed = false;
 
   if (Input.mouse.right || Input.keys.KeyF || Input.touch.mineHeld) {
-    tryMine(p, p.aim, Input.usingTouch ? null : Input.wx, Input.usingTouch ? null : Input.wy);
+    const free = Input.usingTouch && !look;
+    tryMine(p, p.aim, free ? null : Input.wx, free ? null : Input.wy);
   }
 }
