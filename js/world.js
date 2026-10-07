@@ -6,7 +6,11 @@
 const World = {
   ground: null, block: null, hp: null, maxHp: null, hitT: null, placedT: null,
   pois: [], mini: null, miniCtx: null, miniImg: null, miniDirty: false, groundCanvas: null,
+  // Hvilke blokktyper 3D-grafikken må tegne på nytt
+  dirty: new Uint8Array(16), dirtyAll: true, version: 0,
 };
+
+function markDirty(b) { if (b > 0) World.dirty[b] = 1; }
 const growing = [];
 
 const MINI_GROUND = [[92, 170, 72], [228, 212, 148], [54, 118, 212], [138, 100, 64], [184, 140, 84]];
@@ -60,6 +64,8 @@ function generateWorld(seed) {
   World.placedT = new Float32Array(N).fill(-99);
   World.pois = [];
   growing.length = 0;
+  World.dirtyAll = true;
+  World.version++;
 
   const nE = makeValueNoise(rng), nM = makeValueNoise(rng), nF = makeValueNoise(rng);
   const nB = makeValueNoise(rng), nD = makeValueNoise(rng);
@@ -259,6 +265,8 @@ function flushMinimap() {
 function setBlock(tx, ty, b, grow) {
   if (!inMap(tx, ty)) return;
   const i = tIdx(tx, ty);
+  markDirty(World.block[i]);
+  markDirty(b);
   placeRaw(i, b);
   if (grow) {
     World.hp[i] = World.maxHp[i] * 0.3;
@@ -275,6 +283,7 @@ function updateGrowing(dt) {
     const g = growing[k];
     g.t += dt;
     if (!World.block[g.i]) { growing.splice(k, 1); continue; }
+    markDirty(World.block[g.i]);
     World.hp[g.i] = Math.min(World.maxHp[g.i], World.hp[g.i] + World.maxHp[g.i] * 0.7 * dt / 0.9);
     if (g.t >= 0.9) growing.splice(k, 1);
   }
@@ -288,6 +297,7 @@ function damageBlock(tx, ty, dmg, attacker, harvest) {
   const info = BLOCK_INFO[b];
   World.hp[i] -= dmg;
   World.hitT[i] = Game.time;
+  markDirty(b);
   const cx = (tx + 0.5) * TILE, cy = (ty + 0.5) * TILE;
   blockParticles(cx, cy, info.color, 3);
   if (World.hp[i] > 0) return false;

@@ -5,7 +5,7 @@
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-let W = 0, H = 0, DPR = 1, baseZoom = 1;
+let W = 0, H = 0, DPR = 1;
 
 const Game = {
   state: 'menu', paused: false, time: 0, craftOpen: false, over: false,
@@ -25,7 +25,7 @@ function resize() {
   canvas.height = Math.round(H * DPR);
   canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
-  baseZoom = clamp(Math.sqrt(W * H) / (19.5 * TILE), 0.5, 1.4);
+  resize3D();
 }
 
 function resetEntities() {
@@ -62,13 +62,16 @@ function startGame() {
   Game.lastPOI = null;
   Game.craftOpen = false;
   Game.cam.x = Bus.x; Game.cam.y = Bus.y;
-  Game.cam.zoom = baseZoom * 0.55;
+  R3.yaw = Bus.ang;
+  clearDynamic3D();
   hide('menu'); hide('endScreen'); hide('pausePanel'); hide('craftPanel');
   if (Input.usingTouch) show('touchUI');
   announce('Velkommen til BLOKK ROYALE!', '#ffd23f', 1);
 }
 
 function goToMenu() {
+  releasePointer();
+  clearDynamic3D();
   Game.state = 'menu';
   Game.paused = false;
   hide('endScreen'); hide('pausePanel'); hide('craftPanel'); hide('touchUI');
@@ -85,6 +88,7 @@ function togglePause() {
   if (Game.state !== 'play' || Game.over) return;
   Game.paused = !Game.paused;
   if (Game.paused) {
+    releasePointer();
     $('soundBtn').textContent = Sfx.enabled ? '🔊 Lyd: PÅ' : '🔇 Lyd: AV';
     show('pausePanel');
   } else hide('pausePanel');
@@ -93,6 +97,7 @@ function togglePause() {
 function onPlayerDeath() {
   if (Game.over) return;
   Game.over = true;
+  releasePointer();
   Sfx.play('lose');
   closeCraft();
   hide('touchUI');
@@ -103,6 +108,7 @@ function checkWinner() {
   if (Game.state !== 'play') return;
   if (aliveCount() === 1 && player && player.alive && !Game.over) {
     Game.over = true;
+    releasePointer();
     Sfx.play('win');
     closeCraft();
     hide('touchUI');
@@ -115,30 +121,7 @@ function checkWinner() {
 }
 
 function updateCamera(dt) {
-  const cam = Game.cam;
-  let tx = cam.x, ty = cam.y, tz = baseZoom;
-  let target = player && player.alive ? player : null;
-  if (!target) {
-    if (!Game.spectate || !Game.spectate.alive) Game.spectate = fighters.find((f) => f.alive) || null;
-    target = Game.spectate;
-  }
-  if (target) {
-    if (target.state === 'bus') { tx = Bus.x; ty = Bus.y; tz = baseZoom * 0.55; }
-    else if (target.state === 'glide') { tx = target.x; ty = target.y - 40; tz = baseZoom * (0.65 + 0.35 * (1 - target.glideT / 3.4)); }
-    else {
-      tx = target.x; ty = target.y;
-      // Se litt i retningen du sikter (som i Brawl Stars)
-      if (target === player && !Input.usingTouch) {
-        tx += Math.cos(player.aim) * 50;
-        ty += Math.sin(player.aim) * 40;
-      }
-    }
-  }
-  const k = 1 - Math.pow(0.002, dt);
-  cam.x = lerp(cam.x, tx, k);
-  cam.y = lerp(cam.y, ty, k);
-  cam.zoom = lerp(cam.zoom, tz, 1 - Math.pow(0.05, dt));
-  cam.shake = Math.max(0, cam.shake - dt * 30);
+  Game.cam.shake = Math.max(0, Game.cam.shake - dt * 30);
 }
 
 function updatePOIAnnounce() {
@@ -171,9 +154,6 @@ function update(dt) {
 function updateMenuBackdrop(dt) {
   Game.menuT += dt;
   Game.time += dt;
-  Game.cam.zoom = baseZoom * 0.8;
-  Game.cam.x = WORLD_W / 2 + Math.cos(Game.menuT * 0.05) * WORLD_W * 0.25;
-  Game.cam.y = WORLD_H / 2 + Math.sin(Game.menuT * 0.07) * WORLD_H * 0.25;
   updateEffects(dt);
 }
 
@@ -181,6 +161,7 @@ let lastTs = 0;
 function loop(ts) {
   const dt = Math.min(0.05, (ts - lastTs) / 1000 || 0);
   lastTs = ts;
+  R3.lastDt = dt;
   try {
     if (Game.state === 'play' && !Game.paused) update(dt);
     else if (Game.state === 'menu') updateMenuBackdrop(dt);
@@ -192,14 +173,18 @@ function loop(ts) {
 }
 
 function init() {
+  buildTextures();
+  initRenderer3D();
   resize();
   window.addEventListener('resize', resize);
-  buildTextures();
   setupInput();
-  $('playBtn').addEventListener('click', () => { Sfx.init(); Sfx.play('click'); startGame(); });
-  $('againBtn').addEventListener('click', () => { Sfx.play('click'); startGame(); });
+  $('playBtn').addEventListener('click', () => { Sfx.init(); Sfx.play('click'); startGame(); if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer(); });
+  $('againBtn').addEventListener('click', () => { Sfx.play('click'); startGame(); if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer(); });
   $('menuBtn').addEventListener('click', () => { Sfx.play('click'); goToMenu(); });
-  $('resumeBtn').addEventListener('click', () => togglePause());
+  $('resumeBtn').addEventListener('click', () => {
+    togglePause();
+    if (R3.camMode === 'tps' && !Input.usingTouch) lockPointer();
+  });
   $('quitBtn').addEventListener('click', () => goToMenu());
   $('soundBtn').addEventListener('click', () => {
     const on = Sfx.toggle();

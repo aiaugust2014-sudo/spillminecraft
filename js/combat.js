@@ -36,7 +36,7 @@ function addCubes(f, n) {
 
 // ---------------- Effekter ----------------
 function addText(x, y, text, color, size = 1) {
-  texts.push({ x, y, text: String(text), color, size, life: 1, vy: -50 });
+  texts.push({ x, y, y0: y, text: String(text), color, size, life: 1, vy: -50 });
 }
 
 function blockParticles(x, y, color, n) {

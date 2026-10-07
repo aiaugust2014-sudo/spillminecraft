@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <canvas id="game3d"></canvas>
   <canvas id="game"></canvas>
 
   <!-- Hovedmeny -->
@@ -35,7 +36,7 @@
           <li>⚡ <b>Lad opp SUPER</b> ved å treffe fiender, og slipp løs kraften.</li>
           <li>🌀 <b>Hold deg unna stormen</b> – den krymper hele tiden. Sistemann vinner!</li>
         </ul>
-        <p><b>PC:</b> WASD = gå · Mus = sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · Esc = pause</p>
+        <p><b>PC:</b> WASD = gå · Mus = se rundt og sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · V = bytt kamera (bak skulderen / ovenfra) · Esc = pause</p>
         <p><b>Mobil:</b> Venstre tommel = gå · Høyre tommel = sikt og slipp for å skyte (trykk = auto-sikt) · Knappene for super, hakke, vegg og crafting.</p>
       </details>
     </div>
@@ -81,6 +82,7 @@
     <button id="btnSuper" class="tbtn super">⚡<span>SUPER</span></button>
   </div>
 
+  <script src="vendor/three.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/textures.js"></script>
@@ -88,7 +90,8 @@
   <script src="js/storm.js"></script>
   <script src="js/combat.js"></script>
   <script src="js/ai.js"></script>
-  <script src="js/render.js"></script>
+  <script src="js/draw2d.js"></script>
+  <script src="js/render3d.js"></script>
   <script src="js/hud.js"></script>
   <script src="js/input.js"></script>
   <script src="js/main.js"></script>

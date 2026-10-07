@@ -136,6 +136,22 @@ function drawHUD(g) {
     return;
   }
 
+  // --- Trådkors og musehjelp i Fortnite-kameraet ---
+  if (R3.camMode === 'tps' && !Input.usingTouch && p.state === 'play') {
+    if (document.pointerLockElement === canvas) {
+      g.strokeStyle = 'rgba(255,255,255,0.9)';
+      g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(W / 2 - 10, H / 2); g.lineTo(W / 2 - 3, H / 2);
+      g.moveTo(W / 2 + 3, H / 2); g.lineTo(W / 2 + 10, H / 2);
+      g.moveTo(W / 2, H / 2 - 10); g.lineTo(W / 2, H / 2 - 3);
+      g.moveTo(W / 2, H / 2 + 3); g.lineTo(W / 2, H / 2 + 10);
+      g.stroke();
+    } else if (!Game.craftOpen) {
+      outlinedText(g, '🖱️ Klikk for å styre kameraet med musa  •  V = kamera ovenfra', W / 2, H * 0.74, 16, '#fff');
+    }
+  }
+
   // --- Hotbar (Minecraft) ---
   const { s, x0, y0 } = L;
   for (let i = 0; i < 8; i++) {
@@ -198,11 +214,11 @@ function drawHUD(g) {
 
   // --- Kontrollhjelp ---
   if (!Input.usingTouch && Game.time < 45 && p.state === 'play') {
-    const lines = ['WASD: gå   •   Mus: sikt', 'Venstreklikk: skyt / bygg / bruk', 'Høyreklikk (eller F): grav med hakka',
-      '1–8 / hjul: velg i hotbar   •   Q: rask vegg', 'E / mellomrom: SUPER   •   C: crafting'];
+    const lines = ['WASD: gå   •   Mus: se rundt og sikt', 'Venstreklikk: skyt / bygg / bruk', 'Høyreklikk (eller F): grav med hakka',
+      '1–8 / hjul: velg i hotbar   •   Q: rask vegg', 'E / mellomrom: SUPER   •   C: crafting', 'V: bytt kamera (bak skulderen / ovenfra)'];
     g.globalAlpha = clamp((45 - Game.time) / 3, 0, 0.9);
     g.fillStyle = 'rgba(0,0,0,0.45)';
-    roundRect(g, 10, H - 20 - lines.length * 18, 270, lines.length * 18 + 10, 8); g.fill();
+    roundRect(g, 10, H - 20 - lines.length * 18, 290, lines.length * 18 + 10, 8); g.fill();
     lines.forEach((l, i) => outlinedText(g, l, 18, H - 6 - (lines.length - i) * 18, 12, '#fff', 'left'));
     g.globalAlpha = 1;
   }
@@ -293,13 +309,16 @@ function buildMenu() {
 function openCraft() {
   if (!player || !player.alive || Game.state !== 'play') return;
   Game.craftOpen = true;
+  releasePointer();
   show('craftPanel');
   refreshCraft();
 }
 
 function closeCraft() {
+  const wasOpen = Game.craftOpen;
   Game.craftOpen = false;
   hide('craftPanel');
+  if (wasOpen && Game.state === 'play' && !Game.over && !Game.paused && R3.camMode === 'tps') lockPointer();
 }
 
 function refreshCraft() {

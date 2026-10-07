@@ -1,13 +1,18 @@
 # 🟩 BLOKK ROYALE
 
-**Minecraft × Fortnite × Brawl Stars** – i ett sykt nettleserspill!
+**Minecraft × Fortnite × Brawl Stars** – i ett sykt 3D-nettleserspill!
 
 Grav som i Minecraft, bygg som i Fortnite og slåss som i Brawl Stars. Ti brawlere hopper ut av Kampbussen over en blokkøy – sistemann igjen vinner **#1 VICTORY ROYALE**.
 
 ## Slik starter du
 
 Ingen installasjon trengs. Åpne `blokk-royale.html` (hele spillet i én fil) eller `index.html` i nettleseren (Chrome, Edge, Firefox eller Safari).
-Spillet virker både på PC og mobil/nettbrett.
+Spillet virker både på PC og mobil/nettbrett. Det er i ekte 3D (Three.js/WebGL), så en nyere nettleser trengs.
+
+### To kameraer – trykk **V** for å bytte
+
+- **Fortnite-kamera** (bak skulderen): Klikk i spillet, så styrer musa kameraet. Du sikter med trådkorset, og W går dit kameraet ser.
+- **Brawl-kamera** (ovenfra): Du ser slagmarken skrått ovenfra og sikter med musepekeren. Dette brukes alltid på mobil.
 
 > Tips: Slår du på **GitHub Pages** for repoet (Settings → Pages → «Deploy from a branch»), kan du spille på `https://<brukernavn>.github.io/spillminecraft/` – også på mobilen.
 
@@ -38,14 +43,15 @@ Spillet virker både på PC og mobil/nettbrett.
 | Tast | Handling |
 |---|---|
 | WASD / piltaster | Gå |
-| Mus | Sikt |
+| Mus | Se rundt og sikt (klikk først for å låse musa i Fortnite-kameraet) |
+| V | Bytt kamera: bak skulderen / ovenfra |
 | Venstreklikk | Skyt / bygg / bruk det du har valgt i hotbaren |
 | Høyreklikk eller F | Grav med hakka (slår også fiender) |
 | 1–8 eller musehjulet | Velg plass i hotbaren |
 | Q | Rask vegg (3 blokker) foran deg |
 | E eller mellomrom | SUPER (og hopp ut av bussen) |
 | C | Crafting |
-| Esc | Pause |
+| Esc | Pause (slipper også musa) |
 
 **Mobil:** Venstre tommel styrer. Med høyre tommel sikter du, og når du slipper, skyter du (trykker du bare, sikter spillet automatisk). Egne knapper for SUPER, GRAV, VEGG og crafting.
 
@@ -61,7 +67,9 @@ Spillet virker både på PC og mobil/nettbrett.
 
 ## Teknisk
 
-Ren HTML5 Canvas og JavaScript uten avhengigheter eller byggesteg. All grafikk og lyd lages i koden.
+JavaScript med [Three.js](https://threejs.org) (r158, MIT-lisens, ligger i `vendor/`) for 3D. Det finnes ikke noe byggesteg: åpne `index.html` direkte. Alle teksturer, 3D-modeller og lyder lages i koden.
+
+`blokk-royale.html` er hele spillet samlet i én fil. Den lages på nytt med `python3 build-single.py` etter at koden er endret.
 
 ```
 index.html      – sider og menyer
@@ -71,10 +79,13 @@ js/world.js     – generering av øya
 js/combat.js    – kamp, bygging, graving, loot
 js/ai.js        – bot-ene
 js/storm.js     – stormen og Kampbussen
-js/render.js    – tegning av verden
+js/render3d.js  – 3D-grafikk: blokker, figurer, effekter, kameraer
+js/draw2d.js    – 2D-hjelpere (portretter, livsbarer, tekst)
 js/hud.js       – HUD og menyer
 js/input.js     – tastatur, mus og berøring
 js/textures.js  – pikselteksturer
 js/audio.js     – lydeffekter
 js/main.js      – hovedløkka
+vendor/         – Three.js
+build-single.py – lager blokk-royale.html
 ```

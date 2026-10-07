@@ -5,7 +5,7 @@
 
 const Input = {
   keys: {}, mouse: { x: 0, y: 0, left: false, right: false, leftPressed: false },
-  wx: 0, wy: 0, usingTouch: false,
+  wx: 0, wy: 0, usingTouch: false, unlockT: 0, expectUnlock: false,
   touch: { move: null, aim: null, mineHeld: false },
 };
 
@@ -22,9 +22,14 @@ function setupInput() {
     Sfx.init();
     if (Game.state !== 'play') return;
     const p = player;
-    if (e.code === 'Escape') { togglePause(); return; }
+    if (e.code === 'Escape') {
+      // Esc slipper også musa i Fortnite-kameraet – da har pointerlockchange allerede pauset
+      if (performance.now() - Input.unlockT > 300) togglePause();
+      return;
+    }
     if (Game.paused) return;
     if (e.code === 'KeyC') { Game.craftOpen ? closeCraft() : openCraft(); return; }
+    if (e.code === 'KeyV') { toggleCameraMode(); return; }
     if (!p || !p.alive) return;
     if (e.code.startsWith('Digit')) {
       const n = parseInt(e.code.slice(5), 10);
@@ -42,18 +47,31 @@ function setupInput() {
   window.addEventListener('keyup', (e) => { Input.keys[e.code] = false; });
   window.addEventListener('blur', () => { Input.keys = {}; Input.mouse.left = Input.mouse.right = false; });
 
-  canvas.addEventListener('mousemove', (e) => { Input.mouse.x = e.clientX; Input.mouse.y = e.clientY; });
+  canvas.addEventListener('mousemove', (e) => {
+    if (document.pointerLockElement === canvas) {
+      R3.yaw += e.movementX * 0.0026;
+      R3.pitch = clamp(R3.pitch + e.movementY * 0.0022, 0.06, 1.25);
+      return;
+    }
+    Input.mouse.x = e.clientX; Input.mouse.y = e.clientY;
+  });
   canvas.addEventListener('mousedown', (e) => {
     Sfx.init();
     Input.usingTouch = false;
     hideTouchUI();
-    Input.mouse.x = e.clientX; Input.mouse.y = e.clientY;
     if (Game.state !== 'play' || Game.paused) return;
+    const locked = document.pointerLockElement === canvas;
+    if (!locked) {
+      Input.mouse.x = e.clientX; Input.mouse.y = e.clientY;
+      if (e.button === 0) {
+        const slot = hotbarHit(e.clientX, e.clientY);
+        if (slot >= 0) { selectSlot(slot); return; }
+        const sb = Game.superBtn;
+        if (sb && player && dist(e.clientX, e.clientY, sb.x, sb.y) < sb.r) { trySuper(player, player.aim, null, null); return; }
+      }
+      if (R3.camMode === 'tps' && player && player.alive && !Game.over && !Game.craftOpen) lockPointer();
+    }
     if (e.button === 0) {
-      const slot = hotbarHit(e.clientX, e.clientY);
-      if (slot >= 0) { selectSlot(slot); return; }
-      const sb = Game.superBtn;
-      if (sb && player && dist(e.clientX, e.clientY, sb.x, sb.y) < sb.r) { trySuper(player, player.aim, null, null); return; }
       Input.mouse.left = true;
       Input.mouse.leftPressed = true;
       if (player && player.state === 'bus') jumpFromBus(player);
@@ -65,6 +83,13 @@ function setupInput() {
     if (e.button === 2) Input.mouse.right = false;
   });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  document.addEventListener('pointerlockchange', () => {
+    if (document.pointerLockElement) return;
+    Input.unlockT = performance.now();
+    Input.mouse.left = Input.mouse.right = false;
+    if (Input.expectUnlock) { Input.expectUnlock = false; return; }
+    if (Game.state === 'play' && !Game.paused && !Game.over && R3.camMode === 'tps') togglePause();
+  });
   canvas.addEventListener('wheel', (e) => {
     if (Game.state !== 'play' || !player) return;
     e.preventDefault();
@@ -75,7 +100,7 @@ function setupInput() {
   canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
     Sfx.init();
-    if (!Input.usingTouch) { Input.usingTouch = true; showTouchUI(); }
+    if (!Input.usingTouch) { Input.usingTouch = true; R3.camMode = 'top'; releasePointer(); showTouchUI(); }
     if (Game.state !== 'play' || Game.paused) return;
     for (const t of e.changedTouches) {
       const x = t.clientX, y = t.clientY;
@@ -135,6 +160,21 @@ function setupInput() {
   });
   hold('btnCraft', () => { Game.craftOpen ? closeCraft() : openCraft(); });
   hold('btnPause', () => togglePause());
+}
+
+function lockPointer() {
+  if (Input.usingTouch || !canvas.requestPointerLock) return;
+  try {
+    const r = canvas.requestPointerLock();
+    if (r && r.catch) r.catch(() => {});
+  } catch (e) { /* nettleseren sa nei */ }
+}
+
+function releasePointer() {
+  if (document.pointerLockElement) {
+    Input.expectUnlock = true;
+    document.exitPointerLock();
+  }
 }
 
 function showTouchUI() { if (Game.state === 'play') show('touchUI'); }
@@ -205,6 +245,13 @@ function handlePlayerInput() {
     const dx = tm.x - tm.ox, dy = tm.y - tm.oy, d = Math.hypot(dx, dy);
     if (d > 8) { mx = (dx / d) * Math.min(1, d / 50); my = (dy / d) * Math.min(1, d / 50); }
   }
+  if (R3.camMode === 'tps' && !Input.usingTouch) {
+    // Fortnite-kamera: W er alltid fremover der kameraet ser
+    const fx = Math.cos(R3.yaw), fy = Math.sin(R3.yaw);
+    const fwd = -my, right = mx;
+    mx = fx * fwd - fy * right;
+    my = fy * fwd + fx * right;
+  }
   p.moveX = mx; p.moveY = my;
 
   if (Input.usingTouch) {
@@ -218,10 +265,13 @@ function handlePlayerInput() {
     Input.wx = p.x + Math.cos(p.aim) * d;
     Input.wy = p.y + Math.sin(p.aim) * d;
   } else {
-    const z = Game.cam.zoom;
-    Input.wx = Game.cam.x + (Input.mouse.x - W / 2) / z;
-    Input.wy = Game.cam.y + (Input.mouse.y - H / 2) / z;
-    if (p.state === 'play') p.aim = Math.atan2(Input.wy - (p.y - 8), Input.wx - p.x);
+    const tps = R3.camMode === 'tps';
+    const hit = tps ? screenToWorld(W / 2, H / 2) : screenToWorld(Input.mouse.x, Input.mouse.y);
+    if (hit && (!tps || dist(hit.x, hit.y, p.x, p.y) < 40 * TILE)) { Input.wx = hit.x; Input.wy = hit.y; }
+    else { Input.wx = p.x + Math.cos(R3.yaw) * 12 * TILE; Input.wy = p.y + Math.sin(R3.yaw) * 12 * TILE; }
+    if (p.state === 'play') {
+      p.aim = dist(Input.wx, Input.wy, p.x, p.y) > TILE * 0.6 ? Math.atan2(Input.wy - p.y, Input.wx - p.x) : (tps ? R3.yaw : p.aim);
+    }
   }
 
   if (p.state !== 'play') { Input.mouse.leftPressed = false; return; }
