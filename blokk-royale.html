@@ -430,12 +430,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 // ============================================================
 
 const TILE = 48;            // pikselstørrelse på én blokk i verden
-const MAP_W = 110;          // kartbredde i blokker
-const MAP_H = 110;          // karthøyde i blokker
+const MAP_W = 190;          // kartbredde i blokker
+const MAP_H = 190;          // karthøyde i blokker
 const WORLD_W = MAP_W * TILE;
 const WORLD_H = MAP_H * TILE;
 const BLOCK_H = 14;         // "3D-høyde" på blokker når de tegnes
-const NUM_FIGHTERS = 10;    // spiller + bots
+const NUM_FIGHTERS = 14;    // spiller + bots
 const MINE_REACH = 2.3 * TILE;
 const BUILD_REACH = 4.5 * TILE;
 const BUILD_COST = 10;
@@ -490,7 +490,7 @@ const RECIPES = [
 // ------------------------------------------------------------
 const BRAWLERS = [
   {
-    id: 'kube', price: 0, name: 'Kubekriger', role: 'Allrounder', hp: 3800, speed: 210, reload: 1.25, r: 17,
+    id: 'kube', price: 0, perks: ['mineFast'], name: 'Kubekriger', role: 'Allrounder', hp: 3800, speed: 210, reload: 1.25, r: 17,
     color: '#2fa4d9', superNeed: 2600,
     look: { shirt: '#2fa4d9', pants: '#3346a8', skin: '#e0ac7a', hair: '#4a2f1b', gun: '#555' },
     attack: { type: 'burst', count: 3, gap: 0.09, dmg: 420, range: 9, speed: 950, spread: 0.05,
@@ -499,7 +499,7 @@ const BRAWLERS = [
     passive: 'Graver 50 % raskere',
   },
   {
-    id: 'siri', price: 150, name: 'Skarpskytter Siri', role: 'Snikskytter', hp: 2700, speed: 205, reload: 1.9, r: 16,
+    id: 'siri', price: 150, perks: ['bushSight'], name: 'Skarpskytter Siri', role: 'Snikskytter', hp: 2700, speed: 205, reload: 1.9, r: 16,
     color: '#3e9c4f', superNeed: 2300,
     look: { shirt: '#3e9c4f', pants: '#6b4a2b', skin: '#f1c9a0', hair: '#e8c34a', hood: '#2d6b37', gun: '#7a5230' },
     attack: { type: 'single', dmg: 1150, range: 13, speed: 1500, label: 'Armbrøst – lang rekkevidde, stor skade' },
@@ -507,7 +507,7 @@ const BRAWLERS = [
     passive: 'Ser fiender i busker på lengre avstand',
   },
   {
-    id: 'tor', price: 250, name: 'Tanks-Tor', role: 'Tank', hp: 5000, speed: 192, reload: 1.55, r: 20,
+    id: 'tor', price: 250, perks: ['stormRes'], name: 'Tanks-Tor', role: 'Tank', hp: 5000, speed: 192, reload: 1.55, r: 20,
     color: '#c9c5bb', superNeed: 2800,
     look: { shirt: '#cfcac0', pants: '#a39e93', skin: '#c4bfb4', hair: null, golem: true, gun: '#444' },
     attack: { type: 'shotgun', count: 5, spread: 0.6, dmg: 300, range: 5, speed: 850,
@@ -516,7 +516,7 @@ const BRAWLERS = [
     passive: 'Tar 35 % mindre stormskade',
   },
   {
-    id: 'hedda', price: 350, name: 'Heksa Hedda', role: 'Kaster', hp: 3000, speed: 205, reload: 1.6, r: 16,
+    id: 'hedda', price: 350, perks: ['healMul'], name: 'Heksa Hedda', role: 'Kaster', hp: 3000, speed: 205, reload: 1.6, r: 16,
     color: '#a05ad0', superNeed: 2600,
     look: { shirt: '#7b3fa0', pants: '#4b2463', skin: '#b9e09a', hair: '#222', witch: '#2a1638', gun: '#3fd0ff' },
     attack: { type: 'lob', dmg: 1050, radius: 1.4, range: 8, label: 'Trylledrikk – kastes OVER vegger' },
@@ -524,7 +524,7 @@ const BRAWLERS = [
     passive: 'Bandasjer helbreder dobbelt',
   },
   {
-    id: 'bjorn', price: 450, name: 'Bygg-Bjørn', role: 'Bygger', hp: 4700, speed: 200, reload: 1.2, r: 18,
+    id: 'bjorn', price: 450, perks: ['buildHalf'], name: 'Bygg-Bjørn', role: 'Bygger', hp: 4700, speed: 200, reload: 1.2, r: 18,
     color: '#f08a24', superNeed: 2200,
     look: { shirt: '#f08a24', pants: '#2c3e70', skin: '#e8b88a', hair: '#7a4b22', helmet: '#f5c518', gun: '#666' },
     attack: { type: 'spread', count: 3, spread: 0.24, dmg: 420, range: 7.5, speed: 950,
@@ -533,7 +533,7 @@ const BRAWLERS = [
     passive: 'Bygger til halv pris',
   },
   {
-    id: 'kalle', price: 600, name: 'Creeper-Kalle', role: 'Nærkamp', hp: 4700, speed: 212, reload: 1.3, r: 18,
+    id: 'kalle', price: 600, perks: ['bushSpeed'], name: 'Creeper-Kalle', role: 'Nærkamp', hp: 4700, speed: 212, reload: 1.3, r: 18,
     color: '#5cc85f', superNeed: 2300,
     look: { shirt: '#4caf50', pants: '#2e7d32', skin: '#66cc66', hair: null, creeper: true, gun: null },
     attack: { type: 'nova', dmg: 880, radius: 2.1, range: 2.1, label: 'Sssst-puls – skader alle rundt deg' },
@@ -541,7 +541,7 @@ const BRAWLERS = [
     passive: 'Sniker 15 % raskere gjennom busker',
   },
   {
-    id: 'embla', price: 900, name: 'Ender-Embla', role: 'Snikmorder', hp: 3600, speed: 225, reload: 1.1, r: 16,
+    id: 'embla', price: 900, perks: ['noReveal'], name: 'Ender-Embla', role: 'Snikmorder', hp: 3600, speed: 225, reload: 1.1, r: 16,
     color: '#a64dff', superNeed: 2000,
     look: { shirt: '#1d1426', pants: '#120d19', skin: '#231a2e', hair: '#0b0710', ender: true, gun: '#c070ff' },
     attack: { type: 'burst', count: 2, gap: 0.12, dmg: 590, range: 7, speed: 1100, spread: 0.04,
@@ -550,12 +550,178 @@ const BRAWLERS = [
     passive: 'Blir ikke avslørt i busker når hun skyter',
   },
   {
-    id: 'rakel', price: 1500, name: 'Rakett-Rakel', role: 'Artilleri', hp: 3400, speed: 200, reload: 1.7, r: 17,
+    id: 'rakel', price: 1500, perks: [], name: 'Rakett-Rakel', role: 'Artilleri', hp: 3400, speed: 200, reload: 1.7, r: 17,
     color: '#e74c3c', superNeed: 2800,
     look: { shirt: '#c0392b', pants: '#2c3e50', skin: '#f1c9a0', hair: '#e67e22', goggles: '#ffd23f', gun: '#3d5a3d' },
     attack: { type: 'rocket', dmg: 950, radius: 1.3, range: 10, speed: 760, label: 'Rakettkaster – eksploderer ved treff' },
     sup: { type: 'barrage', dmg: 900, radius: 1.5, count: 7, range: 10, label: 'Rakettregn – 7 raketter over et stort område' },
     passive: 'Rakettene knuser blokker ekstra lett',
+  },
+  // ---------------- 20 nye brawlere ----------------
+  {
+    id: 'kokk', price: 300, perks: ['healMul'], name: 'Kokk Kasper', role: 'Kaster', hp: 3500, speed: 205, reload: 1.5, r: 17,
+    color: '#f2c14e', superNeed: 2200,
+    look: { shirt: '#fafafa', pants: '#333333', skin: '#f1c9a0', hair: '#5a3a1a', chefhat: '#ffffff', mustache: '#3a2410', gun: '#555555' },
+    attack: { type: 'lob', dmg: 950, radius: 1.3, range: 7.5, label: 'Stekepanne – kastes over vegger' },
+    sup: { type: 'heal', heal: 0.6, shield: 0.3, label: 'Festmåltid – helbreder 60 % og gir skjold' },
+    passive: 'Bandasjer helbreder dobbelt',
+  },
+  {
+    id: 'snomann', price: 300, perks: ['coldRes'], name: 'Snømann-Sondre', role: 'Kontroll', hp: 3600, speed: 200, reload: 1.3, r: 18,
+    color: '#bfe9ff', superNeed: 2400,
+    look: { shirt: '#f4f8fb', pants: '#e6eef3', skin: '#f4f8fb', hair: null, pumpkin: '#e8892b', gun: '#ffffff' },
+    attack: { type: 'burst', count: 3, gap: 0.1, dmg: 330, range: 8, speed: 900, spread: 0.06, slow: 1.2, color: '#ffffff',
+      label: 'Snøballer – 3 skudd som gjør fiender trege' },
+    sup: { type: 'freeze', dmg: 1200, radius: 2.8, range: 8, slow: 3, label: 'Snøstorm – fryser alle i et stort område' },
+    passive: 'Blir aldri treg av kulde',
+  },
+  {
+    id: 'zombie', price: 350, perks: ['regen'], name: 'Zombie-Zara', role: 'Nærkamp', hp: 5000, speed: 198, reload: 1.4, r: 18,
+    color: '#5e9e4f', superNeed: 2300,
+    look: { shirt: '#2f8fa3', pants: '#3346a8', skin: '#6aa84f', hair: '#2a3a1a', gun: '#3d6b30' },
+    attack: { type: 'shotgun', count: 4, spread: 0.7, dmg: 330, range: 4, speed: 800, lifesteal: 0.35, color: '#8fd36a',
+      label: 'Zombieklør – stjeler liv på kort hold' },
+    sup: { type: 'speed', dur: 4, label: 'Zombieraseri – løper fort og lader på et blunk' },
+    passive: 'Helbreder seg dobbelt så fort',
+  },
+  {
+    id: 'skjelett', price: 400, perks: ['bushSight'], name: 'Skjelett-Skule', role: 'Snikskytter', hp: 2600, speed: 208, reload: 1.7, r: 16,
+    color: '#d8d8cc', superNeed: 2300,
+    look: { shirt: '#cfcfc4', pants: '#a8a89c', skin: '#e8e8de', hair: null, skull: true, gun: '#7a5230' },
+    attack: { type: 'single', dmg: 1050, range: 12, speed: 1500, pierce: true, label: 'Bue – pilene går gjennom flere fiender' },
+    sup: { type: 'fan', count: 7, spread: 0.9, dmg: 700, range: 11, speed: 1400, label: 'Pileregn – 7 piler i vifte' },
+    passive: 'Ser fiender i busker på lengre avstand',
+  },
+  {
+    id: 'viking', price: 400, perks: ['tough'], name: 'Viking-Vegard', role: 'Tank', hp: 5600, speed: 195, reload: 1.45, r: 20,
+    color: '#a0522d', superNeed: 2600,
+    look: { shirt: '#8b5a2b', pants: '#5a3a1a', skin: '#f0c8a0', hair: '#d9822b', vhelm: '#9aa0a6', horns: '#f3eee0', beard: '#d9822b', gun: '#9aa0a6' },
+    attack: { type: 'spread', count: 3, spread: 0.35, dmg: 360, range: 5.5, speed: 850, color: '#c0c6cc', label: 'Kasteøkser – 3 økser i vifte' },
+    sup: { type: 'charge', dmg: 1500, range: 7, label: 'Vikingangrep – stormer gjennom vegger' },
+    passive: 'Tar 10 % mindre skade',
+  },
+  {
+    id: 'gunnar', price: 400, perks: ['mineFast', 'luck'], name: 'Gruve-Gunnar', role: 'Graver', hp: 4200, speed: 200, reload: 1.35, r: 18,
+    color: '#c9a227', superNeed: 2400,
+    look: { shirt: '#6b6b6b', pants: '#3a3a5a', skin: '#e0ac7a', hair: '#3a2a1a', minerhelm: '#7a7a7a', beard: '#3a2a1a', gun: '#6ff0e8' },
+    attack: { type: 'shotgun', count: 4, spread: 0.5, dmg: 340, range: 5, speed: 850, color: '#9a9a9a', label: 'Steinspray – knuste steiner på kort hold' },
+    sup: { type: 'selfblast', dmg: 1800, radius: 3.2, label: 'Jordskjelv – knuser alt rundt deg' },
+    passive: 'Graver raskt og får 50 % mer materialer',
+  },
+  {
+    id: 'bie', price: 450, perks: ['bushSpeed'], name: 'Bie-Bente', role: 'Snikmorder', hp: 2900, speed: 228, reload: 1.15, r: 15,
+    color: '#f5c518', superNeed: 2300,
+    look: { shirt: '#f5c518', pants: '#222222', skin: '#ffe08a', hair: '#222222', stripes: '#222222', antennae: '#222222', wings: '#ffffff', gun: '#222222' },
+    attack: { type: 'burst', count: 3, gap: 0.08, dmg: 260, range: 7, speed: 1100, spread: 0.07, poison: { dps: 240, dur: 3 }, color: '#ffd23f',
+      label: 'Brodd – giftige skudd som skader over tid' },
+    sup: { type: 'cloud', dps: 1100, radius: 2.5, dur: 4, range: 8, color: '#ffd23f', label: 'Biesverm – en sky av sinte bier' },
+    passive: 'Sniker 15 % raskere gjennom busker',
+  },
+  {
+    id: 'lama', price: 500, perks: ['luck'], name: 'Lama-Lotte', role: 'Støtte', hp: 4000, speed: 205, reload: 1.5, r: 18,
+    color: '#e8c39e', superNeed: 2200,
+    look: { shirt: '#c94f7c', pants: '#e8d8c0', skin: '#efe2cf', hair: null, ears: '#efe2cf', snout: '#d8c8b0', gun: '#7cd65a' },
+    attack: { type: 'lob', dmg: 900, radius: 1.4, range: 8, label: 'Lamaspytt – kastes over vegger' },
+    sup: { type: 'supply', label: 'Forsyningslama – slipper bandasje, skjold, TNT og materialer' },
+    passive: 'Får 50 % mer materialer når hun graver',
+  },
+  {
+    id: 'ninja', price: 550, perks: ['noReveal'], name: 'Ninja-Nora', role: 'Snikmorder', hp: 3000, speed: 232, reload: 1.0, r: 16,
+    color: '#4a4a66', superNeed: 2100,
+    look: { shirt: '#2c2c3a', pants: '#1c1c26', skin: '#f1c9a0', hair: '#111111', mask: '#2c2c3a', gun: '#c0c0c0' },
+    attack: { type: 'burst', count: 3, gap: 0.07, dmg: 330, range: 7, speed: 1300, spread: 0.12, color: '#d0d0d0', label: 'Shuriken – 3 kastestjerner' },
+    sup: { type: 'teleport', dmg: 1400, radius: 2, range: 9, label: 'Skyggehopp – teleporter og slå til' },
+    passive: 'Blir ikke avslørt i busker når hun angriper',
+  },
+  {
+    id: 'cowboy', price: 600, perks: ['ammoFast'], name: 'Cowboy-Conrad', role: 'Revolvermann', hp: 3300, speed: 210, reload: 1.2, r: 17,
+    color: '#b5651d', superNeed: 2300,
+    look: { shirt: '#d98c3a', pants: '#3a4f7a', skin: '#e8b88a', hair: '#5a3a1a', cowboy: '#7a4b22', mustache: '#5a3a1a', gun: '#555555' },
+    attack: { type: 'burst', count: 2, gap: 0.14, dmg: 560, range: 9, speed: 1400, spread: 0.02, color: '#ffd27a', label: 'Revolver – 2 presise skudd' },
+    sup: { type: 'fan', count: 6, spread: 0.7, dmg: 650, range: 9, speed: 1300, label: 'Seks skudd – tømmer revolveren i en vifte' },
+    passive: 'Lader ammo 25 % raskere',
+  },
+  {
+    id: 'pirat', price: 650, perks: ['swim'], name: 'Pirat-Petra', role: 'Kanonér', hp: 4200, speed: 202, reload: 1.5, r: 17,
+    color: '#8e2b2b', superNeed: 2600,
+    look: { shirt: '#f0e6d2', pants: '#3a2a1a', skin: '#e8b88a', hair: '#3a1a0a', bandana: '#c0392b', eyepatch: true, gun: '#444444' },
+    attack: { type: 'shotgun', count: 5, spread: 0.45, dmg: 310, range: 6, speed: 900, color: '#333333', label: 'Muskett – hagleskudd' },
+    sup: { type: 'barrage', dmg: 850, radius: 1.6, count: 6, range: 10, label: 'Kanonsalve – 6 kanonkuler regner ned' },
+    passive: 'Svømmer raskere enn hun går',
+  },
+  {
+    id: 'kong', price: 700, perks: ['stormRes'], name: 'Kong Kristian', role: 'Allrounder', hp: 4400, speed: 205, reload: 1.4, r: 18,
+    color: '#7d3cff', superNeed: 2400,
+    look: { shirt: '#6a2fc0', pants: '#3a1a6a', skin: '#f1c9a0', hair: '#c9a227', crown: '#ffd23f', beard: '#c9a227', robe: true, gun: '#ffd23f' },
+    attack: { type: 'single', dmg: 1050, range: 10, speed: 1200, label: 'Kongestav – gyldne lyn' },
+    sup: { type: 'shield', amount: 0.6, max: 0.8, label: 'Kongelig skjold – et stort skjold' },
+    passive: 'Tar 35 % mindre stormskade',
+  },
+  {
+    id: 'robot', price: 750, perks: ['buildHalf'], name: 'Robot-Roy', role: 'Bygger', hp: 4300, speed: 198, reload: 1.25, r: 18,
+    color: '#7f8c8d', superNeed: 2500,
+    look: { shirt: '#95a5a6', pants: '#5d6d7e', skin: '#bdc3c7', hair: null, goggles: '#3fd0ff', antennae: '#e74c3c', gun: '#2c3e50' },
+    attack: { type: 'spread', count: 3, spread: 0.2, dmg: 380, range: 8, speed: 1100, color: '#ff4040', label: 'Laserblaster – 3 lasere' },
+    sup: { type: 'turrets', count: 2, label: 'Dronehjelp – setter ut 2 vakttårn' },
+    passive: 'Bygger til halv pris',
+  },
+  {
+    id: 'ida', price: 950, perks: ['ammoFast'], name: 'Isdronning Ida', role: 'Snikskytter', hp: 2900, speed: 205, reload: 1.6, r: 16,
+    color: '#7fd8ff', superNeed: 2400,
+    look: { shirt: '#bfe9ff', pants: '#7fb8e0', skin: '#eaf6ff', hair: '#ffffff', crown: '#a8f0ff', gun: '#a8f0ff' },
+    attack: { type: 'single', dmg: 1000, range: 12, speed: 1400, slow: 1.5, label: 'Isspyd – gjør fienden treg' },
+    sup: { type: 'freeze', dmg: 1400, radius: 3.2, range: 10, slow: 3.5, label: 'Evig vinter – fryser et stort område' },
+    passive: 'Lader ammo 25 % raskere',
+  },
+  {
+    id: 'synne', price: 1000, perks: ['noReveal'], name: 'Spøkelse-Synne', role: 'Snikmorder', hp: 3000, speed: 220, reload: 1.25, r: 16,
+    color: '#c8ceff', superNeed: 2200,
+    look: { shirt: '#eef0ff', pants: '#dfe3ff', skin: '#f6f7ff', hair: null, skull: true, gun: '#9fa8ff' },
+    attack: { type: 'burst', count: 2, gap: 0.12, dmg: 520, range: 8, speed: 900, spread: 0.05, ghost: true, color: '#c8ceff',
+      label: 'Spøkelseskuler – flyr gjennom vegger' },
+    sup: { type: 'teleport', dmg: 1300, radius: 2.2, range: 9, label: 'Gå gjennom vegger – teleporter dit du sikter' },
+    passive: 'Blir ikke avslørt i busker når hun angriper',
+  },
+  {
+    id: 'drage', price: 1100, perks: ['tough'], name: 'Drage-Dina', role: 'Tank', hp: 5400, speed: 196, reload: 1.4, r: 20,
+    color: '#2e8b57', superNeed: 2700,
+    look: { shirt: '#2e8b57', pants: '#1e5b3a', skin: '#3cb371', hair: null, horns: '#f3eee0', snout: '#2e8b57', spikes: '#ffd23f', wings: '#1e5b3a', gun: '#ff6a1a' },
+    attack: { type: 'shotgun', count: 7, spread: 0.5, dmg: 230, range: 4.5, speed: 750, color: '#ff7a1a', label: 'Ildpust – mange flammer på kort hold' },
+    sup: { type: 'tnt', dmg: 2000, radius: 3.2, range: 9, ball: '#ff5a1a', label: 'Ildkule – en kjempeildkule som sprenger alt' },
+    passive: 'Tar 10 % mindre skade',
+  },
+  {
+    id: 'aksel', price: 1200, perks: ['stormRes'], name: 'Astronaut-Aksel', role: 'Snikskytter', hp: 3100, speed: 208, reload: 1.7, r: 17,
+    color: '#5dade2', superNeed: 2500,
+    look: { shirt: '#f4f6f7', pants: '#d5d8dc', skin: '#f1c9a0', hair: '#5a3a1a', spacehelm: '#ffffff', visor: '#3a8fd0', backpack: '#bdc3c7', gun: '#5dade2' },
+    attack: { type: 'single', dmg: 1100, range: 13, speed: 1600, label: 'Plasmagevær – lang rekkevidde' },
+    sup: { type: 'multilaser', dmg: 1600, range: 16, color: '#7ff8ff', label: 'Tredobbel laser – tre lasere på en gang' },
+    passive: 'Tar 35 % mindre stormskade',
+  },
+  {
+    id: 'hai', price: 1300, perks: ['swim'], name: 'Hai-Henrik', role: 'Nærkamp', hp: 5200, speed: 210, reload: 1.3, r: 19,
+    color: '#5d8aa8', superNeed: 2500,
+    look: { shirt: '#5d8aa8', pants: '#3e6a8a', skin: '#7aa3c0', hair: null, fin: '#4a7290', teeth: true, gun: '#5d8aa8' },
+    attack: { type: 'shotgun', count: 4, spread: 0.5, dmg: 340, range: 4.5, speed: 850, lifesteal: 0.25, color: '#cfe8ff',
+      label: 'Haibitt – stjeler liv' },
+    sup: { type: 'charge', dmg: 1600, range: 8, label: 'Haiangrep – farer frem som en torpedo' },
+    passive: 'Svømmer raskere enn han går',
+  },
+  {
+    id: 'torvald', price: 1400, perks: ['regen'], name: 'Trollmann Torvald', role: 'Kaster', hp: 3200, speed: 200, reload: 1.6, r: 17,
+    color: '#3a5fcd', superNeed: 2600,
+    look: { shirt: '#2a3f9f', pants: '#1a2a6a', skin: '#f1c9a0', hair: '#ffffff', witch: '#2a3f9f', beard: '#ffffff', gun: '#ffd23f' },
+    attack: { type: 'lob', dmg: 1000, radius: 1.5, range: 8.5, label: 'Magisk ildkule – kastes over vegger' },
+    sup: { type: 'vortex', dps: 700, radius: 3, dur: 4, range: 9, label: 'Svart hull – trekker fiender inn og skader dem' },
+    passive: 'Helbreder seg dobbelt så fort',
+  },
+  {
+    id: 'live', price: 1800, perks: ['ammoFast'], name: 'Lyn-Live', role: 'Snikmorder', hp: 3200, speed: 235, reload: 0.95, r: 16,
+    color: '#ffd23f', superNeed: 2300,
+    look: { shirt: '#2a6fd0', pants: '#1a3a7a', skin: '#f1c9a0', hair: '#ffe040', spikes: '#ffe040', stripes: '#ffd23f', gun: '#ffd23f' },
+    attack: { type: 'spread', count: 3, spread: 0.15, dmg: 340, range: 8, speed: 1700, color: '#fff27a', label: 'Lynpiler – 3 superraske lyn' },
+    sup: { type: 'multilaser', dmg: 1500, range: 15, color: '#fff27a', label: 'Tordenvær – tre lynstråler' },
+    passive: 'Lader ammo 25 % raskere',
   },
 ];
 
@@ -565,7 +731,8 @@ const BRAWLERS = [
 const MAX_LEVEL = 7;
 const LEVEL_BONUS = 0.08;                            // +8 % liv og skade per nivå
 const LEVEL_COST = [0, 0, 60, 120, 200, 320, 480, 700]; // pris for å nå nivå N
-const PLACE_COINS = [150, 110, 90, 75, 60, 50, 40, 30, 25, 20];
+const PLACE_COINS = [150, 120, 100, 85, 72, 62, 54, 46, 40, 34, 28, 24, 20, 16];
+const PLACE_TROPHIES = [10, 8, 7, 6, 4, 3, 2, 1, 0, -1, -2, -3, -4, -4];
 const KILL_COINS = 20;
 const START_COINS = 200;
 
@@ -588,8 +755,11 @@ const BOT_NAMES = [
 
 const POI_NAMES = [
   'Blokkby', 'Diamantgruva', 'Kubeskogen', 'Lamalandsbyen', 'Tiltede Tårn',
-  'Gjørmegropa', 'Steinslottet', 'Pikselparken', 'Hakkehavna',
+  'Gjørmegropa', 'Steinslottet', 'Pikselparken', 'Hakkehavna', 'Snøtoppen', 'Kaktusdalen',
+  'Lamafarmen', 'Piratbukta', 'Robotfabrikken', 'Spøkelsesborgen', 'Dragehula', 'Bikuben', 'Kongeslottet',
 ];
+
+const hasPerk = (f, perk) => !!(f.br.perks && f.br.perks.includes(perk));
 
 // ------------------------------------------------------------
 //  Hjelpefunksjoner
@@ -1146,7 +1316,9 @@ function generateWorld(seed) {
 
   // Kister spredt rundt på øya
   let placed = 0;
-  for (let tries = 0; placed < 24 && tries < 6000; tries++) {
+  // Antall kister vokser med kartet
+  const chestCount = Math.round(24 * (MAP_W * MAP_H) / (110 * 110));
+  for (let tries = 0; placed < chestCount && tries < 20000; tries++) {
     const x = 4 + Math.floor(rng() * (MAP_W - 8)), y = 4 + Math.floor(rng() * (MAP_H - 8));
     const i = tIdx(x, y);
     if (World.ground[i] === GND.WATER || World.block[i]) continue;
@@ -1202,7 +1374,9 @@ function buildHouse(x0, y0, w, h, mat, rng, chests) {
 
 function buildPOIs(rng) {
   const names = shuffle(POI_NAMES.slice(), rng);
-  const kinds = ['village', 'mine', 'fort', 'village', 'tower', 'house', 'mine', 'house'];
+  const base = ['village', 'mine', 'fort', 'village', 'tower', 'house', 'mine', 'house'];
+  // Større kart = flere steder å lande
+  const kinds = MAP_W > 150 ? base.concat(['fort', 'village', 'tower', 'mine', 'house', 'village', 'tower', 'fort']) : base;
   for (const kind of kinds) {
     for (let t = 0; t < 300; t++) {
       const cx = 16 + Math.floor(rng() * (MAP_W - 32)), cy = 16 + Math.floor(rng() * (MAP_H - 32));
@@ -1416,12 +1590,13 @@ function nearestPOI(x, y, maxTiles) {
 // ============================================================
 
 const STORM_PLAN = [
-  { wait: 40, shrink: 28, r: 40, dps: 200 },
-  { wait: 30, shrink: 24, r: 26, dps: 350 },
-  { wait: 25, shrink: 20, r: 16, dps: 600 },
-  { wait: 20, shrink: 16, r: 9, dps: 900 },
-  { wait: 15, shrink: 14, r: 4, dps: 1300 },
-  { wait: 12, shrink: 12, r: 0, dps: 2000 },
+  { wait: 45, shrink: 35, r: 66, dps: 200 },
+  { wait: 35, shrink: 30, r: 42, dps: 300 },
+  { wait: 28, shrink: 24, r: 26, dps: 450 },
+  { wait: 22, shrink: 18, r: 15, dps: 700 },
+  { wait: 18, shrink: 15, r: 8, dps: 1000 },
+  { wait: 14, shrink: 12, r: 3.5, dps: 1400 },
+  { wait: 10, shrink: 10, r: 0, dps: 2000 },
 ];
 
 const Storm = { x: 0, y: 0, r: 0, nx: 0, ny: 0, nr: 0, sx: 0, sy: 0, sr: 0, phase: 0, mode: 'wait', t: 0, dps: 120 };
@@ -1485,7 +1660,7 @@ function outsideStorm(x, y, margin = 0) {
 }
 
 // ---------------- Kampbussen ----------------
-const Bus = { x: 0, y: 0, sx: 0, sy: 0, ex: 0, ey: 0, t: 0, dur: 14, active: false, ang: 0 };
+const Bus = { x: 0, y: 0, sx: 0, sy: 0, ex: 0, ey: 0, t: 0, dur: 20, active: false, ang: 0 };
 
 function initBus() {
   const a = rand(0, TAU);
@@ -1609,8 +1784,8 @@ function upgradeBrawler(br) {
 // Mynter og trofeer etter en runde
 function giveMatchReward(place, kills, win) {
   const coins = (PLACE_COINS[place - 1] || 15) + kills * KILL_COINS;
-  const table = [10, 8, 6, 4, 2, 0, -1, -2, -3, -4];
-  const trophies = (table[place - 1] || -4) + kills;
+  const t = PLACE_TROPHIES[place - 1];
+  const trophies = (t === undefined ? -4 : t) + kills;
   Profile.coins += coins;
   Profile.trophies = Math.max(0, Profile.trophies + trophies);
   if (win) Profile.wins++;
@@ -1645,7 +1820,7 @@ function createFighter(bi, name, isPlayer, level = 1) {
     state: 'bus', glideT: 0, burst: [], dash: null, flash: 0,
     mineCd: 0, shootCd: 0, buildCd: 0, swingT: 0, healT: 0, healRate: 0,
     revealT: 0, inBush: false, inWater: false, walkT: 0, moving: false, stormTick: 0.6, place: 0,
-    slot: 0, bot: null,
+    slot: 0, bot: null, slowT: 0, boostT: 0, poison: null,
   };
 }
 
@@ -1704,6 +1879,7 @@ function updateEffects(dt) {
 // ---------------- Skade og død ----------------
 function hurt(t, amount, attacker, kind) {
   if (!t.alive || t.state !== 'play' || attacker === t) return;
+  if (hasPerk(t, 'tough')) amount *= 0.9;
   amount = Math.round(amount);
   if (amount <= 0) return;
   let rest = amount;
@@ -1718,6 +1894,21 @@ function hurt(t, amount, attacker, kind) {
   if (t.isPlayer) { shake(5); Sfx.play('hurt'); } else if (byPlayer) Sfx.play('hit');
   if (t.hp <= 0) killFighter(t, attacker, kind);
 }
+
+// Ekstra virkninger når et skudd eller en eksplosjon treffer: treg, gift og livstyveri
+function applyHitFx(t, fx, owner, dmg) {
+  if (!fx || !t.alive) return;
+  if (fx.slow && !hasPerk(t, 'coldRes')) t.slowT = Math.max(t.slowT, fx.slow);
+  if (fx.poison) t.poison = { dps: fx.poison.dps * (owner ? pw(owner) : 1), t: fx.poison.dur, tick: 0.5, owner };
+  if (fx.lifesteal && owner && owner.alive) {
+    const heal = dmg * fx.lifesteal;
+    owner.hp = Math.min(owner.maxHp, owner.hp + heal);
+    if (owner.isPlayer) addText(owner.x, owner.y - 70, '+' + Math.round(heal), '#6dff7a', 0.8);
+  }
+}
+
+// Plukker ut virkningene fra et angrep (brukes av skuddene)
+const attackFx = (a) => (a.slow || a.poison || a.lifesteal ? { slow: a.slow, poison: a.poison, lifesteal: a.lifesteal } : null);
 
 function killFighter(t, killer, kind) {
   t.alive = false;
@@ -1757,6 +1948,7 @@ function spawnBullet(x, y, ang, dmg, range, speed, owner, opts = {}) {
     travel: 0, max: range * TILE, dmg, owner, src: opts.src || null,
     color: opts.color || owner.br.color, r: opts.r || 6, kind: opts.kind || 'bullet',
     blockMul: opts.blockMul !== undefined ? opts.blockMul : 0.4, explode: opts.explode || null,
+    fx: opts.fx || null, pierce: !!opts.pierce, ghost: !!opts.ghost, hit: opts.pierce ? new Set() : null,
   });
 }
 
@@ -1789,14 +1981,14 @@ function tryAttack(f, ang, tx, ty) {
   f.ammo -= 1;
   f.shootCd = 0.3;
   f.lastAttack = Game.time;
-  if (f.br.id !== 'embla') f.revealT = 1.0;
+  if (!hasPerk(f, 'noReveal')) f.revealT = 1.0;
   f.aim = ang;
   switch (a.type) {
     case 'burst':
       for (let k = 0; k < a.count; k++) f.burst.push({ t: k * a.gap, ang });
       break;
     case 'single':
-      fireBullet(f, ang, a.dmg * m, a.range, a.speed, { r: 7, kind: 'arrow' });
+      fireBullet(f, ang, a.dmg * m, a.range, a.speed, { r: 7, kind: 'arrow', fx: attackFx(a), pierce: a.pierce, ghost: a.ghost, color: a.color });
       sfxAt('arrow', f.x, f.y);
       break;
     case 'shotgun':
@@ -1804,13 +1996,15 @@ function tryAttack(f, ang, tx, ty) {
       for (let k = 0; k < a.count; k++) {
         const off = (k / (a.count - 1) - 0.5) * a.spread;
         const rng = a.type === 'shotgun' ? rand(0.85, 1) : 1;
-        fireBullet(f, ang + off, a.dmg * m, a.range * rng, a.speed, { r: 5, kind: a.type === 'spread' ? 'nail' : 'pellet' });
+        fireBullet(f, ang + off, a.dmg * m, a.range * rng, a.speed, {
+          r: 5, kind: a.type === 'spread' ? 'nail' : 'pellet', fx: attackFx(a), pierce: a.pierce, ghost: a.ghost, color: a.color,
+        });
       }
       sfxAt(a.type === 'shotgun' ? 'shotgun' : 'shoot', f.x, f.y);
       break;
     case 'lob': {
       const p = clampTarget(f, tx, ty, a.range * TILE);
-      lobProjectile(f, p.x, p.y, 'potion', { dmg: a.dmg * m, radius: a.radius * TILE });
+      lobProjectile(f, p.x, p.y, 'potion', { dmg: a.dmg * m, radius: a.radius * TILE, fx: attackFx(a) });
       sfxAt('lob', f.x, f.y);
       break;
     }
@@ -1834,7 +2028,9 @@ function updateBurst(f, dt) {
     const b = f.burst[k];
     b.t -= dt;
     if (b.t <= 0) {
-      fireBullet(f, b.ang + rand(-a.spread, a.spread), a.dmg * pw(f), a.range, a.speed, { r: 6 });
+      fireBullet(f, b.ang + rand(-a.spread, a.spread), a.dmg * pw(f), a.range, a.speed, {
+        r: 6, fx: attackFx(a), pierce: a.pierce, ghost: a.ghost, color: a.color,
+      });
       sfxAt('shoot', f.x, f.y);
       f.burst.splice(k, 1);
     }
@@ -1860,7 +2056,7 @@ function updateProjectiles(dt) {
         p.y += (p.vy * dt) / steps;
         p.travel += (sp * dt) / steps;
         const tx = tileOf(p.x), ty = tileOf(p.y);
-        if (isSolid(tx, ty)) {
+        if (isSolid(tx, ty) && !(p.ghost && inMap(tx, ty))) {
           if (p.explode) { rocketBoom(p); dead = true; break; }
           if (inMap(tx, ty)) damageBlock(tx, ty, p.dmg * p.blockMul, p.owner, false);
           sparks(p.x, p.y, '#fff2a0', 3);
@@ -1868,13 +2064,15 @@ function updateProjectiles(dt) {
           break;
         }
         for (const f of fighters) {
-          if (!f.alive || f.state !== 'play' || f === p.owner) continue;
+          if (!f.alive || f.state !== 'play' || f === p.owner || (p.hit && p.hit.has(f))) continue;
           const rr = f.r + p.r;
           const dx = f.x - p.x, dy = f.y - 8 - p.y;
           if (dx * dx + dy * dy < rr * rr) {
             if (p.explode) { rocketBoom(p); dead = true; break; }
             hurt(f, p.dmg, p.owner, p.kind);
+            applyHitFx(f, p.fx, p.owner, p.dmg);
             sparks(p.x, p.y, p.color, 5);
+            if (p.pierce) { p.hit.add(f); continue; }
             dead = true;
             break;
           }
@@ -1910,13 +2108,20 @@ function landLob(p) {
       explode(p.x, p.y, p.radius, p.dmg, p.owner, p.blockDmg, 'rocket');
       break;
     case 'potion':
-      explode(p.x, p.y, p.radius, p.dmg, p.owner, p.dmg * 0.3, 'potion');
+      explode(p.x, p.y, p.radius, p.dmg, p.owner, p.dmg * 0.3, 'potion', p.fx);
+      break;
+    case 'freeze':
+      explode(p.x, p.y, p.radius, p.dmg, p.owner, 0, 'ice', { slow: p.slow });
+      break;
+    case 'vortex':
+      clouds.push({ x: p.x, y: p.y, r: p.radius, dps: p.dps, t: p.cloudDur, max: p.cloudDur, tick: 0, owner: p.owner, pull: true, color: '#8a3cff' });
+      sfxAt('lob', p.x, p.y);
       break;
     case 'tnt':
       explode(p.x, p.y, p.radius, p.dmg, p.owner, p.blockDmg, 'tnt');
       break;
     case 'cloud':
-      clouds.push({ x: p.x, y: p.y, r: p.radius, dps: p.dps, t: p.cloudDur, max: p.cloudDur, tick: 0, owner: p.owner });
+      clouds.push({ x: p.x, y: p.y, r: p.radius, dps: p.dps, t: p.cloudDur, max: p.cloudDur, tick: 0, owner: p.owner, color: p.color });
       sfxAt('lob', p.x, p.y);
       break;
   }
@@ -1928,12 +2133,16 @@ const EXPLOSION_STYLES = {
   nova: { n: 24, cols: ['#7cff7a', '#3fbf4a', '#d8ffd0'], blast: '120,255,120', big: false, shake: 3 },
   ender: { n: 26, cols: ['#c070ff', '#7a2fd0', '#f0d8ff', '#111'], blast: '190,110,255', big: false, shake: 4 },
   potion: { n: 16, cols: ['#c86bff', '#7cff9a', '#e2b6ff'], blast: '200,120,255', big: false, shake: 0 },
+  ice: { n: 30, cols: ['#ffffff', '#bff4ff', '#7fd8ff'], blast: '170,235,255', big: false, shake: 4 },
 };
 
-function explode(x, y, radius, dmg, owner, blockDmg, style) {
+function explode(x, y, radius, dmg, owner, blockDmg, style, fx) {
   for (const f of fighters) {
     if (!f.alive || f.state !== 'play' || f === owner) continue;
-    if (dist(x, y, f.x, f.y) < radius + f.r) hurt(f, dmg, owner, style);
+    if (dist(x, y, f.x, f.y) < radius + f.r) {
+      hurt(f, dmg, owner, style);
+      applyHitFx(f, fx, owner, dmg);
+    }
   }
   for (const tu of turrets) {
     if (tu.owner !== owner && dist(x, y, tu.x, tu.y) < radius + 16) damageTurret(tu, dmg, owner);
@@ -1963,7 +2172,11 @@ function explode(x, y, radius, dmg, owner, blockDmg, style) {
 function superRange(f) {
   const s = f.br.sup;
   switch (s.type) {
-    case 'tnt': case 'cloud': case 'barrage': return s.range * TILE;
+    case 'tnt': case 'cloud': case 'barrage': case 'freeze': case 'vortex': return s.range * TILE;
+    case 'fan': return 8 * TILE;
+    case 'multilaser': return 14 * TILE;
+    case 'turrets': return 7 * TILE;
+    case 'heal': case 'shield': case 'speed': case 'supply': return 12 * TILE;
     case 'teleport': return 8 * TILE;
     case 'selfblast': return 3 * TILE;
     case 'laser': return 14 * TILE;
@@ -1979,7 +2192,7 @@ function trySuper(f, ang, tx, ty) {
   switch (s.type) {
     case 'tnt': {
       const p = clampTarget(f, tx, ty, s.range * TILE);
-      lobProjectile(f, p.x, p.y, 'tnt', { dmg: s.dmg * m, radius: s.radius * TILE, blockDmg: 2500, big: true });
+      lobProjectile(f, p.x, p.y, 'tnt', { dmg: s.dmg * m, radius: s.radius * TILE, blockDmg: 2500, big: true, ball: s.ball || null });
       break;
     }
     case 'laser':
@@ -1990,7 +2203,7 @@ function trySuper(f, ang, tx, ty) {
       break;
     case 'cloud': {
       const p = clampTarget(f, tx, ty, s.range * TILE);
-      lobProjectile(f, p.x, p.y, 'cloud', { dps: s.dps * m, radius: s.radius * TILE, cloudDur: s.dur });
+      lobProjectile(f, p.x, p.y, 'cloud', { dps: s.dps * m, radius: s.radius * TILE, cloudDur: s.dur, color: s.color || null });
       break;
     }
     case 'fort':
@@ -1998,6 +2211,54 @@ function trySuper(f, ang, tx, ty) {
       break;
     case 'selfblast':
       explode(f.x, f.y, s.radius * TILE, s.dmg * m, f, 2600, 'tnt');
+      break;
+    case 'freeze': {
+      const p = clampTarget(f, tx, ty, s.range * TILE);
+      lobProjectile(f, p.x, p.y, 'freeze', { dmg: s.dmg * m, radius: s.radius * TILE, slow: s.slow });
+      break;
+    }
+    case 'vortex': {
+      const p = clampTarget(f, tx, ty, s.range * TILE);
+      lobProjectile(f, p.x, p.y, 'vortex', { dps: s.dps * m, radius: s.radius * TILE, cloudDur: s.dur });
+      break;
+    }
+    case 'fan':
+      for (let k = 0; k < s.count; k++) {
+        const off = (k / (s.count - 1) - 0.5) * s.spread;
+        fireBullet(f, ang + off, s.dmg * m, s.range, s.speed, { r: 7, kind: 'arrow', pierce: true, color: f.br.attack.color });
+      }
+      break;
+    case 'multilaser':
+      for (const off of [-0.22, 0, 0.22]) fireLaser(f, ang + off, s.dmg * m, s.range, s.color);
+      break;
+    case 'heal':
+      f.hp = Math.min(f.maxHp, f.hp + f.maxHp * s.heal);
+      f.shield = Math.min(f.maxHp * 0.5, f.shield + f.maxHp * (s.shield || 0));
+      for (let i = 0; i < 20; i++) particles.push({ x: f.x + rand(-20, 20), y: f.y + rand(-10, 10), vx: 0, vy: 0, z: rand(0, 20), vz: rand(60, 160), life: 0.8, max: 0.8, color: choice(['#6dff7a', '#ffffff']), size: rand(4, 7) });
+      break;
+    case 'shield':
+      f.shield = Math.min(f.maxHp * s.max, f.shield + f.maxHp * s.amount);
+      for (let i = 0; i < 20; i++) particles.push({ x: f.x, y: f.y, vx: rand(-100, 100), vy: rand(-100, 100), z: 20, vz: rand(40, 140), life: 0.7, max: 0.7, color: choice(['#4aa8ff', '#ffd23f']), size: rand(4, 7) });
+      break;
+    case 'speed':
+      f.boostT = s.dur;
+      f.ammo = 3;
+      break;
+    case 'supply':
+      // Forsyningslama: slipper loot rundt deg (som i Fortnite)
+      dropPickup(f.x, f.y, 'bandage', 1);
+      dropPickup(f.x, f.y, 'potion', 1);
+      dropPickup(f.x, f.y, 'tnt', 1);
+      dropPickup(f.x, f.y, choice(['wood', 'stone', 'iron']), 30);
+      if (Math.random() < 0.5) dropPickup(f.x, f.y, 'diamond', 1);
+      sparks(f.x, f.y, '#ffd23f', 16);
+      break;
+    case 'turrets':
+      for (let k = 0; k < s.count; k++) {
+        const a = ang + (k === 0 ? 1 : -1) * 1.2;
+        const sp = findFreeSpot(f.x + Math.cos(a) * TILE * 1.3, f.y + Math.sin(a) * TILE * 1.3);
+        spawnTurret(f, sp.x, sp.y);
+      }
       break;
     case 'teleport': {
       const p = clampTarget(f, tx, ty, s.range * TILE);
@@ -2025,7 +2286,7 @@ function trySuper(f, ang, tx, ty) {
   return true;
 }
 
-function fireLaser(f, ang, dmg, rangeTiles) {
+function fireLaser(f, ang, dmg, rangeTiles, color) {
   const len = rangeTiles * TILE;
   const x1 = f.x, y1 = f.y - 8, x2 = x1 + Math.cos(ang) * len, y2 = y1 + Math.sin(ang) * len;
   for (const o of fighters) {
@@ -2043,7 +2304,7 @@ function fireLaser(f, ang, dmg, rangeTiles) {
     done.add(k);
     damageBlock(tx, ty, 3000, f, false);
   }
-  beams.push({ x1, y1, x2, y2, t: 0.4, max: 0.4, color: '#7ff8ff' });
+  beams.push({ x1, y1, x2, y2, t: 0.4, max: 0.4, color: color || '#7ff8ff' });
   shake(dist(f.x, f.y, Game.cam.x, Game.cam.y) < 600 ? 8 : 0);
   sfxAt('laser', f.x, f.y);
 }
@@ -2112,7 +2373,16 @@ function updateClouds(dt) {
     }
     if (Math.random() < 0.5) {
       const a = rand(0, TAU), r = Math.sqrt(Math.random()) * c.r;
-      particles.push({ x: c.x + Math.cos(a) * r, y: c.y + Math.sin(a) * r, vx: 0, vy: -10, z: 0, vz: 60, life: 0.7, max: 0.7, color: choice(['#9dff7a', '#c46bff']), size: rand(4, 8) });
+      const cols = c.pull ? ['#8a3cff', '#222', '#d0a0ff'] : c.color ? [c.color, '#222'] : ['#9dff7a', '#c46bff'];
+      particles.push({ x: c.x + Math.cos(a) * r, y: c.y + Math.sin(a) * r, vx: 0, vy: -10, z: 0, vz: 60, life: 0.7, max: 0.7, color: choice(cols), size: rand(4, 8) });
+    }
+    if (c.pull) {
+      // Svart hull: trekker fiender inn mot midten
+      for (const f of fighters) {
+        if (!f.alive || f.state !== 'play' || f === c.owner) continue;
+        const d = dist(c.x, c.y, f.x, f.y);
+        if (d < c.r * 1.6 && d > 8) moveFighter(f, ((c.x - f.x) / d) * 140 * dt, ((c.y - f.y) / d) * 140 * dt);
+      }
     }
     if (c.t <= 0) clouds.splice(i, 1);
   }
@@ -2132,7 +2402,7 @@ function damageTurret(tu, dmg, attacker) {
 
 function canSee(viewer, target) {
   if (!target.inBush || target.revealT > 0) return true;
-  const range = viewer.br && viewer.br.id === 'siri' ? 3.6 * TILE : 2.3 * TILE;
+  const range = viewer.br && hasPerk(viewer, 'bushSight') ? 3.6 * TILE : 2.3 * TILE;
   return dist(viewer.x, viewer.y, target.x, target.y) < range;
 }
 
@@ -2166,7 +2436,7 @@ function updateTurrets(dt) {
 }
 
 // ---------------- Bygging (Fortnite) ----------------
-const buildCost = (f) => (f.br.id === 'bjorn' ? 5 : BUILD_COST);
+const buildCost = (f) => (hasPerk(f, 'buildHalf') ? 5 : BUILD_COST);
 
 function canBuildAt(f, tx, ty, free) {
   if (!inMap(tx, ty) || tx < 1 || ty < 1 || tx > MAP_W - 2 || ty > MAP_H - 2) return false;
@@ -2240,7 +2510,7 @@ function mineTarget(f, ang, px, py) {
 
 function tryMine(f, ang, px, py) {
   if (f.state !== 'play' || f.mineCd > 0 || f.dash) return;
-  f.mineCd = f.br.id === 'kube' ? 0.2 : 0.3;
+  f.mineCd = hasPerk(f, 'mineFast') ? 0.2 : 0.3;
   f.swingT = 0.2;
   f.aim = ang;
   // Hakka er også et nærkampvåpen
@@ -2265,8 +2535,9 @@ function tryMine(f, ang, px, py) {
 function giveDrops(f, drops, x, y) {
   let line = [];
   for (const k in drops) {
-    f.mats[k] = Math.min(999, f.mats[k] + drops[k]);
-    line.push(`+${drops[k]} ${MAT_NAME[k]}`);
+    const n = hasPerk(f, 'luck') && k !== 'diamond' ? Math.ceil(drops[k] * 1.5) : drops[k];
+    f.mats[k] = Math.min(999, f.mats[k] + n);
+    line.push(`+${n} ${MAT_NAME[k]}`);
   }
   if (f.isPlayer && line.length) {
     addText(x, y - 20, line.join('  '), '#b6ffb0', 0.85);
@@ -2281,7 +2552,7 @@ function useItem(f, item, tx, ty) {
     case 'bandage':
       if (f.hp >= f.maxHp || f.healT > 0) return false;
       f.healT = 1.2;
-      f.healRate = (f.maxHp * (f.br.id === 'hedda' ? 0.8 : 0.4)) / 1.2;
+      f.healRate = (f.maxHp * (hasPerk(f, 'healMul') ? 0.8 : 0.4)) / 1.2;
       sfxAt('heal', f.x, f.y);
       break;
     case 'potion':
@@ -2442,11 +2713,33 @@ function updateFighter(f, dt) {
   }
 
   // Ammo lades opp (Brawl Stars)
-  if (f.ammo < 3) f.ammo = Math.min(3, f.ammo + dt / f.br.reload);
+  const reloadMul = (hasPerk(f, 'ammoFast') ? 1.25 : 1) * (f.boostT > 0 ? 2 : 1);
+  if (f.ammo < 3) f.ammo = Math.min(3, f.ammo + (dt * reloadMul) / f.br.reload);
   // Automatisk helbredelse når du ikke slåss
   if (Game.time - Math.max(f.lastHurt, f.lastAttack) > 3 && f.hp < f.maxHp) {
-    f.hp = Math.min(f.maxHp, f.hp + f.maxHp * 0.12 * dt);
+    f.hp = Math.min(f.maxHp, f.hp + f.maxHp * (hasPerk(f, 'regen') ? 0.24 : 0.12) * dt);
   }
+  // Treg, fart og gift
+  if (f.slowT > 0) {
+    f.slowT -= dt;
+    if (Math.random() < 0.2) particles.push({ x: f.x + rand(-12, 12), y: f.y, vx: 0, vy: 0, z: rand(5, 40), vz: -20, life: 0.5, max: 0.5, color: '#bff4ff', size: 4 });
+  }
+  if (f.boostT > 0) {
+    f.boostT -= dt;
+    if (Math.random() < 0.3) particles.push({ x: f.x, y: f.y, vx: rand(-30, 30), vy: rand(-30, 30), z: 4, vz: 30, life: 0.4, max: 0.4, color: '#ffd23f', size: 5 });
+  }
+  if (f.poison) {
+    f.poison.t -= dt;
+    f.poison.tick -= dt;
+    if (f.poison.tick <= 0) {
+      f.poison.tick = 0.5;
+      const pz = f.poison;
+      hurt(f, pz.dps * 0.5, pz.owner && pz.owner.alive ? pz.owner : null, 'poison');
+      particles.push({ x: f.x, y: f.y, vx: 0, vy: 0, z: 30, vz: 40, life: 0.5, max: 0.5, color: '#9dff3a', size: 5 });
+    }
+    if (f.poison && f.poison.t <= 0) f.poison = null;
+  }
+  if (!f.alive) return;
   if (f.healT > 0) {
     f.healT -= dt;
     f.hp = Math.min(f.maxHp, f.hp + f.healRate * dt);
@@ -2465,7 +2758,9 @@ function updateFighter(f, dt) {
     let mx = f.moveX, my = f.moveY;
     const len = Math.hypot(mx, my);
     if (len > 1) { mx /= len; my /= len; }
-    const spd = f.br.speed * (f.inWater ? 0.6 : 1) * (f.healT > 0 ? 0.85 : 1) * (f.inBush && f.br.id === 'kalle' ? 1.15 : 1);
+    const water = f.inWater ? (hasPerk(f, 'swim') ? 1.25 : 0.6) : 1;
+    const spd = f.br.speed * water * (f.healT > 0 ? 0.85 : 1) * (f.inBush && hasPerk(f, 'bushSpeed') ? 1.15 : 1)
+      * (f.slowT > 0 ? 0.55 : 1) * (f.boostT > 0 ? 1.45 : 1);
     if (len > 0.05) {
       moveFighter(f, mx * spd * dt, my * spd * dt);
       f.walkT += dt * 12;
@@ -2485,7 +2780,7 @@ function updateFighter(f, dt) {
     f.stormTick += dt;
     if (f.stormTick >= 1) {
       f.stormTick = 0;
-      hurt(f, Storm.dps * (f.br.id === 'tor' ? 0.65 : 1), null, 'storm');
+      hurt(f, Storm.dps * (hasPerk(f, 'stormRes') ? 0.65 : 1), null, 'storm');
     }
   } else f.stormTick = 0.6;
 }
@@ -2698,7 +2993,7 @@ function botAct(f, b) {
     steer(f, b, mx, my);
 
     if (visible && d < range && b.fireCd <= 0 && f.ammo >= 1 && (b.mode === 'fight' || Math.random() < 0.4)) {
-      const clear = a.type === 'lob' || a.type === 'nova' || los(f.x, f.y, t.x, t.y);
+      const clear = a.type === 'lob' || a.type === 'nova' || a.ghost || los(f.x, f.y, t.x, t.y);
       if (clear || Math.random() < 0.3) {
         const tt = a.type === 'lob' ? 0.55 : a.type === 'nova' ? 0 : d / (a.speed || 1000);
         const px = t.x + t.vx * tt * b.skill, py = t.y + t.vy * tt * b.skill;
@@ -2707,7 +3002,8 @@ function botAct(f, b) {
         b.fireCd = rand(0.25, 0.7) * (1.5 - b.skill);
       }
     }
-    if (f.superCharge >= 1 && visible && d < superRange(f)) trySuper(f, ang, t.x, t.y);
+    const healSuper = f.br.sup.type === 'heal';
+    if (f.superCharge >= 1 && visible && d < superRange(f) && (!healSuper || f.hp < f.maxHp * 0.6)) trySuper(f, ang, t.x, t.y);
     if (f.items.tnt > 0 && d < 7 * TILE && b.itemCd <= 0 && Math.random() < 0.03) { useItem(f, 'tnt', t.x, t.y); b.itemCd = 3; }
     if (f.items.turret > 0 && d < 8 * TILE && b.itemCd <= 0 && Math.random() < 0.03) { useItem(f, 'turret', f.x + Math.cos(ang) * TILE, f.y + Math.sin(ang) * TILE); b.itemCd = 3; }
     // Fortnite-refleks: bygg en vegg når du blir skutt
@@ -2814,12 +3110,16 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
   if (L.golem) { g.fillStyle = C('#4e8f3a'); g.fillRect(-9, -32, 3, 12); g.fillRect(6, -30, 3, 9); g.fillRect(-2, -22, 3, 6); }
   if (L.helmet) { g.fillStyle = C('#e6f04a'); g.fillRect(-9, -22, 18, 3); }
   if (L.hood) { g.fillStyle = C('#7a5230'); g.fillRect(-9, -18, 18, 2); }
-  if (!L.golem && !L.witch && !L.helmet && !L.hood) { g.fillStyle = C('rgba(0,0,0,0.15)'); g.fillRect(-9, -15, 18, 2); }
+  if (L.robe) { g.fillStyle = C(L.shirt); g.fillRect(-11, -20, 22, 13); g.fillStyle = C(L.crown || '#ffd23f'); g.fillRect(-11, -16, 22, 2); }
+  if (L.stripes) { g.fillStyle = C(L.stripes); g.fillRect(-9, -28, 18, 3); g.fillRect(-9, -21, 18, 3); }
+  if (L.wings) { g.fillStyle = C(L.wings); g.fillRect(-15, -34, 5, 10); g.fillRect(10, -34, 5, 10); }
+  if (L.backpack) { g.fillStyle = C(L.backpack); g.fillRect(face > 0 ? -13 : 9, -31, 4, 14); }
+  if (!L.golem && !L.witch && !L.helmet && !L.hood && !L.robe && !L.stripes) { g.fillStyle = C('rgba(0,0,0,0.15)'); g.fillRect(-9, -15, 18, 2); }
 
   // Hode
   const hs = L.golem ? 20 : 18;
   const hy = -32 - hs;
-  g.fillStyle = C(L.skin);
+  g.fillStyle = C(L.pumpkin || L.skin);
   g.fillRect(-hs / 2, hy, hs, hs);
   if (L.hair) {
     g.fillStyle = C(L.hair);
@@ -2835,6 +3135,13 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillStyle = C('#111');
       g.fillRect(-6, hy + 5, 4, 4); g.fillRect(2, hy + 5, 4, 4);
       g.fillRect(-2, hy + 9, 4, 5); g.fillRect(-4, hy + 11, 2, 4); g.fillRect(2, hy + 11, 2, 4);
+    } else if (L.pumpkin) {
+      g.fillStyle = C('#3a1a00');
+      g.fillRect(-7, hy + 5, 5, 4); g.fillRect(2, hy + 5, 5, 4); g.fillRect(-6, hy + 12, 12, 3);
+      g.fillStyle = C('#4a7a2a'); g.fillRect(-1, hy - 3, 3, 4);
+    } else if (L.skull) {
+      g.fillStyle = C('#1a1a22');
+      g.fillRect(-7, hy + 6, 5, 5); g.fillRect(2, hy + 6, 5, 5); g.fillRect(-1, hy + 11, 2, 3); g.fillRect(-5, hy + 15, 10, 1);
     } else if (L.ender) {
       g.fillStyle = C('#e070ff');
       g.fillRect(ex - 8, hy + 8, 6, 2); g.fillRect(ex + 2, hy + 8, 6, 2);
@@ -2851,6 +3158,34 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillStyle = C('rgba(0,0,0,0.25)'); g.fillRect(ex - 3, hy + 13, 6, 2);
     }
   }
+  // Ansiktstilbehør
+  if (L.beard) { g.fillStyle = C(L.beard); g.fillRect(-7, hy + 12, 14, 8); }
+  if (L.mustache) { g.fillStyle = C(L.mustache); g.fillRect(-5, hy + 12, 10, 2); }
+  if (L.mask) { g.fillStyle = C(L.mask); g.fillRect(-hs / 2, hy + 11, hs, 7); g.fillRect(-hs / 2, hy + 3, hs, 3); }
+  if (L.eyepatch) { g.fillStyle = C('#111'); g.fillRect(-hs / 2, hy + 6, hs, 1); g.fillRect(-7, hy + 7, 5, 4); }
+  if (L.snout) { g.fillStyle = C(L.snout); g.fillRect(-5 + face * 3, hy + 11, 10, 6); g.fillStyle = C('#3a2a1a'); g.fillRect(-2 + face * 3, hy + 12, 4, 2); }
+  if (L.teeth) { g.fillStyle = C('#fff'); g.fillRect(-5, hy + 14, 10, 2); }
+  // Hodeplagg
+  if (L.crown) {
+    g.fillStyle = C(L.crown);
+    g.fillRect(-hs / 2, hy - 3, hs, 4);
+    for (const x of [-hs / 2, -2, hs / 2 - 4]) g.fillRect(x, hy - 7, 4, 4);
+    g.fillStyle = C('#e23b3b'); g.fillRect(-1, hy - 2, 2, 2);
+  }
+  if (L.vhelm) { g.fillStyle = C(L.vhelm); g.fillRect(-hs / 2 - 1, hy - 3, hs + 2, 7); g.fillRect(-1, hy + 4, 2, 5); }
+  if (L.horns) { g.fillStyle = C(L.horns); g.fillRect(-hs / 2 - 5, hy - 6, 4, 8); g.fillRect(hs / 2 + 1, hy - 6, 4, 8); }
+  if (L.bandana) { g.fillStyle = C(L.bandana); g.fillRect(-hs / 2 - 1, hy - 1, hs + 2, 5); g.fillRect(face > 0 ? -hs / 2 - 4 : hs / 2, hy + 1, 4, 5); }
+  if (L.chefhat) { g.fillStyle = C(L.chefhat); g.fillRect(-7, hy - 9, 14, 10); g.fillRect(-10, hy - 14, 20, 6); }
+  if (L.cowboy) { g.fillStyle = C(L.cowboy); g.fillRect(-hs / 2 - 6, hy - 1, hs + 12, 3); g.fillRect(-8, hy - 8, 16, 8); g.fillStyle = C('#3a2410'); g.fillRect(-8, hy - 3, 16, 2); }
+  if (L.minerhelm) { g.fillStyle = C(L.minerhelm); g.fillRect(-hs / 2 - 1, hy - 4, hs + 2, 7); g.fillStyle = C('#fff27a'); g.fillRect(face * 4 - 2, hy - 3, 5, 4); }
+  if (L.spacehelm) {
+    g.fillStyle = C(L.spacehelm); g.fillRect(-hs / 2 - 3, hy - 4, hs + 6, hs + 5);
+    g.fillStyle = C(L.visor || '#3a8fd0'); g.fillRect(-hs / 2 + 1, hy + 2, hs - 2, hs - 6);
+  }
+  if (L.fin) { g.fillStyle = C(L.fin); g.beginPath(); g.moveTo(-4, hy); g.lineTo(5, hy); g.lineTo(-2, hy - 11); g.closePath(); g.fill(); }
+  if (L.antennae) { g.fillStyle = C(L.antennae); g.fillRect(-6, hy - 7, 2, 7); g.fillRect(4, hy - 7, 2, 7); g.fillRect(-7, hy - 9, 4, 3); g.fillRect(3, hy - 9, 4, 3); }
+  if (L.ears) { g.fillStyle = C(L.ears); g.fillRect(-8, hy - 8, 4, 9); g.fillRect(4, hy - 8, 4, 9); }
+  if (L.spikes) { g.fillStyle = C(L.spikes); for (const x of [-8, -2, 4]) g.fillRect(x, hy - 5, 4, 6); }
   if (L.goggles) {
     g.fillStyle = C('#3a2a1a'); g.fillRect(-hs / 2, hy + 2, hs, 3);
     g.fillStyle = C(L.goggles); g.fillRect(-7, hy + 1, 5, 5); g.fillRect(2, hy + 1, 5, 5);
@@ -3358,7 +3693,7 @@ function buildCharacterModel(br) {
 
   const head = pivot(body, 0, 20.5, 0);
   const hs = golem ? 11 : 10;
-  box(head, hs, hs, hs, L.skin, 0, hs / 2, 0);
+  box(head, hs, hs, hs, L.pumpkin || L.skin, 0, hs / 2, 0);
   if (L.hair) {
     box(head, hs + 0.6, 3, hs + 0.6, L.hair, 0, hs - 1.2, 0);
     box(head, hs + 0.6, hs - 3, 2, L.hair, 0, hs / 2 + 0.5, -hs / 2 - 0.2);
@@ -3376,6 +3711,17 @@ function buildCharacterModel(br) {
     for (const sx2 of [-1.7, 1.7]) box(head, 1.4, 2.4, 0.5, '#111', sx2, hs * 0.22, fz);
     box(body, bw + 0.2, 2, 5.4, '#3d8b40', 0, 18, 0);
     box(body, 3, 3, 5.4, '#6fd36f', -2, 13, 0);
+  } else if (L.pumpkin) {
+    // Gresskarhode (snøgolem): utskåret fjes
+    for (const sx2 of [-2.5, 2.5]) box(head, 2.6, 2.2, 0.5, '#3a1a00', sx2, hs * 0.62, fz);
+    box(head, 6.4, 1.6, 0.5, '#3a1a00', 0, hs * 0.28, fz);
+    box(head, 1.2, 1.4, 0.5, '#3a1a00', 0, hs * 0.44, fz);
+    box(head, 1.2, 2.2, 1.2, '#4a7a2a', 0, hs + 0.8, 0);
+  } else if (L.skull) {
+    // Hodeskalle: mørke øyehuler og tenner
+    for (const sx2 of [-2.4, 2.4]) box(head, 2.8, 2.8, 0.5, '#1a1a22', sx2, hs * 0.58, fz);
+    box(head, 1.2, 1.6, 0.5, '#1a1a22', 0, hs * 0.38, fz);
+    box(head, 5.2, 0.8, 0.5, '#1a1a22', 0, hs * 0.2, fz);
   } else if (L.ender) {
     const eyeM = basicMat('#e070ff');
     for (const sx2 of [-2.6, 2.6]) {
@@ -3419,6 +3765,8 @@ function buildCharacterModel(br) {
     head.add(brim, cone);
     box(head, 11.5, 1.3, 11.5, '#ffd23f', 0, hs + 1.2, 0);
   }
+
+  addAccessories3D(L, head, body, hs, fz, bw, box, mats);
 
   const armL = pivot(body, -sx, 19.5, 0), armR = pivot(body, sx, 19.5, 0);
   box(armL, aw, 10, aw, L.shirt, 0, -4, 0);
@@ -3474,6 +3822,90 @@ function buildCharacterModel(br) {
   root.add(chute);
 
   return { root, body, legL, legR, armL, armR, head, gun, pick, ring, chute, mats, flash: false, alpha: 1 };
+}
+
+// Tilbehør for de nye brawlerne (alt i samme blokkstil)
+function addAccessories3D(L, head, body, hs, fz, bw, box, mats) {
+  // Ansikt
+  if (L.beard) box(head, hs * 0.86, hs * 0.42, 1.4, L.beard, 0, hs * 0.1, fz + 0.4);
+  if (L.mustache) box(head, hs * 0.55, 1.1, 0.8, L.mustache, 0, hs * 0.32, fz + 0.2);
+  if (L.mask) {
+    box(head, hs + 0.5, hs * 0.42, hs + 0.5, L.mask, 0, hs * 0.2, 0);
+    box(head, hs + 0.5, 1.4, hs + 0.5, L.mask, 0, hs * 0.8, 0);
+  }
+  if (L.eyepatch) {
+    box(head, 2.8, 2.4, 0.6, '#111', -2.4, hs * 0.52, fz + 0.15);
+    box(head, hs + 0.5, 0.6, hs + 0.5, '#111', 0, hs * 0.64, 0);
+  }
+  if (L.snout) box(head, 4.6, 3.2, 3.2, L.snout, 0, hs * 0.26, fz + 1.4);
+  if (L.teeth) box(head, 5.4, 1, 0.5, '#ffffff', 0, hs * 0.2, fz + 0.1);
+  // Hode
+  if (L.crown) {
+    box(head, hs + 0.6, 2, hs + 0.6, L.crown, 0, hs + 1, 0);
+    for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1], [0, 1]]) box(head, 1.6, 2.2, 1.6, L.crown, x * (hs / 2 - 0.5), hs + 3, z * (hs / 2 - 0.5));
+    box(head, 1.4, 1.4, 0.5, '#e23b3b', 0, hs + 1, fz + 0.3);
+  }
+  if (L.vhelm) {
+    box(head, hs + 1, 3.6, hs + 1, L.vhelm, 0, hs + 0.6, 0);
+    box(head, 1, 4, 0.8, L.vhelm, 0, hs * 0.62, fz + 0.4);
+  }
+  if (L.horns) {
+    for (const sd of [-1, 1]) {
+      const h = box(head, 1.8, 5.5, 1.8, L.horns, sd * (hs / 2 + 1.2), hs + 1.5, 0);
+      h.rotation.z = -sd * 0.55;
+    }
+  }
+  if (L.bandana) {
+    box(head, hs + 0.6, 2.6, hs + 0.6, L.bandana, 0, hs - 0.4, 0);
+    box(head, 2, 3, 1.2, L.bandana, 2.5, hs - 2.4, -hs / 2 - 0.8);
+  }
+  if (L.chefhat) {
+    box(head, hs - 0.6, 6, hs - 0.6, L.chefhat, 0, hs + 3, 0);
+    box(head, hs + 1.6, 3, hs + 1.6, L.chefhat, 0, hs + 7, 0);
+  }
+  if (L.cowboy) {
+    box(head, hs + 7, 0.8, hs + 7, L.cowboy, 0, hs + 0.3, 0);
+    box(head, hs - 0.4, 4, hs - 0.4, L.cowboy, 0, hs + 2.4, 0);
+    box(head, hs - 0.2, 1, hs - 0.2, '#3a2410', 0, hs + 1, 0);
+  }
+  if (L.minerhelm) {
+    box(head, hs + 1.2, 3.4, hs + 1.2, L.minerhelm, 0, hs + 0.8, 0);
+    const lamp = new THREE.Mesh(UNIT_BOX, basicMat('#fff27a'));
+    lamp.scale.set(2.6, 2.4, 1.2);
+    lamp.position.set(0, hs + 0.9, fz + 0.9);
+    head.add(lamp);
+  }
+  if (L.spacehelm) {
+    box(head, hs + 2.4, 2, hs + 2.4, L.spacehelm, 0, hs + 1.2, 0);
+    box(head, hs + 2.4, hs + 2, 1.6, L.spacehelm, 0, hs / 2 + 0.4, -hs / 2 - 1);
+    for (const sd of [-1, 1]) box(head, 1.4, hs + 2, hs + 2.4, L.spacehelm, sd * (hs / 2 + 0.9), hs / 2 + 0.4, 0);
+    const visor = new THREE.Mesh(UNIT_BOX, basicMat(L.visor || '#3a8fd0', { transparent: true, opacity: 0.55 }));
+    visor.scale.set(hs + 1.6, hs * 0.75, 0.6);
+    visor.position.set(0, hs * 0.55, fz + 1);
+    head.add(visor);
+  }
+  if (L.fin) {
+    const fin = box(head, 1.4, 6.5, 5, L.fin, 0, hs + 2.6, -1);
+    fin.rotation.x = -0.35;
+  }
+  if (L.antennae) {
+    for (const sd of [-1, 1]) {
+      box(head, 0.7, 4.5, 0.7, L.antennae, sd * 2.6, hs + 2.2, 1);
+      box(head, 1.6, 1.6, 1.6, L.antennae, sd * 2.6, hs + 4.6, 1);
+    }
+  }
+  if (L.ears) for (const sd of [-1, 1]) box(head, 2.2, 5, 1.6, L.ears, sd * 3, hs + 2.4, -1);
+  if (L.spikes) for (const x of [-3, 0, 3]) box(head, 2.2, 3.4, 2.2, L.spikes, x, hs + 1.6, x === 0 ? -1 : 0);
+  // Kropp
+  if (L.stripes) for (const y of [11.5, 15.5]) box(body, bw + 0.3, 1.8, 5.6, L.stripes, 0, y, 0);
+  if (L.robe) { box(body, bw + 1, 7, 6, L.shirt, 0, 7.5, 0); box(body, bw + 1.2, 1.2, 6.2, L.crown || '#ffd23f', 0, 11, 0); }
+  if (L.backpack) box(body, bw * 0.8, 8, 3.4, L.backpack, 0, 15.5, -4.2);
+  if (L.wings) {
+    for (const sd of [-1, 1]) {
+      const w = box(body, 0.6, 7, 6, L.wings, sd * 3.2, 18, -4.6);
+      w.rotation.y = sd * 0.7;
+    }
+  }
 }
 
 function setModelLook(md, flash, alpha) {
@@ -3563,7 +3995,10 @@ function makeProjectileMesh(p) {
   if (p.lob) {
     const g = new THREE.Group();
     let body;
-    if (p.kind === 'rocketlob') {
+    if (p.ball) {
+      body = new THREE.Mesh(SPHERE_G, basicMat(p.ball));
+      body.scale.setScalar(0.55);
+    } else if (p.kind === 'rocketlob') {
       body = new THREE.Mesh(UNIT_BOX, basicMat('#e74c3c'));
       body.scale.set(0.16, 0.16, 0.42);
     } else if (p.kind === 'tnt') {
@@ -3571,8 +4006,9 @@ function makeProjectileMesh(p) {
       body = new THREE.Mesh(UNIT_BOX, new THREE.MeshLambertMaterial({ map: t }));
       body.scale.setScalar(p.big ? 0.6 : 0.45);
     } else {
-      body = new THREE.Mesh(SPHERE_G, basicMat(p.kind === 'cloud' ? '#9dff7a' : '#5aa8ff'));
-      body.scale.setScalar(0.18);
+      const col = p.ball || { cloud: '#9dff7a', freeze: '#dff8ff', vortex: '#8a3cff' }[p.kind] || '#5aa8ff';
+      body = new THREE.Mesh(SPHERE_G, basicMat(col));
+      body.scale.setScalar(p.ball ? 0.5 : 0.18);
     }
     body.castShadow = true;
     g.add(body);
@@ -3678,7 +4114,7 @@ function syncDynamic() {
     m.userData.head.rotation.y = Math.PI / 2 - tu.aim;
   }
   for (const c of clouds) {
-    const m = dynFor(c, () => new THREE.Mesh(CYL_G, basicMat('#8dff6a', { transparent: true, opacity: 0.3, depthWrite: false })));
+    const m = dynFor(c, () => new THREE.Mesh(CYL_G, basicMat(c.pull ? '#5a1fbf' : c.color || '#8dff6a', { transparent: true, opacity: 0.3, depthWrite: false })));
     const r = (c.r / TILE) * (0.95 + Math.sin(Game.time * 6) * 0.05);
     m.position.set(c.x / TILE, 0.4, c.y / TILE);
     m.scale.set(r, 0.8, r);
@@ -3693,7 +4129,7 @@ function syncDynamic() {
   for (const bm of beams) {
     const m = dynFor(bm, () => {
       const g = new THREE.Group();
-      const outer = new THREE.Mesh(CYL_G, new THREE.MeshBasicMaterial({ color: '#6efaff', transparent: true, depthWrite: false }));
+      const outer = new THREE.Mesh(CYL_G, new THREE.MeshBasicMaterial({ color: bm.color || '#6efaff', transparent: true, depthWrite: false }));
       const inner = new THREE.Mesh(CYL_G, new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, depthWrite: false }));
       g.add(outer, inner);
       const a = new THREE.Vector3(bm.x1 / TILE, 0.8, bm.y1 / TILE), b = new THREE.Vector3(bm.x2 / TILE, 0.8, bm.y2 / TILE);
@@ -3740,9 +4176,9 @@ function updateCamera3D(dt) {
   let fogNear = 28, fogFar = 70;
   if (Game.state === 'menu') {
     const t = Game.menuT * 0.06;
-    cam.position.set(MAP_W / 2 + Math.cos(t) * 62, 42, MAP_H / 2 + Math.sin(t) * 62);
+    cam.position.set(MAP_W / 2 + Math.cos(t) * MAP_W * 0.56, MAP_W * 0.38, MAP_H / 2 + Math.sin(t) * MAP_H * 0.56);
     cam.lookAt(MAP_W / 2, 0, MAP_H / 2);
-    fogNear = 90; fogFar = 220;
+    fogNear = MAP_W * 0.8; fogFar = MAP_W * 2;
   } else {
     const tg = cameraTarget();
     const aspectBoost = W < H ? 1.35 : 1;
@@ -4229,7 +4665,10 @@ function buildMenu() {
   // --- Brawler-kort (butikk) ---
   const list = $('brawlerList');
   list.innerHTML = '';
-  BRAWLERS.forEach((br, i) => {
+  // Sortert etter pris, slik at butikken går fra billigst til dyrest
+  const order = BRAWLERS.map((b, i) => i).sort((a, b) => BRAWLERS[a].price - BRAWLERS[b].price || a - b);
+  order.forEach((i) => {
+    const br = BRAWLERS[i];
     const owned = ownsBrawler(br);
     const card = document.createElement('button');
     card.className = 'card' + (i === Game.selected ? ' selected' : '') + (owned ? '' : ' locked');
@@ -4270,7 +4709,7 @@ function buildMenu() {
   $('brawlerInfo').innerHTML = `
     <h3 style="color:${br.color}">${br.name} <small>${br.role}</small></h3>
     <div class="lvl-stars" title="Nivå ${lvl} av ${MAX_LEVEL}">${stars} <span>Nivå ${lvl}/${MAX_LEVEL}</span></div>
-    ${stat(`Liv (${Math.round(br.hp * mul)})`, br.hp * mul, 7000)}
+    ${stat(`Liv (${Math.round(br.hp * mul)})`, br.hp * mul, 8500)}
     ${stat(`Skade (${Math.round(dmgPerAmmo * mul)})`, dmgPerAmmo * mul, 2400)}
     ${stat('Rekkevidde', br.attack.range, 13)}
     ${stat('Fart', br.speed - 150, 80)}

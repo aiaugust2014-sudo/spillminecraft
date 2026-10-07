@@ -4,12 +4,13 @@
 // ============================================================
 
 const STORM_PLAN = [
-  { wait: 40, shrink: 28, r: 40, dps: 200 },
-  { wait: 30, shrink: 24, r: 26, dps: 350 },
-  { wait: 25, shrink: 20, r: 16, dps: 600 },
-  { wait: 20, shrink: 16, r: 9, dps: 900 },
-  { wait: 15, shrink: 14, r: 4, dps: 1300 },
-  { wait: 12, shrink: 12, r: 0, dps: 2000 },
+  { wait: 45, shrink: 35, r: 66, dps: 200 },
+  { wait: 35, shrink: 30, r: 42, dps: 300 },
+  { wait: 28, shrink: 24, r: 26, dps: 450 },
+  { wait: 22, shrink: 18, r: 15, dps: 700 },
+  { wait: 18, shrink: 15, r: 8, dps: 1000 },
+  { wait: 14, shrink: 12, r: 3.5, dps: 1400 },
+  { wait: 10, shrink: 10, r: 0, dps: 2000 },
 ];
 
 const Storm = { x: 0, y: 0, r: 0, nx: 0, ny: 0, nr: 0, sx: 0, sy: 0, sr: 0, phase: 0, mode: 'wait', t: 0, dps: 120 };
@@ -73,7 +74,7 @@ function outsideStorm(x, y, margin = 0) {
 }
 
 // ---------------- Kampbussen ----------------
-const Bus = { x: 0, y: 0, sx: 0, sy: 0, ex: 0, ey: 0, t: 0, dur: 14, active: false, ang: 0 };
+const Bus = { x: 0, y: 0, sx: 0, sy: 0, ex: 0, ey: 0, t: 0, dur: 20, active: false, ang: 0 };
 
 function initBus() {
   const a = rand(0, TAU);

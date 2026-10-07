@@ -433,7 +433,7 @@ function buildCharacterModel(br) {
 
   const head = pivot(body, 0, 20.5, 0);
   const hs = golem ? 11 : 10;
-  box(head, hs, hs, hs, L.skin, 0, hs / 2, 0);
+  box(head, hs, hs, hs, L.pumpkin || L.skin, 0, hs / 2, 0);
   if (L.hair) {
     box(head, hs + 0.6, 3, hs + 0.6, L.hair, 0, hs - 1.2, 0);
     box(head, hs + 0.6, hs - 3, 2, L.hair, 0, hs / 2 + 0.5, -hs / 2 - 0.2);
@@ -451,6 +451,17 @@ function buildCharacterModel(br) {
     for (const sx2 of [-1.7, 1.7]) box(head, 1.4, 2.4, 0.5, '#111', sx2, hs * 0.22, fz);
     box(body, bw + 0.2, 2, 5.4, '#3d8b40', 0, 18, 0);
     box(body, 3, 3, 5.4, '#6fd36f', -2, 13, 0);
+  } else if (L.pumpkin) {
+    // Gresskarhode (snøgolem): utskåret fjes
+    for (const sx2 of [-2.5, 2.5]) box(head, 2.6, 2.2, 0.5, '#3a1a00', sx2, hs * 0.62, fz);
+    box(head, 6.4, 1.6, 0.5, '#3a1a00', 0, hs * 0.28, fz);
+    box(head, 1.2, 1.4, 0.5, '#3a1a00', 0, hs * 0.44, fz);
+    box(head, 1.2, 2.2, 1.2, '#4a7a2a', 0, hs + 0.8, 0);
+  } else if (L.skull) {
+    // Hodeskalle: mørke øyehuler og tenner
+    for (const sx2 of [-2.4, 2.4]) box(head, 2.8, 2.8, 0.5, '#1a1a22', sx2, hs * 0.58, fz);
+    box(head, 1.2, 1.6, 0.5, '#1a1a22', 0, hs * 0.38, fz);
+    box(head, 5.2, 0.8, 0.5, '#1a1a22', 0, hs * 0.2, fz);
   } else if (L.ender) {
     const eyeM = basicMat('#e070ff');
     for (const sx2 of [-2.6, 2.6]) {
@@ -494,6 +505,8 @@ function buildCharacterModel(br) {
     head.add(brim, cone);
     box(head, 11.5, 1.3, 11.5, '#ffd23f', 0, hs + 1.2, 0);
   }
+
+  addAccessories3D(L, head, body, hs, fz, bw, box, mats);
 
   const armL = pivot(body, -sx, 19.5, 0), armR = pivot(body, sx, 19.5, 0);
   box(armL, aw, 10, aw, L.shirt, 0, -4, 0);
@@ -549,6 +562,90 @@ function buildCharacterModel(br) {
   root.add(chute);
 
   return { root, body, legL, legR, armL, armR, head, gun, pick, ring, chute, mats, flash: false, alpha: 1 };
+}
+
+// Tilbehør for de nye brawlerne (alt i samme blokkstil)
+function addAccessories3D(L, head, body, hs, fz, bw, box, mats) {
+  // Ansikt
+  if (L.beard) box(head, hs * 0.86, hs * 0.42, 1.4, L.beard, 0, hs * 0.1, fz + 0.4);
+  if (L.mustache) box(head, hs * 0.55, 1.1, 0.8, L.mustache, 0, hs * 0.32, fz + 0.2);
+  if (L.mask) {
+    box(head, hs + 0.5, hs * 0.42, hs + 0.5, L.mask, 0, hs * 0.2, 0);
+    box(head, hs + 0.5, 1.4, hs + 0.5, L.mask, 0, hs * 0.8, 0);
+  }
+  if (L.eyepatch) {
+    box(head, 2.8, 2.4, 0.6, '#111', -2.4, hs * 0.52, fz + 0.15);
+    box(head, hs + 0.5, 0.6, hs + 0.5, '#111', 0, hs * 0.64, 0);
+  }
+  if (L.snout) box(head, 4.6, 3.2, 3.2, L.snout, 0, hs * 0.26, fz + 1.4);
+  if (L.teeth) box(head, 5.4, 1, 0.5, '#ffffff', 0, hs * 0.2, fz + 0.1);
+  // Hode
+  if (L.crown) {
+    box(head, hs + 0.6, 2, hs + 0.6, L.crown, 0, hs + 1, 0);
+    for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1], [0, 1]]) box(head, 1.6, 2.2, 1.6, L.crown, x * (hs / 2 - 0.5), hs + 3, z * (hs / 2 - 0.5));
+    box(head, 1.4, 1.4, 0.5, '#e23b3b', 0, hs + 1, fz + 0.3);
+  }
+  if (L.vhelm) {
+    box(head, hs + 1, 3.6, hs + 1, L.vhelm, 0, hs + 0.6, 0);
+    box(head, 1, 4, 0.8, L.vhelm, 0, hs * 0.62, fz + 0.4);
+  }
+  if (L.horns) {
+    for (const sd of [-1, 1]) {
+      const h = box(head, 1.8, 5.5, 1.8, L.horns, sd * (hs / 2 + 1.2), hs + 1.5, 0);
+      h.rotation.z = -sd * 0.55;
+    }
+  }
+  if (L.bandana) {
+    box(head, hs + 0.6, 2.6, hs + 0.6, L.bandana, 0, hs - 0.4, 0);
+    box(head, 2, 3, 1.2, L.bandana, 2.5, hs - 2.4, -hs / 2 - 0.8);
+  }
+  if (L.chefhat) {
+    box(head, hs - 0.6, 6, hs - 0.6, L.chefhat, 0, hs + 3, 0);
+    box(head, hs + 1.6, 3, hs + 1.6, L.chefhat, 0, hs + 7, 0);
+  }
+  if (L.cowboy) {
+    box(head, hs + 7, 0.8, hs + 7, L.cowboy, 0, hs + 0.3, 0);
+    box(head, hs - 0.4, 4, hs - 0.4, L.cowboy, 0, hs + 2.4, 0);
+    box(head, hs - 0.2, 1, hs - 0.2, '#3a2410', 0, hs + 1, 0);
+  }
+  if (L.minerhelm) {
+    box(head, hs + 1.2, 3.4, hs + 1.2, L.minerhelm, 0, hs + 0.8, 0);
+    const lamp = new THREE.Mesh(UNIT_BOX, basicMat('#fff27a'));
+    lamp.scale.set(2.6, 2.4, 1.2);
+    lamp.position.set(0, hs + 0.9, fz + 0.9);
+    head.add(lamp);
+  }
+  if (L.spacehelm) {
+    box(head, hs + 2.4, 2, hs + 2.4, L.spacehelm, 0, hs + 1.2, 0);
+    box(head, hs + 2.4, hs + 2, 1.6, L.spacehelm, 0, hs / 2 + 0.4, -hs / 2 - 1);
+    for (const sd of [-1, 1]) box(head, 1.4, hs + 2, hs + 2.4, L.spacehelm, sd * (hs / 2 + 0.9), hs / 2 + 0.4, 0);
+    const visor = new THREE.Mesh(UNIT_BOX, basicMat(L.visor || '#3a8fd0', { transparent: true, opacity: 0.55 }));
+    visor.scale.set(hs + 1.6, hs * 0.75, 0.6);
+    visor.position.set(0, hs * 0.55, fz + 1);
+    head.add(visor);
+  }
+  if (L.fin) {
+    const fin = box(head, 1.4, 6.5, 5, L.fin, 0, hs + 2.6, -1);
+    fin.rotation.x = -0.35;
+  }
+  if (L.antennae) {
+    for (const sd of [-1, 1]) {
+      box(head, 0.7, 4.5, 0.7, L.antennae, sd * 2.6, hs + 2.2, 1);
+      box(head, 1.6, 1.6, 1.6, L.antennae, sd * 2.6, hs + 4.6, 1);
+    }
+  }
+  if (L.ears) for (const sd of [-1, 1]) box(head, 2.2, 5, 1.6, L.ears, sd * 3, hs + 2.4, -1);
+  if (L.spikes) for (const x of [-3, 0, 3]) box(head, 2.2, 3.4, 2.2, L.spikes, x, hs + 1.6, x === 0 ? -1 : 0);
+  // Kropp
+  if (L.stripes) for (const y of [11.5, 15.5]) box(body, bw + 0.3, 1.8, 5.6, L.stripes, 0, y, 0);
+  if (L.robe) { box(body, bw + 1, 7, 6, L.shirt, 0, 7.5, 0); box(body, bw + 1.2, 1.2, 6.2, L.crown || '#ffd23f', 0, 11, 0); }
+  if (L.backpack) box(body, bw * 0.8, 8, 3.4, L.backpack, 0, 15.5, -4.2);
+  if (L.wings) {
+    for (const sd of [-1, 1]) {
+      const w = box(body, 0.6, 7, 6, L.wings, sd * 3.2, 18, -4.6);
+      w.rotation.y = sd * 0.7;
+    }
+  }
 }
 
 function setModelLook(md, flash, alpha) {
@@ -638,7 +735,10 @@ function makeProjectileMesh(p) {
   if (p.lob) {
     const g = new THREE.Group();
     let body;
-    if (p.kind === 'rocketlob') {
+    if (p.ball) {
+      body = new THREE.Mesh(SPHERE_G, basicMat(p.ball));
+      body.scale.setScalar(0.55);
+    } else if (p.kind === 'rocketlob') {
       body = new THREE.Mesh(UNIT_BOX, basicMat('#e74c3c'));
       body.scale.set(0.16, 0.16, 0.42);
     } else if (p.kind === 'tnt') {
@@ -646,8 +746,9 @@ function makeProjectileMesh(p) {
       body = new THREE.Mesh(UNIT_BOX, new THREE.MeshLambertMaterial({ map: t }));
       body.scale.setScalar(p.big ? 0.6 : 0.45);
     } else {
-      body = new THREE.Mesh(SPHERE_G, basicMat(p.kind === 'cloud' ? '#9dff7a' : '#5aa8ff'));
-      body.scale.setScalar(0.18);
+      const col = p.ball || { cloud: '#9dff7a', freeze: '#dff8ff', vortex: '#8a3cff' }[p.kind] || '#5aa8ff';
+      body = new THREE.Mesh(SPHERE_G, basicMat(col));
+      body.scale.setScalar(p.ball ? 0.5 : 0.18);
     }
     body.castShadow = true;
     g.add(body);
@@ -753,7 +854,7 @@ function syncDynamic() {
     m.userData.head.rotation.y = Math.PI / 2 - tu.aim;
   }
   for (const c of clouds) {
-    const m = dynFor(c, () => new THREE.Mesh(CYL_G, basicMat('#8dff6a', { transparent: true, opacity: 0.3, depthWrite: false })));
+    const m = dynFor(c, () => new THREE.Mesh(CYL_G, basicMat(c.pull ? '#5a1fbf' : c.color || '#8dff6a', { transparent: true, opacity: 0.3, depthWrite: false })));
     const r = (c.r / TILE) * (0.95 + Math.sin(Game.time * 6) * 0.05);
     m.position.set(c.x / TILE, 0.4, c.y / TILE);
     m.scale.set(r, 0.8, r);
@@ -768,7 +869,7 @@ function syncDynamic() {
   for (const bm of beams) {
     const m = dynFor(bm, () => {
       const g = new THREE.Group();
-      const outer = new THREE.Mesh(CYL_G, new THREE.MeshBasicMaterial({ color: '#6efaff', transparent: true, depthWrite: false }));
+      const outer = new THREE.Mesh(CYL_G, new THREE.MeshBasicMaterial({ color: bm.color || '#6efaff', transparent: true, depthWrite: false }));
       const inner = new THREE.Mesh(CYL_G, new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, depthWrite: false }));
       g.add(outer, inner);
       const a = new THREE.Vector3(bm.x1 / TILE, 0.8, bm.y1 / TILE), b = new THREE.Vector3(bm.x2 / TILE, 0.8, bm.y2 / TILE);
@@ -815,9 +916,9 @@ function updateCamera3D(dt) {
   let fogNear = 28, fogFar = 70;
   if (Game.state === 'menu') {
     const t = Game.menuT * 0.06;
-    cam.position.set(MAP_W / 2 + Math.cos(t) * 62, 42, MAP_H / 2 + Math.sin(t) * 62);
+    cam.position.set(MAP_W / 2 + Math.cos(t) * MAP_W * 0.56, MAP_W * 0.38, MAP_H / 2 + Math.sin(t) * MAP_H * 0.56);
     cam.lookAt(MAP_W / 2, 0, MAP_H / 2);
-    fogNear = 90; fogFar = 220;
+    fogNear = MAP_W * 0.8; fogFar = MAP_W * 2;
   } else {
     const tg = cameraTarget();
     const aspectBoost = W < H ? 1.35 : 1;

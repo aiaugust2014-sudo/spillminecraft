@@ -67,12 +67,16 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
   if (L.golem) { g.fillStyle = C('#4e8f3a'); g.fillRect(-9, -32, 3, 12); g.fillRect(6, -30, 3, 9); g.fillRect(-2, -22, 3, 6); }
   if (L.helmet) { g.fillStyle = C('#e6f04a'); g.fillRect(-9, -22, 18, 3); }
   if (L.hood) { g.fillStyle = C('#7a5230'); g.fillRect(-9, -18, 18, 2); }
-  if (!L.golem && !L.witch && !L.helmet && !L.hood) { g.fillStyle = C('rgba(0,0,0,0.15)'); g.fillRect(-9, -15, 18, 2); }
+  if (L.robe) { g.fillStyle = C(L.shirt); g.fillRect(-11, -20, 22, 13); g.fillStyle = C(L.crown || '#ffd23f'); g.fillRect(-11, -16, 22, 2); }
+  if (L.stripes) { g.fillStyle = C(L.stripes); g.fillRect(-9, -28, 18, 3); g.fillRect(-9, -21, 18, 3); }
+  if (L.wings) { g.fillStyle = C(L.wings); g.fillRect(-15, -34, 5, 10); g.fillRect(10, -34, 5, 10); }
+  if (L.backpack) { g.fillStyle = C(L.backpack); g.fillRect(face > 0 ? -13 : 9, -31, 4, 14); }
+  if (!L.golem && !L.witch && !L.helmet && !L.hood && !L.robe && !L.stripes) { g.fillStyle = C('rgba(0,0,0,0.15)'); g.fillRect(-9, -15, 18, 2); }
 
   // Hode
   const hs = L.golem ? 20 : 18;
   const hy = -32 - hs;
-  g.fillStyle = C(L.skin);
+  g.fillStyle = C(L.pumpkin || L.skin);
   g.fillRect(-hs / 2, hy, hs, hs);
   if (L.hair) {
     g.fillStyle = C(L.hair);
@@ -88,6 +92,13 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillStyle = C('#111');
       g.fillRect(-6, hy + 5, 4, 4); g.fillRect(2, hy + 5, 4, 4);
       g.fillRect(-2, hy + 9, 4, 5); g.fillRect(-4, hy + 11, 2, 4); g.fillRect(2, hy + 11, 2, 4);
+    } else if (L.pumpkin) {
+      g.fillStyle = C('#3a1a00');
+      g.fillRect(-7, hy + 5, 5, 4); g.fillRect(2, hy + 5, 5, 4); g.fillRect(-6, hy + 12, 12, 3);
+      g.fillStyle = C('#4a7a2a'); g.fillRect(-1, hy - 3, 3, 4);
+    } else if (L.skull) {
+      g.fillStyle = C('#1a1a22');
+      g.fillRect(-7, hy + 6, 5, 5); g.fillRect(2, hy + 6, 5, 5); g.fillRect(-1, hy + 11, 2, 3); g.fillRect(-5, hy + 15, 10, 1);
     } else if (L.ender) {
       g.fillStyle = C('#e070ff');
       g.fillRect(ex - 8, hy + 8, 6, 2); g.fillRect(ex + 2, hy + 8, 6, 2);
@@ -104,6 +115,34 @@ function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
       g.fillStyle = C('rgba(0,0,0,0.25)'); g.fillRect(ex - 3, hy + 13, 6, 2);
     }
   }
+  // Ansiktstilbehør
+  if (L.beard) { g.fillStyle = C(L.beard); g.fillRect(-7, hy + 12, 14, 8); }
+  if (L.mustache) { g.fillStyle = C(L.mustache); g.fillRect(-5, hy + 12, 10, 2); }
+  if (L.mask) { g.fillStyle = C(L.mask); g.fillRect(-hs / 2, hy + 11, hs, 7); g.fillRect(-hs / 2, hy + 3, hs, 3); }
+  if (L.eyepatch) { g.fillStyle = C('#111'); g.fillRect(-hs / 2, hy + 6, hs, 1); g.fillRect(-7, hy + 7, 5, 4); }
+  if (L.snout) { g.fillStyle = C(L.snout); g.fillRect(-5 + face * 3, hy + 11, 10, 6); g.fillStyle = C('#3a2a1a'); g.fillRect(-2 + face * 3, hy + 12, 4, 2); }
+  if (L.teeth) { g.fillStyle = C('#fff'); g.fillRect(-5, hy + 14, 10, 2); }
+  // Hodeplagg
+  if (L.crown) {
+    g.fillStyle = C(L.crown);
+    g.fillRect(-hs / 2, hy - 3, hs, 4);
+    for (const x of [-hs / 2, -2, hs / 2 - 4]) g.fillRect(x, hy - 7, 4, 4);
+    g.fillStyle = C('#e23b3b'); g.fillRect(-1, hy - 2, 2, 2);
+  }
+  if (L.vhelm) { g.fillStyle = C(L.vhelm); g.fillRect(-hs / 2 - 1, hy - 3, hs + 2, 7); g.fillRect(-1, hy + 4, 2, 5); }
+  if (L.horns) { g.fillStyle = C(L.horns); g.fillRect(-hs / 2 - 5, hy - 6, 4, 8); g.fillRect(hs / 2 + 1, hy - 6, 4, 8); }
+  if (L.bandana) { g.fillStyle = C(L.bandana); g.fillRect(-hs / 2 - 1, hy - 1, hs + 2, 5); g.fillRect(face > 0 ? -hs / 2 - 4 : hs / 2, hy + 1, 4, 5); }
+  if (L.chefhat) { g.fillStyle = C(L.chefhat); g.fillRect(-7, hy - 9, 14, 10); g.fillRect(-10, hy - 14, 20, 6); }
+  if (L.cowboy) { g.fillStyle = C(L.cowboy); g.fillRect(-hs / 2 - 6, hy - 1, hs + 12, 3); g.fillRect(-8, hy - 8, 16, 8); g.fillStyle = C('#3a2410'); g.fillRect(-8, hy - 3, 16, 2); }
+  if (L.minerhelm) { g.fillStyle = C(L.minerhelm); g.fillRect(-hs / 2 - 1, hy - 4, hs + 2, 7); g.fillStyle = C('#fff27a'); g.fillRect(face * 4 - 2, hy - 3, 5, 4); }
+  if (L.spacehelm) {
+    g.fillStyle = C(L.spacehelm); g.fillRect(-hs / 2 - 3, hy - 4, hs + 6, hs + 5);
+    g.fillStyle = C(L.visor || '#3a8fd0'); g.fillRect(-hs / 2 + 1, hy + 2, hs - 2, hs - 6);
+  }
+  if (L.fin) { g.fillStyle = C(L.fin); g.beginPath(); g.moveTo(-4, hy); g.lineTo(5, hy); g.lineTo(-2, hy - 11); g.closePath(); g.fill(); }
+  if (L.antennae) { g.fillStyle = C(L.antennae); g.fillRect(-6, hy - 7, 2, 7); g.fillRect(4, hy - 7, 2, 7); g.fillRect(-7, hy - 9, 4, 3); g.fillRect(3, hy - 9, 4, 3); }
+  if (L.ears) { g.fillStyle = C(L.ears); g.fillRect(-8, hy - 8, 4, 9); g.fillRect(4, hy - 8, 4, 9); }
+  if (L.spikes) { g.fillStyle = C(L.spikes); for (const x of [-8, -2, 4]) g.fillRect(x, hy - 5, 4, 6); }
   if (L.goggles) {
     g.fillStyle = C('#3a2a1a'); g.fillRect(-hs / 2, hy + 2, hs, 3);
     g.fillStyle = C(L.goggles); g.fillRect(-7, hy + 1, 5, 5); g.fillRect(2, hy + 1, 5, 5);

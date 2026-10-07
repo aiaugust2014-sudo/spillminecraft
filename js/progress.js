@@ -58,8 +58,8 @@ function upgradeBrawler(br) {
 // Mynter og trofeer etter en runde
 function giveMatchReward(place, kills, win) {
   const coins = (PLACE_COINS[place - 1] || 15) + kills * KILL_COINS;
-  const table = [10, 8, 6, 4, 2, 0, -1, -2, -3, -4];
-  const trophies = (table[place - 1] || -4) + kills;
+  const t = PLACE_TROPHIES[place - 1];
+  const trophies = (t === undefined ? -4 : t) + kills;
   Profile.coins += coins;
   Profile.trophies = Math.max(0, Profile.trophies + trophies);
   if (win) Profile.wins++;

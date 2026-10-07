@@ -104,7 +104,9 @@ function generateWorld(seed) {
 
   // Kister spredt rundt på øya
   let placed = 0;
-  for (let tries = 0; placed < 24 && tries < 6000; tries++) {
+  // Antall kister vokser med kartet
+  const chestCount = Math.round(24 * (MAP_W * MAP_H) / (110 * 110));
+  for (let tries = 0; placed < chestCount && tries < 20000; tries++) {
     const x = 4 + Math.floor(rng() * (MAP_W - 8)), y = 4 + Math.floor(rng() * (MAP_H - 8));
     const i = tIdx(x, y);
     if (World.ground[i] === GND.WATER || World.block[i]) continue;
@@ -160,7 +162,9 @@ function buildHouse(x0, y0, w, h, mat, rng, chests) {
 
 function buildPOIs(rng) {
   const names = shuffle(POI_NAMES.slice(), rng);
-  const kinds = ['village', 'mine', 'fort', 'village', 'tower', 'house', 'mine', 'house'];
+  const base = ['village', 'mine', 'fort', 'village', 'tower', 'house', 'mine', 'house'];
+  // Større kart = flere steder å lande
+  const kinds = MAP_W > 150 ? base.concat(['fort', 'village', 'tower', 'mine', 'house', 'village', 'tower', 'fort']) : base;
   for (const kind of kinds) {
     for (let t = 0; t < 300; t++) {
       const cx = 16 + Math.floor(rng() * (MAP_W - 32)), cy = 16 + Math.floor(rng() * (MAP_H - 32));

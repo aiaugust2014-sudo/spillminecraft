@@ -2,7 +2,7 @@
 
 **Minecraft × Fortnite × Brawl Stars** – i ett sykt 3D-nettleserspill!
 
-Grav som i Minecraft, bygg som i Fortnite og slåss som i Brawl Stars. Ti brawlere hopper ut av Kampbussen over en blokkøy – sistemann igjen vinner **#1 VICTORY ROYALE**.
+Grav som i Minecraft, bygg som i Fortnite og slåss som i Brawl Stars. 14 brawlere hopper ut av Kampbussen over en stor blokkøy (190 × 190 blokker med 16 steder å lande). Sistemann igjen vinner **#1 VICTORY ROYALE**.
 
 ## Slik starter du
 
@@ -39,7 +39,7 @@ Du kan også velge kamera i menyen og i pausemenyen.
 | Hotbar med 8 plasser, sprekker når blokker knuses | Kister og loot med sjeldenhetsfarger | Busker du kan gjemme deg i |
 | Pikselgrafikk | Victory Royale | Trofeer for hver runde |
 
-## Brawlere
+## Brawlere (28)
 
 | Brawler | Pris | Rolle | Angrep | SUPER | Passiv |
 |---|---|---|---|---|---|
@@ -51,6 +51,26 @@ Du kan også velge kamera i menyen og i pausemenyen.
 | **Creeper-Kalle** | 🪙 600 | Nærkamp | Sssst-puls rundt seg | KABOOM – kjempeeksplosjon | Raskere i busker |
 | **Ender-Embla** | 🪙 900 | Snikmorder | 2 raske enderkuler | Teleport dit du sikter | Avsløres ikke i busker når hun skyter |
 | **Rakett-Rakel** | 🪙 1500 | Artilleri | Raketter som eksploderer | Rakettregn – 7 raketter | Knuser blokker ekstra lett |
+| **Kokk Kasper** | 🪙 300 | Kaster | Stekepanne som kastes over vegger | Festmåltid – helbreder og gir skjold | Bandasjer helbreder dobbelt |
+| **Snømann-Sondre** | 🪙 300 | Kontroll | Snøballer som gjør fiender trege | Snøstorm – fryser et område | Blir aldri treg |
+| **Zombie-Zara** | 🪙 350 | Nærkamp | Klør som stjeler liv | Zombieraseri – fart og rask lading | Helbreder seg dobbelt så fort |
+| **Skjelett-Skule** | 🪙 400 | Snikskytter | Piler som går gjennom fiender | Pileregn – 7 piler i vifte | Ser lenger inn i busker |
+| **Viking-Vegard** | 🪙 400 | Tank | 3 kasteøkser | Vikingangrep gjennom vegger | Tar 10 % mindre skade |
+| **Gruve-Gunnar** | 🪙 400 | Graver | Steinspray | Jordskjelv rundt seg | Graver raskt og får mer materialer |
+| **Bie-Bente** | 🪙 450 | Snikmorder | Giftige brodder | Biesverm | Raskere i busker |
+| **Lama-Lotte** | 🪙 500 | Støtte | Lamaspytt over vegger | Forsyningslama med loot | Får mer materialer |
+| **Ninja-Nora** | 🪙 550 | Snikmorder | 3 shuriken | Skyggehopp (teleport) | Avsløres ikke i busker |
+| **Cowboy-Conrad** | 🪙 600 | Revolvermann | 2 presise skudd | Seks skudd i vifte | Lader raskere |
+| **Pirat-Petra** | 🪙 650 | Kanonér | Muskett-hagle | Kanonsalve | Svømmer raskt |
+| **Kong Kristian** | 🪙 700 | Allrounder | Gyldne lyn | Kongelig skjold | Tåler stormen bedre |
+| **Robot-Roy** | 🪙 750 | Bygger | 3 lasere | 2 vakttårn | Bygger til halv pris |
+| **Isdronning Ida** | 🪙 950 | Snikskytter | Isspyd som gjør treg | Evig vinter | Lader raskere |
+| **Spøkelse-Synne** | 🪙 1000 | Snikmorder | Kuler som flyr gjennom vegger | Teleport gjennom vegger | Avsløres ikke i busker |
+| **Drage-Dina** | 🪙 1100 | Tank | Ildpust | Kjempeildkule | Tar 10 % mindre skade |
+| **Astronaut-Aksel** | 🪙 1200 | Snikskytter | Plasmagevær | Tredobbel laser | Tåler stormen bedre |
+| **Hai-Henrik** | 🪙 1300 | Nærkamp | Haibitt som stjeler liv | Haiangrep (stormløp) | Svømmer raskt |
+| **Trollmann Torvald** | 🪙 1400 | Kaster | Magisk ildkule | Svart hull som trekker fiender inn | Helbreder seg dobbelt så fort |
+| **Lyn-Live** | 🪙 1800 | Snikmorder | 3 superraske lyn | Tordenvær – tre lynstråler | Lader raskere |
 
 ## Kontroller
 

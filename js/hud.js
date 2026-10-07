@@ -273,7 +273,10 @@ function buildMenu() {
   // --- Brawler-kort (butikk) ---
   const list = $('brawlerList');
   list.innerHTML = '';
-  BRAWLERS.forEach((br, i) => {
+  // Sortert etter pris, slik at butikken går fra billigst til dyrest
+  const order = BRAWLERS.map((b, i) => i).sort((a, b) => BRAWLERS[a].price - BRAWLERS[b].price || a - b);
+  order.forEach((i) => {
+    const br = BRAWLERS[i];
     const owned = ownsBrawler(br);
     const card = document.createElement('button');
     card.className = 'card' + (i === Game.selected ? ' selected' : '') + (owned ? '' : ' locked');
@@ -314,7 +317,7 @@ function buildMenu() {
   $('brawlerInfo').innerHTML = `
     <h3 style="color:${br.color}">${br.name} <small>${br.role}</small></h3>
     <div class="lvl-stars" title="Nivå ${lvl} av ${MAX_LEVEL}">${stars} <span>Nivå ${lvl}/${MAX_LEVEL}</span></div>
-    ${stat(`Liv (${Math.round(br.hp * mul)})`, br.hp * mul, 7000)}
+    ${stat(`Liv (${Math.round(br.hp * mul)})`, br.hp * mul, 8500)}
     ${stat(`Skade (${Math.round(dmgPerAmmo * mul)})`, dmgPerAmmo * mul, 2400)}
     ${stat('Rekkevidde', br.attack.range, 13)}
     ${stat('Fart', br.speed - 150, 80)}

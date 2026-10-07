@@ -203,7 +203,7 @@ function botAct(f, b) {
     steer(f, b, mx, my);
 
     if (visible && d < range && b.fireCd <= 0 && f.ammo >= 1 && (b.mode === 'fight' || Math.random() < 0.4)) {
-      const clear = a.type === 'lob' || a.type === 'nova' || los(f.x, f.y, t.x, t.y);
+      const clear = a.type === 'lob' || a.type === 'nova' || a.ghost || los(f.x, f.y, t.x, t.y);
       if (clear || Math.random() < 0.3) {
         const tt = a.type === 'lob' ? 0.55 : a.type === 'nova' ? 0 : d / (a.speed || 1000);
         const px = t.x + t.vx * tt * b.skill, py = t.y + t.vy * tt * b.skill;
@@ -212,7 +212,8 @@ function botAct(f, b) {
         b.fireCd = rand(0.25, 0.7) * (1.5 - b.skill);
       }
     }
-    if (f.superCharge >= 1 && visible && d < superRange(f)) trySuper(f, ang, t.x, t.y);
+    const healSuper = f.br.sup.type === 'heal';
+    if (f.superCharge >= 1 && visible && d < superRange(f) && (!healSuper || f.hp < f.maxHp * 0.6)) trySuper(f, ang, t.x, t.y);
     if (f.items.tnt > 0 && d < 7 * TILE && b.itemCd <= 0 && Math.random() < 0.03) { useItem(f, 'tnt', t.x, t.y); b.itemCd = 3; }
     if (f.items.turret > 0 && d < 8 * TILE && b.itemCd <= 0 && Math.random() < 0.03) { useItem(f, 'turret', f.x + Math.cos(ang) * TILE, f.y + Math.sin(ang) * TILE); b.itemCd = 3; }
     // Fortnite-refleks: bygg en vegg når du blir skutt
