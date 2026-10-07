@@ -1,0 +1,3897 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1b1236">
+  <title>Blokk Royale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+  <style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #1b1236;
+  color: #fff;
+  font-family: "Lilita One", "Arial Black", system-ui, sans-serif;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+#game { position: fixed; inset: 0; display: block; cursor: crosshair; }
+
+.hidden { display: none !important; }
+
+button { font-family: inherit; cursor: pointer; }
+
+/* ---------- Skjermer ---------- */
+.screen {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+}
+.screen.dim { background: rgba(10, 5, 30, 0.6); }
+
+#menu {
+  background: radial-gradient(ellipse at top, rgba(60, 30, 130, 0.55), rgba(10, 5, 30, 0.85));
+  overflow-y: auto;
+  align-items: flex-start;
+  touch-action: pan-y;
+}
+.menu-inner {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  text-align: center;
+}
+
+.logo {
+  font-size: clamp(44px, 11vw, 96px);
+  line-height: 0.95;
+  letter-spacing: 2px;
+  display: flex; flex-direction: column; align-items: center;
+  transform: rotate(-3deg);
+  margin: 6px 0 14px;
+}
+.logo span {
+  -webkit-text-stroke: 3px #000;
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 #000, 0 10px 18px rgba(0, 0, 0, 0.5);
+}
+.logo .l1 { color: #5fd64a; background: linear-gradient(#7cf060, #3f9a32); -webkit-background-clip: text; background-clip: text; }
+.logo .l2 { color: #ffd23f; font-size: 1.15em; }
+
+.tagline { font-size: clamp(13px, 3.4vw, 18px); color: #e6dcff; margin-bottom: 10px; }
+.tagline b { color: #ffd23f; }
+
+.trophies {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 210, 63, 0.5);
+  border-radius: 999px;
+  padding: 6px 16px;
+  margin-bottom: 16px;
+  font-size: 17px;
+}
+
+h2 { font-size: 24px; margin: 6px 0 12px; text-shadow: 0 3px 0 #000; }
+
+.brawler-list {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+}
+.card {
+  width: 126px;
+  padding: 8px 6px 10px;
+  border-radius: 14px;
+  border: 3px solid #000;
+  background: linear-gradient(180deg, #4a3a8a, #2a1f5a);
+  color: #fff;
+  box-shadow: 0 5px 0 #000;
+  transition: transform 0.12s;
+}
+.card:hover { transform: translateY(-3px); }
+.card.selected {
+  background: linear-gradient(180deg, var(--c), #2a1f5a 120%);
+  outline: 4px solid #ffd23f;
+  transform: translateY(-4px) scale(1.04);
+}
+.card canvas { width: 96px; height: 96px; image-rendering: pixelated; display: block; margin: 0 auto 4px; }
+.card-name { font-size: 15px; text-shadow: 0 2px 0 #000; }
+.card-role { font-size: 12px; color: #d8d0ff; }
+
+.brawler-info {
+  margin: 16px auto 18px;
+  max-width: 460px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: left;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+}
+.brawler-info h3 { font-family: "Lilita One", sans-serif; font-size: 24px; text-shadow: 0 2px 0 #000; margin-bottom: 8px; }
+.brawler-info p { margin-top: 6px; color: #e8e2ff; }
+.stat { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+.stat span { width: 90px; font-size: 13px; color: #cfc6ff; }
+.statbar { flex: 1; height: 10px; background: rgba(255, 255, 255, 0.12); border-radius: 6px; overflow: hidden; }
+.statbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffd23f, #ff8a1f); }
+
+.big-btn {
+  display: block;
+  margin: 8px auto;
+  min-width: 220px;
+  padding: 14px 36px;
+  font-size: 30px;
+  color: #fff;
+  background: linear-gradient(180deg, #ffd23f, #ff9a1f);
+  border: 4px solid #000;
+  border-radius: 16px;
+  box-shadow: 0 6px 0 #000;
+  -webkit-text-stroke: 1.5px #000;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #000;
+}
+.big-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #000; }
+
+.mid-btn {
+  display: block;
+  margin: 10px auto 0;
+  min-width: 200px;
+  padding: 10px 24px;
+  font-size: 18px;
+  color: #fff;
+  background: linear-gradient(180deg, #5a7bff, #3a4fd0);
+  border: 3px solid #000;
+  border-radius: 12px;
+  box-shadow: 0 4px 0 #000;
+  text-shadow: 0 2px 0 #000;
+}
+
+.howto {
+  margin: 18px auto 0;
+  max-width: 600px;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.howto summary { font-family: "Lilita One", sans-serif; font-size: 18px; cursor: pointer; }
+.howto ul { margin: 8px 0 8px 4px; list-style: none; }
+.howto p { margin-top: 6px; color: #d8d0ff; }
+
+/* ---------- Bokser ---------- */
+.box {
+  background: linear-gradient(180deg, #3a2a7a, #1f1550);
+  border: 4px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 8px 0 #000;
+  padding: 24px 22px;
+  text-align: center;
+  width: min(440px, calc(100% - 32px));
+}
+.box h1 { font-size: clamp(30px, 8vw, 46px); text-shadow: 0 4px 0 #000; margin-bottom: 6px; }
+.box h1.win {
+  color: #ffd23f;
+  animation: pop 0.6s ease-out;
+}
+.box p { color: #e6dcff; margin-bottom: 14px; font-family: system-ui, sans-serif; }
+@keyframes pop { 0% { transform: scale(0.3); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+.end-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.end-stats div { background: rgba(0, 0, 0, 0.35); border-radius: 10px; padding: 8px; }
+.end-stats b { display: block; font-size: 24px; }
+.end-stats span { font-size: 12px; color: #cfc6ff; font-family: system-ui, sans-serif; }
+.plus { color: #6dff7a; }
+.minus { color: #ff7a7a; }
+
+/* ---------- Crafting ---------- */
+.panel {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  z-index: 12;
+  background: #c6c6c6;
+  color: #333;
+  border: 4px solid #000;
+  border-radius: 6px;
+  box-shadow: inset -4px -4px 0 #555, inset 4px 4px 0 #fff, 0 8px 0 rgba(0, 0, 0, 0.5);
+  padding: 12px;
+  touch-action: pan-y;
+}
+.panel-head { display: flex; justify-content: space-between; align-items: center; font-size: 22px; margin-bottom: 6px; }
+.x-btn { background: #8b8b8b; color: #fff; border: 3px solid #000; border-radius: 6px; width: 34px; height: 34px; font-size: 16px; }
+.craft-mats { font-family: system-ui, sans-serif; font-size: 13px; margin-bottom: 8px; }
+.recipe {
+  display: flex; align-items: center; gap: 10px;
+  background: #8b8b8b;
+  border: 2px solid #373737;
+  box-shadow: inset 2px 2px 0 #aaa;
+  padding: 6px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+.recipe canvas { width: 40px; height: 40px; image-rendering: pixelated; background: #6b6b6b; border: 2px solid #373737; }
+.recipe-info { flex: 1; font-family: system-ui, sans-serif; font-size: 13px; text-shadow: 1px 1px 0 #333; }
+.recipe-info b { font-family: "Lilita One", sans-serif; font-size: 16px; font-weight: normal; }
+.recipe .ok { color: #b6ffb0; }
+.recipe .no { color: #ffb0b0; }
+.recipe button {
+  padding: 8px 12px; font-size: 16px; color: #fff;
+  background: linear-gradient(180deg, #5fd64a, #3f9a32);
+  border: 3px solid #000; border-radius: 8px;
+}
+.recipe button:disabled { background: #666; color: #aaa; cursor: not-allowed; }
+.recipe.disabled { opacity: 0.75; }
+
+/* ---------- Mobilknapper ---------- */
+#touchUI { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+.tbtn {
+  position: absolute;
+  pointer-events: auto;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 22px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  line-height: 1;
+  touch-action: none;
+}
+.tbtn span { font-size: 10px; margin-top: 2px; }
+.tbtn.small { width: 44px; height: 44px; font-size: 16px; }
+#btnPause { top: calc(env(safe-area-inset-top, 0px) + 78px); left: 12px; }
+#btnCraft { top: calc(env(safe-area-inset-top, 0px) + 78px); left: 62px; }
+#btnSuper { right: 18px; bottom: 130px; width: 78px; height: 78px; font-size: 26px; }
+#btnSuper.ready { box-shadow: 0 0 18px #ffd23f; border-color: #ffd23f; }
+#btnMine { right: 104px; bottom: 120px; }
+#btnWall { right: 40px; bottom: 216px; }
+
+</style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- Hovedmeny -->
+  <div id="menu" class="screen">
+    <div class="menu-inner">
+      <h1 class="logo"><span class="l1">BLOKK</span><span class="l2">ROYALE</span></h1>
+      <p class="tagline">Grav som i <b>Minecraft</b> · Bygg som i <b>Fortnite</b> · Slåss som i <b>Brawl Stars</b></p>
+      <div id="trophies" class="trophies"></div>
+      <h2>Velg brawler</h2>
+      <div id="brawlerList" class="brawler-list"></div>
+      <div id="brawlerInfo" class="brawler-info"></div>
+      <button id="playBtn" class="big-btn">SPILL!</button>
+      <details class="howto">
+        <summary>Slik spiller du</summary>
+        <ul>
+          <li>🚌 <b>Hopp ut av Kampbussen</b> der du vil lande.</li>
+          <li>⛏️ <b>Grav</b> trær, stein, jern og diamanter for å få materialer.</li>
+          <li>🧱 <b>Bygg vegger</b> av tre, stein eller metall for å beskytte deg.</li>
+          <li>📦 <b>Knus kister</b> for kraftkuber (+10 % liv og skade), bandasjer, skjolddrikker, TNT og vakttårn.</li>
+          <li>🛠️ <b>Craft</b> nye ting av materialene dine – 3 diamanter blir til en kraftkube!</li>
+          <li>🌿 <b>Gjem deg i busker</b> – fiender ser deg ikke før de er helt nær.</li>
+          <li>⚡ <b>Lad opp SUPER</b> ved å treffe fiender, og slipp løs kraften.</li>
+          <li>🌀 <b>Hold deg unna stormen</b> – den krymper hele tiden. Sistemann vinner!</li>
+        </ul>
+        <p><b>PC:</b> WASD = gå · Mus = sikt · Venstreklikk = skyt/bygg/bruk · Høyreklikk eller F = grav · 1–8 eller musehjul = hotbar · Q = rask vegg · E/mellomrom = super · C = crafting · Esc = pause</p>
+        <p><b>Mobil:</b> Venstre tommel = gå · Høyre tommel = sikt og slipp for å skyte (trykk = auto-sikt) · Knappene for super, hakke, vegg og crafting.</p>
+      </details>
+    </div>
+  </div>
+
+  <!-- Crafting -->
+  <div id="craftPanel" class="panel hidden">
+    <div class="panel-head">
+      <span>🛠️ Crafting</span>
+      <button id="craftClose" class="x-btn">✕</button>
+    </div>
+    <div id="craftMats" class="craft-mats"></div>
+    <div id="craftList"></div>
+  </div>
+
+  <!-- Pause -->
+  <div id="pausePanel" class="screen dim hidden">
+    <div class="box">
+      <h2>Pause</h2>
+      <button id="resumeBtn" class="big-btn">Fortsett</button>
+      <button id="soundBtn" class="mid-btn">🔊 Lyd: PÅ</button>
+      <button id="quitBtn" class="mid-btn">Avslutt til meny</button>
+    </div>
+  </div>
+
+  <!-- Slutt -->
+  <div id="endScreen" class="screen dim hidden">
+    <div class="box">
+      <h1 id="endTitle"></h1>
+      <p id="endSub"></p>
+      <div id="endStats" class="end-stats"></div>
+      <button id="againBtn" class="big-btn">SPILL IGJEN</button>
+      <button id="menuBtn" class="mid-btn">Bytt brawler</button>
+    </div>
+  </div>
+
+  <!-- Mobilknapper -->
+  <div id="touchUI" class="hidden">
+    <button id="btnPause" class="tbtn small">II</button>
+    <button id="btnCraft" class="tbtn small">🛠️</button>
+    <button id="btnWall" class="tbtn">🧱<span>VEGG</span></button>
+    <button id="btnMine" class="tbtn">⛏️<span>GRAV</span></button>
+    <button id="btnSuper" class="tbtn super">⚡<span>SUPER</span></button>
+  </div>
+
+  <script>
+// ===== js/config.js =====
+'use strict';
+// ============================================================
+//  BLOKK ROYALE – konstanter, spilldata og hjelpefunksjoner
+// ============================================================
+
+const TILE = 48;            // pikselstørrelse på én blokk i verden
+const MAP_W = 110;          // kartbredde i blokker
+const MAP_H = 110;          // karthøyde i blokker
+const WORLD_W = MAP_W * TILE;
+const WORLD_H = MAP_H * TILE;
+const BLOCK_H = 14;         // "3D-høyde" på blokker når de tegnes
+const NUM_FIGHTERS = 10;    // spiller + bots
+const MINE_REACH = 2.3 * TILE;
+const BUILD_REACH = 4.5 * TILE;
+const BUILD_COST = 10;
+const TAU = Math.PI * 2;
+
+// Bakketyper
+const GND = { GRASS: 0, SAND: 1, WATER: 2, DIRT: 3, FLOOR: 4 };
+
+// Blokktyper
+const BLK = { AIR: 0, TREE: 1, STONE: 2, IRON: 3, DIAMOND: 4, PLANK: 5, COBBLE: 6, METAL: 7, CHEST: 8, BUSH: 9 };
+
+const BLOCK_INFO = [
+  null,
+  { name: 'Tre',         hp: 160,  solid: true,  drops: { wood: 15 },             color: '#2f7a2a' },
+  { name: 'Stein',       hp: 280,  solid: true,  drops: { stone: 12 },            color: '#8a8a8a' },
+  { name: 'Jernmalm',    hp: 380,  solid: true,  drops: { iron: 10, stone: 3 },   color: '#c9a58a' },
+  { name: 'Diamantmalm', hp: 520,  solid: true,  drops: { diamond: 1, stone: 3 }, color: '#5fe0e0' },
+  { name: 'Planke',      hp: 300,  solid: true,  drops: { wood: 4 },              color: '#c09050', built: true },
+  { name: 'Brostein',    hp: 600,  solid: true,  drops: { stone: 4 },             color: '#777777', built: true },
+  { name: 'Metall',      hp: 1000, solid: true,  drops: { iron: 4 },              color: '#b8c0c8', built: true },
+  { name: 'Kiste',       hp: 220,  solid: true,  drops: {},                       color: '#e0a030', chest: true },
+  { name: 'Busk',        hp: 200,  solid: false, drops: { wood: 2 },              color: '#3f9a3a', bush: true },
+];
+
+const MAT_BLOCK = { wood: BLK.PLANK, stone: BLK.COBBLE, iron: BLK.METAL };
+const MAT_NAME = { wood: 'Tre', stone: 'Stein', iron: 'Jern', diamond: 'Diamant' };
+
+const ITEM_NAME = {
+  bandage: 'Bandasje', potion: 'Skjolddrikk', tnt: 'TNT', turret: 'Vakttårn', cube: 'Kraftkube',
+  wood: 'Tre', stone: 'Stein', iron: 'Jern', diamond: 'Diamant',
+};
+
+// Fortnite-aktige sjeldenhetsfarger for ting på bakken
+const RARITY = {
+  bandage: '#9aa0a6', wood: '#9aa0a6', stone: '#9aa0a6', iron: '#3fbf4a',
+  potion: '#3b8cff', tnt: '#b04cff', turret: '#ffb020', diamond: '#3be0ff', cube: '#5dff6a',
+};
+
+// Hotbar (Minecraft-stil). Tast 1–8.
+const HOTBAR = ['weapon', 'wood', 'stone', 'iron', 'bandage', 'potion', 'tnt', 'turret'];
+
+const RECIPES = [
+  { item: 'bandage', cost: { wood: 20 },              desc: 'Helbreder 40 % liv' },
+  { item: 'potion',  cost: { iron: 10, diamond: 1 },  desc: 'Gir skjold (50 % av livet)' },
+  { item: 'tnt',     cost: { stone: 15, iron: 5 },    desc: 'Kastes – sprenger alt' },
+  { item: 'turret',  cost: { iron: 25, stone: 20 },   desc: 'Skyter fiender automatisk' },
+  { item: 'cube',    cost: { diamond: 3 },            desc: '+10 % liv og skade for alltid' },
+];
+
+// ------------------------------------------------------------
+//  Brawlere
+// ------------------------------------------------------------
+const BRAWLERS = [
+  {
+    id: 'kube', name: 'Kubekriger', role: 'Allrounder', hp: 3800, speed: 210, reload: 1.25, r: 17,
+    color: '#2fa4d9', superNeed: 2600,
+    look: { shirt: '#2fa4d9', pants: '#3346a8', skin: '#e0ac7a', hair: '#4a2f1b', gun: '#555' },
+    attack: { type: 'burst', count: 3, gap: 0.09, dmg: 420, range: 9, speed: 950, spread: 0.05,
+      label: 'Pikselpistol – 3 raske skudd' },
+    sup: { type: 'tnt', dmg: 1700, radius: 2.6, range: 8, label: 'TNT-kast – sprenger fiender OG blokker' },
+    passive: 'Graver 50 % raskere',
+  },
+  {
+    id: 'siri', name: 'Skarpskytter Siri', role: 'Snikskytter', hp: 2700, speed: 205, reload: 1.9, r: 16,
+    color: '#3e9c4f', superNeed: 2300,
+    look: { shirt: '#3e9c4f', pants: '#6b4a2b', skin: '#f1c9a0', hair: '#e8c34a', hood: '#2d6b37', gun: '#7a5230' },
+    attack: { type: 'single', dmg: 1150, range: 13, speed: 1500, label: 'Armbrøst – lang rekkevidde, stor skade' },
+    sup: { type: 'laser', dmg: 2300, range: 17, label: 'Diamantlaser – skyter gjennom ALT' },
+    passive: 'Ser fiender i busker på lengre avstand',
+  },
+  {
+    id: 'tor', name: 'Tanks-Tor', role: 'Tank', hp: 5400, speed: 192, reload: 1.55, r: 20,
+    color: '#c9c5bb', superNeed: 2400,
+    look: { shirt: '#cfcac0', pants: '#a39e93', skin: '#c4bfb4', hair: null, golem: true, gun: '#444' },
+    attack: { type: 'shotgun', count: 5, spread: 0.6, dmg: 300, range: 5, speed: 850,
+      label: 'Jernhagle – 5 kuler på kort hold' },
+    sup: { type: 'charge', dmg: 1500, range: 7, label: 'Golem-stormløp – knuser vegger og fiender' },
+    passive: 'Tar 35 % mindre stormskade',
+  },
+  {
+    id: 'hedda', name: 'Heksa Hedda', role: 'Kaster', hp: 3000, speed: 205, reload: 1.6, r: 16,
+    color: '#a05ad0', superNeed: 2600,
+    look: { shirt: '#7b3fa0', pants: '#4b2463', skin: '#b9e09a', hair: '#222', witch: '#2a1638', gun: '#3fd0ff' },
+    attack: { type: 'lob', dmg: 1050, radius: 1.4, range: 8, label: 'Trylledrikk – kastes OVER vegger' },
+    sup: { type: 'cloud', dps: 1000, radius: 2.7, dur: 4, range: 8, label: 'Giftsky – skader alle i området' },
+    passive: 'Bandasjer helbreder dobbelt',
+  },
+  {
+    id: 'bjorn', name: 'Bygg-Bjørn', role: 'Bygger', hp: 4400, speed: 200, reload: 1.2, r: 18,
+    color: '#f08a24', superNeed: 2200,
+    look: { shirt: '#f08a24', pants: '#2c3e70', skin: '#e8b88a', hair: '#7a4b22', helmet: '#f5c518', gun: '#666' },
+    attack: { type: 'spread', count: 3, spread: 0.24, dmg: 390, range: 7.5, speed: 950,
+      label: 'Spikerpistol – 3 spiker i vifte' },
+    sup: { type: 'fort', label: 'Byggeboom – metallvegg + vakttårn på et blunk' },
+    passive: 'Bygger til halv pris',
+  },
+];
+
+const BOT_NAMES = [
+  'Creeperen', 'NoobMaster', 'xXSlayerXx', 'Byggmester', 'Kubus', 'Pixel-Per', 'Lama-Lise',
+  'DiamantDan', 'Blokk-Bror', 'Storm-Stine', 'Hakke-Hans', 'Gruve-Gro', 'TNT-Tore', 'Skjold-Siv',
+  'Emote-Emil', 'Loot-Lars', 'Bushcamper', 'Kube-Kari',
+];
+
+const POI_NAMES = [
+  'Blokkby', 'Diamantgruva', 'Kubeskogen', 'Lamalandsbyen', 'Tiltede Tårn',
+  'Gjørmegropa', 'Steinslottet', 'Pikselparken', 'Hakkehavna',
+];
+
+// ------------------------------------------------------------
+//  Hjelpefunksjoner
+// ------------------------------------------------------------
+const rand = (a, b) => a + Math.random() * (b - a);
+const randi = (a, b) => Math.floor(rand(a, b + 1));
+const choice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const dist = (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1);
+const angTo = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
+const tileOf = (v) => Math.floor(v / TILE);
+
+function angDiff(a, b) {
+  let d = (b - a) % TAU;
+  if (d > Math.PI) d -= TAU;
+  if (d < -Math.PI) d += TAU;
+  return d;
+}
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffle(arr, rng = Math.random) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function fmtTime(s) {
+  s = Math.max(0, Math.ceil(s));
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+}
+
+function distToSegment(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const l2 = dx * dx + dy * dy;
+  let t = l2 ? ((px - x1) * dx + (py - y1) * dy) / l2 : 0;
+  t = clamp(t, 0, 1);
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+function circleRectOverlap(cx, cy, r, rx, ry, size) {
+  const nx = clamp(cx, rx, rx + size), ny = clamp(cy, ry, ry + size);
+  const dx = cx - nx, dy = cy - ny;
+  return dx * dx + dy * dy < r * r;
+}
+
+function makeCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  return c;
+}
+
+function storageGet(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch (e) { return fallback; }
+}
+
+function storageSet(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignorer */ }
+}
+
+</script>
+  <script>
+// ===== js/audio.js =====
+'use strict';
+// ============================================================
+//  Lyd – alt er syntetisert med WebAudio, ingen lydfiler
+// ============================================================
+
+const Sfx = (() => {
+  let ac = null, master = null, noiseBuf = null;
+  let enabled = storageGet('br_sound', true);
+  const lastPlayed = {};
+
+  function init() {
+    if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      master = ac.createGain();
+      master.gain.value = 0.3;
+      master.connect(ac.destination);
+      noiseBuf = ac.createBuffer(1, ac.sampleRate * 0.6, ac.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    } catch (e) { ac = null; }
+  }
+
+  function tone(freq, dur, type, vol, slideTo) {
+    const t = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), t + dur);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+
+  function noise(dur, vol, freq, q) {
+    const t = ac.currentTime;
+    const s = ac.createBufferSource();
+    s.buffer = noiseBuf;
+    const f = ac.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.value = freq;
+    f.Q.value = q || 1;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(master);
+    s.start(t); s.stop(t + dur + 0.02);
+  }
+
+  function play(name, vol = 1) {
+    if (!ac || !enabled || vol <= 0.02) return;
+    const now = performance.now();
+    if (lastPlayed[name] && now - lastPlayed[name] < 45) return;
+    lastPlayed[name] = now;
+    switch (name) {
+      case 'shoot':   tone(520, 0.08, 'square', 0.12 * vol, 200); break;
+      case 'arrow':   tone(900, 0.12, 'triangle', 0.15 * vol, 300); noise(0.08, 0.08 * vol, 3000); break;
+      case 'shotgun': noise(0.18, 0.3 * vol, 1400); tone(160, 0.12, 'square', 0.1 * vol, 60); break;
+      case 'lob':     tone(300, 0.2, 'sine', 0.15 * vol, 700); break;
+      case 'hit':     tone(220, 0.07, 'square', 0.12 * vol, 110); break;
+      case 'hurt':    tone(160, 0.15, 'sawtooth', 0.15 * vol, 70); break;
+      case 'mine':    noise(0.07, 0.2 * vol, 900, 4); break;
+      case 'break':   noise(0.22, 0.3 * vol, 600, 2); tone(120, 0.15, 'square', 0.08 * vol, 60); break;
+      case 'build':   tone(300, 0.06, 'square', 0.12 * vol, 500); noise(0.06, 0.12 * vol, 2000); break;
+      case 'explode': noise(0.6, 0.6 * vol, 500); tone(90, 0.5, 'sawtooth', 0.2 * vol, 30); break;
+      case 'pickup':  tone(660, 0.07, 'square', 0.1 * vol); setTimeout(() => ac && tone(990, 0.09, 'square', 0.1 * vol), 60); break;
+      case 'cube':    tone(440, 0.1, 'triangle', 0.15 * vol, 880); setTimeout(() => ac && tone(880, 0.15, 'triangle', 0.15 * vol, 1320), 90); break;
+      case 'super':   tone(200, 0.35, 'sawtooth', 0.15 * vol, 900); break;
+      case 'ready':   tone(700, 0.08, 'triangle', 0.15 * vol); setTimeout(() => ac && tone(1050, 0.12, 'triangle', 0.15 * vol), 80); break;
+      case 'laser':   tone(1500, 0.4, 'sawtooth', 0.12 * vol, 200); noise(0.3, 0.15 * vol, 4000); break;
+      case 'heal':    tone(500, 0.3, 'sine', 0.12 * vol, 900); break;
+      case 'swish':   noise(0.06, 0.06 * vol, 2500); break;
+      case 'jump':    tone(300, 0.3, 'triangle', 0.15 * vol, 120); break;
+      case 'land':    noise(0.15, 0.25 * vol, 400); break;
+      case 'storm':   tone(110, 0.8, 'sawtooth', 0.12 * vol, 70); break;
+      case 'kill':    tone(520, 0.1, 'square', 0.15 * vol); setTimeout(() => ac && tone(780, 0.18, 'square', 0.15 * vol), 100); break;
+      case 'win': {
+        [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => ac && tone(f, 0.25, 'square', 0.15), i * 140));
+        break;
+      }
+      case 'lose':    tone(300, 0.6, 'triangle', 0.18, 90); break;
+      case 'click':   tone(800, 0.04, 'square', 0.08); break;
+    }
+  }
+
+  function toggle() {
+    enabled = !enabled;
+    storageSet('br_sound', enabled);
+    return enabled;
+  }
+
+  return { init, play, toggle, get enabled() { return enabled; } };
+})();
+
+// Lyd med avstandsdemping i forhold til kameraet
+function sfxAt(name, x, y, vol = 1) {
+  const c = Game.cam;
+  const d = dist(x, y, c.x, c.y);
+  Sfx.play(name, vol * clamp(1 - d / (TILE * 15), 0, 1));
+}
+
+</script>
+  <script>
+// ===== js/textures.js =====
+'use strict';
+// ============================================================
+//  Prosedyrisk pikselgrafikk (16x16 teksturer i Minecraft-stil)
+// ============================================================
+
+const Tex = { ground: [], top: [], side: [], crack: [], groundRGB: [] };
+
+function pixTex(w, h, seed, fn) {
+  const c = makeCanvas(w, h);
+  const g = c.getContext('2d');
+  const img = g.createImageData(w, h);
+  const rng = mulberry32(seed);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const col = fn(x, y, rng);
+      if (!col) continue;
+      const i = (y * w + x) * 4;
+      img.data[i] = clamp(col[0], 0, 255);
+      img.data[i + 1] = clamp(col[1], 0, 255);
+      img.data[i + 2] = clamp(col[2], 0, 255);
+      img.data[i + 3] = col.length > 3 ? col[3] : 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
+
+function jit(c, rng, amt) {
+  const d = (rng() - 0.5) * 2 * amt;
+  return [c[0] + d, c[1] + d, c[2] + d];
+}
+
+function makeSpots(rng, n, size) {
+  const spots = [];
+  for (let i = 0; i < n; i++) {
+    const cx = 2 + Math.floor(rng() * 12), cy = 2 + Math.floor(rng() * 12);
+    for (let k = 0; k < size; k++) {
+      spots.push((cy + Math.floor(rng() * 3) - 1) * 16 + cx + Math.floor(rng() * 3) - 1);
+    }
+  }
+  return new Set(spots);
+}
+
+function stoneFn(x, y, r) {
+  if (r() < 0.07) return jit([96, 96, 96], r, 8);
+  return jit([126, 126, 126], r, 14);
+}
+
+function oreTex(seed, light, dark) {
+  const sr = mulberry32(seed * 7 + 3);
+  const spots = makeSpots(sr, 5, 4);
+  return pixTex(16, 16, seed, (x, y, r) => {
+    if (spots.has(y * 16 + x)) return jit(r() < 0.5 ? light : dark, r, 10);
+    return stoneFn(x, y, r);
+  });
+}
+
+function plankFn(base, dark) {
+  return (x, y, r) => {
+    const row = y % 4;
+    if (row === 3) return jit(dark, r, 6);
+    const band = Math.floor(y / 4);
+    const joint = [3, 11, 6, 14][band];
+    if (x === joint) return jit(dark, r, 6);
+    return jit(base, r, 9);
+  };
+}
+
+function cobbleTex(seed) {
+  const sr = mulberry32(seed);
+  const pts = [];
+  for (let i = 0; i < 9; i++) pts.push([sr() * 16, sr() * 16, 0.8 + sr() * 0.4]);
+  return pixTex(16, 16, seed, (x, y, r) => {
+    let d1 = 1e9, d2 = 1e9, best = 0;
+    for (let i = 0; i < pts.length; i++) {
+      for (let ox = -16; ox <= 16; ox += 16) {
+        for (let oy = -16; oy <= 16; oy += 16) {
+          const d = Math.hypot(x + 0.5 - pts[i][0] - ox, y + 0.5 - pts[i][1] - oy);
+          if (d < d1) { d2 = d1; d1 = d; best = i; } else if (d < d2) d2 = d;
+        }
+      }
+    }
+    if (d2 - d1 < 1.1) return jit([70, 70, 70], r, 6);
+    const v = 120 * pts[best][2];
+    return jit([v, v, v], r, 8);
+  });
+}
+
+function darken(src, w, h, amount, sy) {
+  const c = makeCanvas(w, h);
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  g.drawImage(src, 0, sy || 0, w, h, 0, 0, w, h);
+  g.fillStyle = `rgba(0,0,0,${amount})`;
+  g.fillRect(0, 0, w, h);
+  return c;
+}
+
+function buildTextures() {
+  // --- Bakke ---
+  const grass = (x, y, r) => {
+    const v = r();
+    if (v < 0.1) return jit([112, 192, 86], r, 8);
+    if (v < 0.18) return jit([74, 142, 58], r, 8);
+    return jit([92, 170, 72], r, 9);
+  };
+  const sand = (x, y, r) => (r() < 0.1 ? jit([206, 190, 126], r, 8) : jit([228, 212, 148], r, 9));
+  const water = (x, y, r) => {
+    if ((x + y * 3) % 13 === 0 && r() < 0.7) return jit([105, 165, 238], r, 8);
+    return jit([54, 118, 212], r, 7);
+  };
+  const dirt = (x, y, r) => (r() < 0.12 ? jit([105, 74, 45], r, 8) : jit([138, 100, 64], r, 12));
+  const floor = plankFn([184, 140, 84], [120, 86, 48]);
+  const gfns = [grass, sand, water, dirt, floor];
+  for (let t = 0; t < gfns.length; t++) {
+    Tex.ground[t] = [];
+    for (let v = 0; v < 4; v++) Tex.ground[t].push(pixTex(16, 16, 100 + t * 10 + v, gfns[t]));
+  }
+
+  // --- Blokker (toppflate) ---
+  const leaves = (x, y, r) => {
+    const v = r();
+    if (v < 0.22) return jit([30, 88, 28], r, 6);
+    if (v < 0.36) return jit([72, 150, 56], r, 8);
+    return jit([46, 120, 40], r, 8);
+  };
+  Tex.top[BLK.TREE] = pixTex(16, 16, 201, leaves);
+  Tex.top[BLK.STONE] = pixTex(16, 16, 202, stoneFn);
+  Tex.top[BLK.IRON] = oreTex(203, [222, 182, 150], [178, 132, 100]);
+  Tex.top[BLK.DIAMOND] = oreTex(204, [110, 245, 240], [40, 190, 200]);
+  Tex.top[BLK.PLANK] = pixTex(16, 16, 205, plankFn([196, 150, 90], [128, 92, 52]));
+  Tex.top[BLK.COBBLE] = cobbleTex(206);
+  Tex.top[BLK.METAL] = pixTex(16, 16, 207, (x, y, r) => {
+    if (x === 0 || y === 0 || x === 15 || y === 15) return [92, 98, 108];
+    if ((x === 2 || x === 13) && (y === 2 || y === 13)) return [110, 116, 126];
+    if (y === 1 || x === 1) return [214, 222, 230];
+    return jit([178, 188, 198], r, 5);
+  });
+  Tex.top[BLK.CHEST] = pixTex(16, 16, 208, (x, y) => {
+    if (x === 0 || y === 0 || x === 15 || y === 15) return [64, 40, 18];
+    if (x >= 7 && x <= 8 && y >= 6 && y <= 9) return [240, 205, 70];
+    if (y === 7 || y === 8) return [104, 66, 28];
+    return [((x + y) % 5 === 0) ? 146 : 164, ((x + y) % 5 === 0) ? 94 : 106, 44];
+  });
+  Tex.top[BLK.BUSH] = pixTex(16, 16, 209, (x, y, r) => {
+    const d = Math.hypot(x - 7.5, y - 7.5);
+    if (d > 7.2 + r() * 1.2) return null;
+    const v = r();
+    if (v < 0.2) return jit([44, 122, 40], r, 6);
+    if (v < 0.32) return jit([110, 196, 84], r, 8);
+    return jit([72, 160, 58], r, 8);
+  });
+
+  // --- Blokker (sideflate, den mørke "fronten") ---
+  for (let b = 1; b < BLOCK_INFO.length; b++) Tex.side[b] = darken(Tex.top[b], 16, 5, 0.38, 11);
+  Tex.side[BLK.TREE] = pixTex(16, 5, 301, (x, y, r) => {
+    if (x >= 6 && x <= 9) return jit((x === 7) ? [92, 66, 38] : [112, 82, 48], r, 6);
+    return jit([30, 84, 28], r, 6);
+  });
+  Tex.side[BLK.CHEST] = pixTex(16, 5, 302, (x, y) => {
+    if (x === 0 || x === 15 || y === 4) return [50, 30, 12];
+    if (x >= 7 && x <= 8 && y <= 2) return [220, 185, 60];
+    return [120, 76, 32];
+  });
+
+  // --- Sprekker (Minecraft-"knuse"-animasjon) ---
+  const cr = mulberry32(999);
+  const crackPix = [];
+  let cx = 8, cy = 8;
+  for (let i = 0; i < 90; i++) {
+    crackPix.push([cx, cy]);
+    if (i % 18 === 0) { cx = 8; cy = 8; }
+    cx = clamp(cx + Math.floor(cr() * 3) - 1, 0, 15);
+    cy = clamp(cy + Math.floor(cr() * 3) - 1, 0, 15);
+  }
+  for (let s = 0; s < 5; s++) {
+    const c = makeCanvas(16, 16);
+    const g = c.getContext('2d');
+    g.fillStyle = 'rgba(0,0,0,0.55)';
+    const n = Math.floor(((s + 1) / 5) * crackPix.length);
+    for (let i = 0; i < n; i++) g.fillRect(crackPix[i][0], crackPix[i][1], 1, 1);
+    Tex.crack.push(c);
+  }
+}
+
+// ------------------------------------------------------------
+//  Ikoner til hotbar, pickups og knapper
+// ------------------------------------------------------------
+function drawIcon(g, name, x, y, s) {
+  g.save();
+  g.translate(x, y);
+  g.imageSmoothingEnabled = false;
+  const u = s / 16;
+  const R = (px, py, pw, ph, col) => { g.fillStyle = col; g.fillRect(px * u, py * u, pw * u, ph * u); };
+  switch (name) {
+    case 'weapon': {
+      // Diamantsverd
+      for (let i = 0; i < 9; i++) R(5 + i, 10 - i, 2, 2, i < 1 ? '#2a8f8f' : '#6ff0e8');
+      R(6, 9, 1, 1, '#ffffff');
+      R(3, 9, 4, 2, '#5a3a1a'); R(4, 8, 2, 4, '#5a3a1a');
+      R(1, 12, 3, 3, '#7a5230'); R(2, 13, 1, 1, '#3a2410');
+      break;
+    }
+    case 'pickaxe': {
+      for (let i = 0; i < 10; i++) R(3 + i, 12 - i, 2, 2, '#7a5230');
+      R(5, 1, 6, 2, '#6ff0e8'); R(11, 3, 2, 6, '#6ff0e8'); R(3, 2, 2, 2, '#2a8f8f'); R(12, 9, 2, 2, '#2a8f8f');
+      break;
+    }
+    case 'wood': g.drawImage(Tex.top[BLK.PLANK], 0, 0, s, s); break;
+    case 'stone': g.drawImage(Tex.top[BLK.COBBLE], 0, 0, s, s); break;
+    case 'iron': {
+      R(2, 6, 12, 6, '#8c939b'); R(3, 5, 10, 6, '#d8dee4'); R(4, 6, 8, 1, '#ffffff'); R(3, 10, 10, 1, '#a9b0b8');
+      break;
+    }
+    case 'diamond': {
+      g.fillStyle = '#3be0ff';
+      g.beginPath(); g.moveTo(8 * u, 1 * u); g.lineTo(15 * u, 7 * u); g.lineTo(8 * u, 15 * u); g.lineTo(1 * u, 7 * u); g.closePath(); g.fill();
+      g.fillStyle = '#b8fbff';
+      g.beginPath(); g.moveTo(8 * u, 2.5 * u); g.lineTo(11 * u, 7 * u); g.lineTo(8 * u, 7 * u); g.closePath(); g.fill();
+      g.strokeStyle = '#137a8f'; g.lineWidth = u; g.stroke();
+      break;
+    }
+    case 'bandage': {
+      R(2, 4, 12, 8, '#f4efe6'); R(2, 4, 12, 1, '#ffffff'); R(2, 11, 12, 1, '#c9c2b5');
+      R(7, 5, 2, 6, '#e23b3b'); R(5, 7, 6, 2, '#e23b3b');
+      break;
+    }
+    case 'potion': {
+      R(6, 1, 4, 2, '#8a5a2a'); R(6, 3, 4, 3, '#cfe8ff');
+      R(3, 6, 10, 9, '#2f6ff0'); R(4, 7, 3, 3, '#8fc0ff'); R(3, 14, 10, 1, '#1d3f9a');
+      break;
+    }
+    case 'tnt': {
+      R(1, 2, 14, 12, '#d9342b'); R(1, 6, 14, 4, '#f2efe8');
+      g.fillStyle = '#222'; g.font = `bold ${4.5 * u}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText('TNT', 8 * u, 8.2 * u);
+      R(7, 0, 2, 2, '#444');
+      break;
+    }
+    case 'turret': {
+      R(2, 8, 12, 7, '#7d848c'); R(3, 9, 10, 5, '#a3aab2');
+      R(5, 4, 6, 5, '#555c64'); R(10, 5, 6, 2, '#33383d'); R(6, 5, 2, 2, '#ff4040');
+      break;
+    }
+    case 'cube': {
+      g.shadowColor = '#5dff6a'; g.shadowBlur = 6 * u;
+      R(2, 2, 12, 12, '#1f9d3a'); g.shadowBlur = 0;
+      R(3, 3, 10, 10, '#46d65c'); R(5, 5, 6, 6, '#a6ff9a'); R(3, 3, 10, 1, '#c8ffc0');
+      break;
+    }
+    case 'wall': {
+      g.drawImage(Tex.top[BLK.PLANK], 0, 2 * u, 5 * u, 12 * u);
+      g.drawImage(Tex.top[BLK.PLANK], 5.5 * u, 2 * u, 5 * u, 12 * u);
+      g.drawImage(Tex.top[BLK.PLANK], 11 * u, 2 * u, 5 * u, 12 * u);
+      break;
+    }
+    case 'craft': {
+      R(1, 1, 14, 14, '#8a5a2a'); R(2, 2, 12, 12, '#b98a50');
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) R(3 + i * 4, 3 + j * 4, 3, 3, '#6b4420');
+      break;
+    }
+  }
+  g.restore();
+}
+
+</script>
+  <script>
+// ===== js/world.js =====
+'use strict';
+// ============================================================
+//  Verden: generering av øya, blokker, minikart, siktlinjer
+// ============================================================
+
+const World = {
+  ground: null, block: null, hp: null, maxHp: null, hitT: null, placedT: null,
+  pois: [], mini: null, miniCtx: null, miniImg: null, miniDirty: false, groundCanvas: null,
+};
+const growing = [];
+
+const MINI_GROUND = [[92, 170, 72], [228, 212, 148], [54, 118, 212], [138, 100, 64], [184, 140, 84]];
+const MINI_BLOCK = [null, [36, 104, 34], [128, 128, 128], [180, 150, 130], [90, 225, 225], [192, 145, 80],
+  [105, 105, 105], [190, 198, 208], [235, 165, 40], [62, 140, 52]];
+
+const tIdx = (tx, ty) => ty * MAP_W + tx;
+const inMap = (tx, ty) => tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H;
+
+function getBlock(tx, ty) { return inMap(tx, ty) ? World.block[ty * MAP_W + tx] : -1; }
+function getGround(tx, ty) { return inMap(tx, ty) ? World.ground[ty * MAP_W + tx] : GND.WATER; }
+function isSolid(tx, ty) {
+  if (!inMap(tx, ty)) return true;
+  const b = World.block[ty * MAP_W + tx];
+  return b !== 0 && BLOCK_INFO[b].solid;
+}
+function solidAtPx(x, y) { return isSolid(tileOf(x), tileOf(y)); }
+function tileCenter(tx, ty) { return { x: (tx + 0.5) * TILE, y: (ty + 0.5) * TILE }; }
+
+// ---------------- Støy ----------------
+function makeValueNoise(rng) {
+  const N = 256;
+  const vals = new Float32Array(N * N);
+  for (let i = 0; i < vals.length; i++) vals[i] = rng();
+  return (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const x0 = xi & 255, x1 = (xi + 1) & 255, y0 = (yi & 255) * N, y1 = ((yi + 1) & 255) * N;
+    return lerp(lerp(vals[y0 + x0], vals[y0 + x1], u), lerp(vals[y1 + x0], vals[y1 + x1], u), v);
+  };
+}
+const fbm = (n, x, y) => n(x, y) * 0.55 + n(x * 2.1 + 17, y * 2.1 + 9) * 0.3 + n(x * 4.3 + 41, y * 4.3 + 77) * 0.15;
+
+function placeRaw(i, b) {
+  World.block[i] = b;
+  const hp = b ? BLOCK_INFO[b].hp : 0;
+  World.hp[i] = hp;
+  World.maxHp[i] = hp;
+}
+
+// ---------------- Generering ----------------
+function generateWorld(seed) {
+  const rng = mulberry32(seed);
+  const N = MAP_W * MAP_H;
+  World.ground = new Uint8Array(N);
+  World.block = new Uint8Array(N);
+  World.hp = new Float32Array(N);
+  World.maxHp = new Float32Array(N);
+  World.hitT = new Float32Array(N).fill(-99);
+  World.placedT = new Float32Array(N).fill(-99);
+  World.pois = [];
+  growing.length = 0;
+
+  const nE = makeValueNoise(rng), nM = makeValueNoise(rng), nF = makeValueNoise(rng);
+  const nB = makeValueNoise(rng), nD = makeValueNoise(rng);
+
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const i = y * MAP_W + x;
+      const dx = (x + 0.5 - MAP_W / 2) / (MAP_W / 2), dy = (y + 0.5 - MAP_H / 2) / (MAP_H / 2);
+      const d = Math.sqrt(dx * dx + dy * dy);
+      const e = fbm(nE, x / 16, y / 16) + 0.38 - d * d * 0.8;
+      let g = GND.GRASS;
+      if (e < 0.3) g = GND.WATER;
+      else if (e < 0.36) g = GND.SAND;
+      else if (fbm(nD, x / 10, y / 10) > 0.67) g = GND.DIRT;
+      World.ground[i] = g;
+      if (g === GND.WATER) continue;
+
+      const m = fbm(nM, x / 13, y / 13);
+      const f = fbm(nF, x / 15, y / 15);
+      const bu = fbm(nB, x / 8, y / 8);
+      let b = 0;
+      if (g !== GND.SAND && m > 0.65 && e > 0.45) {
+        const rr = rng();
+        b = BLK.STONE;
+        if (m > 0.72 && rr < 0.06) b = BLK.DIAMOND;
+        else if (rr < 0.13) b = BLK.IRON;
+      } else if (g === GND.GRASS && f > 0.6 && rng() < 0.5) b = BLK.TREE;
+      else if (g !== GND.SAND && bu > 0.64 && rng() < 0.8) b = BLK.BUSH;
+      else if (g === GND.GRASS && rng() < 0.018) b = BLK.TREE;
+      else if (rng() < 0.005) b = BLK.STONE;
+      if (b) placeRaw(i, b);
+    }
+  }
+
+  buildPOIs(rng);
+
+  // Kister spredt rundt på øya
+  let placed = 0;
+  for (let tries = 0; placed < 24 && tries < 6000; tries++) {
+    const x = 4 + Math.floor(rng() * (MAP_W - 8)), y = 4 + Math.floor(rng() * (MAP_H - 8));
+    const i = tIdx(x, y);
+    if (World.ground[i] === GND.WATER || World.block[i]) continue;
+    placeRaw(i, BLK.CHEST);
+    placed++;
+  }
+
+  buildGroundCanvas();
+  buildMinimap();
+}
+
+function landAround(cx, cy, r) {
+  for (let y = cy - r; y <= cy + r; y += 2) {
+    for (let x = cx - r; x <= cx + r; x += 2) {
+      if (!inMap(x, y) || World.ground[tIdx(x, y)] === GND.WATER) return false;
+    }
+  }
+  return true;
+}
+
+function clearArea(x0, y0, x1, y1, ground) {
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      if (!inMap(x, y)) continue;
+      const i = tIdx(x, y);
+      placeRaw(i, 0);
+      if (ground !== undefined) World.ground[i] = ground;
+    }
+  }
+}
+
+function setRaw(x, y, b) { if (inMap(x, y)) placeRaw(tIdx(x, y), b); }
+
+function buildHouse(x0, y0, w, h, mat, rng, chests) {
+  clearArea(x0 - 1, y0 - 1, x0 + w, y0 + h);
+  for (let y = y0; y < y0 + h; y++) {
+    for (let x = x0; x < x0 + w; x++) {
+      if (!inMap(x, y)) continue;
+      World.ground[tIdx(x, y)] = GND.FLOOR;
+      if (x === x0 || y === y0 || x === x0 + w - 1 || y === y0 + h - 1) setRaw(x, y, mat);
+    }
+  }
+  // Dører
+  const dx = x0 + Math.floor(w / 2);
+  setRaw(dx, y0 + h - 1, 0);
+  if (rng() < 0.5) setRaw(x0, y0 + Math.floor(h / 2), 0); else setRaw(x0 + w - 1, y0 + Math.floor(h / 2), 0);
+  if (rng() < 0.5) setRaw(dx, y0, 0);
+  for (let c = 0; c < chests; c++) {
+    const cx = x0 + 1 + Math.floor(rng() * (w - 2)), cy = y0 + 1 + Math.floor(rng() * (h - 3));
+    setRaw(cx, cy, BLK.CHEST);
+  }
+}
+
+function buildPOIs(rng) {
+  const names = shuffle(POI_NAMES.slice(), rng);
+  const kinds = ['village', 'mine', 'fort', 'village', 'tower', 'house', 'mine', 'house'];
+  for (const kind of kinds) {
+    for (let t = 0; t < 300; t++) {
+      const cx = 16 + Math.floor(rng() * (MAP_W - 32)), cy = 16 + Math.floor(rng() * (MAP_H - 32));
+      if (!landAround(cx, cy, 7)) continue;
+      if (World.pois.some((p) => Math.hypot(p.x - cx, p.y - cy) < 22)) continue;
+      const mat = () => (rng() < 0.5 ? BLK.PLANK : BLK.COBBLE);
+      if (kind === 'village') {
+        buildHouse(cx - 9, cy - 7, 7, 6, mat(), rng, 1);
+        buildHouse(cx + 2, cy - 8, 7, 6, mat(), rng, 1);
+        buildHouse(cx - 4, cy + 2, 8, 6, mat(), rng, 1);
+      } else if (kind === 'house') {
+        buildHouse(cx - 5, cy - 4, 10, 8, mat(), rng, 2);
+      } else if (kind === 'mine') {
+        for (let y = cy - 7; y <= cy + 7; y++) {
+          for (let x = cx - 7; x <= cx + 7; x++) {
+            const d = Math.hypot(x - cx, y - cy);
+            if (d > 7.2 || !inMap(x, y)) continue;
+            const i = tIdx(x, y);
+            World.ground[i] = GND.DIRT;
+            if (d < 2.3 || x === cx || y === cy) { placeRaw(i, 0); continue; }
+            const r = rng();
+            placeRaw(i, d < 5.5 && r < 0.12 ? BLK.DIAMOND : r < 0.3 ? BLK.IRON : BLK.STONE);
+          }
+        }
+        setRaw(cx, cy, BLK.CHEST);
+      } else if (kind === 'fort') {
+        clearArea(cx - 7, cy - 7, cx + 7, cy + 7, GND.DIRT);
+        for (let y = cy - 6; y <= cy + 6; y++) {
+          for (let x = cx - 6; x <= cx + 6; x++) {
+            const edge = Math.abs(x - cx) === 6 || Math.abs(y - cy) === 6;
+            const gap = Math.abs(x - cx) <= 1 || Math.abs(y - cy) <= 1;
+            if (edge && !gap) setRaw(x, y, BLK.COBBLE);
+          }
+        }
+        for (const [ox, oy] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) setRaw(cx + ox, cy + oy, BLK.METAL);
+        setRaw(cx - 2, cy, BLK.CHEST); setRaw(cx + 2, cy, BLK.CHEST);
+        for (const [ox, oy] of [[-5, -5], [5, -5], [-5, 5], [5, 5], [-4, -5], [5, 4]]) setRaw(cx + ox, cy + oy, BLK.BUSH);
+      } else if (kind === 'tower') {
+        clearArea(cx - 5, cy - 5, cx + 5, cy + 5, GND.DIRT);
+        for (let y = cy - 3; y <= cy + 3; y++) {
+          for (let x = cx - 3; x <= cx + 3; x++) {
+            const d = Math.max(Math.abs(x - cx), Math.abs(y - cy));
+            if (d === 3 && !(x === cx && y === cy + 3)) setRaw(x, y, BLK.METAL);
+          }
+        }
+        setRaw(cx - 1, cy - 1, BLK.CHEST); setRaw(cx + 1, cy - 1, BLK.CHEST);
+        for (let a = 0; a < 10; a++) {
+          const ang = (a / 10) * TAU;
+          setRaw(Math.round(cx + Math.cos(ang) * 5), Math.round(cy + Math.sin(ang) * 5), BLK.BUSH);
+        }
+      }
+      World.pois.push({ x: cx, y: cy, name: names.pop() || 'Ukjent', kind });
+      break;
+    }
+  }
+}
+
+// Bakken endrer seg aldri, så den tegnes én gang til et stort lerret (16 px per blokk)
+function buildGroundCanvas() {
+  const c = makeCanvas(MAP_W * 16, MAP_H * 16);
+  const g = c.getContext('2d');
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const t = World.ground[tIdx(x, y)];
+      const v = ((x * 73856093) ^ (y * 19349663)) & 3;
+      g.drawImage(Tex.ground[t][v], x * 16, y * 16);
+      // Myk strandkant mot vannet
+      if (t !== GND.WATER) {
+        g.fillStyle = 'rgba(255,255,255,0.18)';
+        if (getGround(x, y - 1) === GND.WATER) g.fillRect(x * 16, y * 16, 16, 2);
+        if (getGround(x, y + 1) === GND.WATER) g.fillRect(x * 16, y * 16 + 14, 16, 2);
+        if (getGround(x - 1, y) === GND.WATER) g.fillRect(x * 16, y * 16, 2, 16);
+        if (getGround(x + 1, y) === GND.WATER) g.fillRect(x * 16 + 14, y * 16, 2, 16);
+      }
+    }
+  }
+  World.groundCanvas = c;
+}
+
+// ---------------- Minikart ----------------
+function buildMinimap() {
+  World.mini = makeCanvas(MAP_W, MAP_H);
+  World.miniCtx = World.mini.getContext('2d');
+  World.miniImg = World.miniCtx.createImageData(MAP_W, MAP_H);
+  for (let i = 0; i < MAP_W * MAP_H; i++) writeMiniPixel(i);
+  World.miniCtx.putImageData(World.miniImg, 0, 0);
+}
+function writeMiniPixel(i) {
+  const b = World.block[i];
+  const c = b ? MINI_BLOCK[b] : MINI_GROUND[World.ground[i]];
+  const d = World.miniImg.data;
+  d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2]; d[i * 4 + 3] = 255;
+}
+function flushMinimap() {
+  if (World.miniDirty) {
+    World.miniCtx.putImageData(World.miniImg, 0, 0);
+    World.miniDirty = false;
+  }
+}
+
+// ---------------- Endre blokker ----------------
+function setBlock(tx, ty, b, grow) {
+  if (!inMap(tx, ty)) return;
+  const i = tIdx(tx, ty);
+  placeRaw(i, b);
+  if (grow) {
+    World.hp[i] = World.maxHp[i] * 0.3;
+    World.placedT[i] = Game.time;
+    growing.push({ i, t: 0 });
+  }
+  writeMiniPixel(i);
+  World.miniDirty = true;
+}
+
+// Bygde blokker "vokser" opp til full styrke (som i Fortnite)
+function updateGrowing(dt) {
+  for (let k = growing.length - 1; k >= 0; k--) {
+    const g = growing[k];
+    g.t += dt;
+    if (!World.block[g.i]) { growing.splice(k, 1); continue; }
+    World.hp[g.i] = Math.min(World.maxHp[g.i], World.hp[g.i] + World.maxHp[g.i] * 0.7 * dt / 0.9);
+    if (g.t >= 0.9) growing.splice(k, 1);
+  }
+}
+
+function damageBlock(tx, ty, dmg, attacker, harvest) {
+  if (!inMap(tx, ty)) return false;
+  const i = tIdx(tx, ty);
+  const b = World.block[i];
+  if (!b) return false;
+  const info = BLOCK_INFO[b];
+  World.hp[i] -= dmg;
+  World.hitT[i] = Game.time;
+  const cx = (tx + 0.5) * TILE, cy = (ty + 0.5) * TILE;
+  blockParticles(cx, cy, info.color, 3);
+  if (World.hp[i] > 0) return false;
+
+  placeRaw(i, 0);
+  writeMiniPixel(i);
+  World.miniDirty = true;
+  blockParticles(cx, cy, info.color, 14);
+  sfxAt('break', cx, cy, 0.8);
+  if (info.chest) dropChestLoot(cx, cy);
+  else if (harvest && attacker) giveDrops(attacker, info.drops, cx, cy);
+  if (harvest && attacker) attacker.superCharge = Math.min(1, attacker.superCharge + 0.035);
+  return true;
+}
+
+// ---------------- Siktlinje ----------------
+function los(x1, y1, x2, y2) {
+  const d = dist(x1, y1, x2, y2);
+  const steps = Math.ceil(d / (TILE / 3));
+  for (let s = 1; s < steps; s++) {
+    const t = s / steps;
+    if (solidAtPx(lerp(x1, x2, t), lerp(y1, y2, t))) return false;
+  }
+  return true;
+}
+
+function findFreeSpot(x, y, landOnly) {
+  const tx0 = tileOf(x), ty0 = tileOf(y);
+  for (let r = 0; r < (landOnly ? 40 : 12); r++) {
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const tx = tx0 + dx, ty = ty0 + dy;
+        if (inMap(tx, ty) && !isSolid(tx, ty) && tx > 1 && ty > 1 && tx < MAP_W - 2 && ty < MAP_H - 2 &&
+          !(landOnly && World.ground[tIdx(tx, ty)] === GND.WATER)) {
+          return r === 0 ? { x, y } : tileCenter(tx, ty);
+        }
+      }
+    }
+  }
+  return { x, y };
+}
+
+function findBlockNear(f, types, radius) {
+  const tx0 = tileOf(f.x), ty0 = tileOf(f.y);
+  let best = null, bd = 1e9;
+  for (let ty = ty0 - radius; ty <= ty0 + radius; ty++) {
+    for (let tx = tx0 - radius; tx <= tx0 + radius; tx++) {
+      if (!inMap(tx, ty)) continue;
+      const b = World.block[tIdx(tx, ty)];
+      if (!b || !types.includes(b)) continue;
+      const d = (tx - tx0) * (tx - tx0) + (ty - ty0) * (ty - ty0);
+      if (d < bd) { bd = d; best = { tx, ty }; }
+    }
+  }
+  return best;
+}
+
+function nearestPOI(x, y, maxTiles) {
+  let best = null, bd = maxTiles;
+  for (const p of World.pois) {
+    const d = dist(x / TILE, y / TILE, p.x, p.y);
+    if (d < bd) { bd = d; best = p; }
+  }
+  return best;
+}
+
+</script>
+  <script>
+// ===== js/storm.js =====
+'use strict';
+// ============================================================
+//  Stormen (Fortnite) og Kampbussen
+// ============================================================
+
+const STORM_PLAN = [
+  { wait: 40, shrink: 28, r: 40, dps: 200 },
+  { wait: 30, shrink: 24, r: 26, dps: 350 },
+  { wait: 25, shrink: 20, r: 16, dps: 600 },
+  { wait: 20, shrink: 16, r: 9, dps: 900 },
+  { wait: 15, shrink: 14, r: 4, dps: 1300 },
+  { wait: 12, shrink: 12, r: 0, dps: 2000 },
+];
+
+const Storm = { x: 0, y: 0, r: 0, nx: 0, ny: 0, nr: 0, sx: 0, sy: 0, sr: 0, phase: 0, mode: 'wait', t: 0, dps: 120 };
+
+function initStorm() {
+  Storm.x = WORLD_W / 2; Storm.y = WORLD_H / 2; Storm.r = WORLD_W * 0.75;
+  Storm.phase = 0; Storm.dps = 120;
+  pickNextStorm();
+  Storm.mode = 'wait';
+  Storm.t = STORM_PLAN[0].wait;
+}
+
+function pickNextStorm() {
+  const p = STORM_PLAN[Storm.phase];
+  const nr = p.r * TILE;
+  const room = Math.max(0, Math.min(Storm.r, WORLD_W * 0.42) - nr) * 0.85;
+  let best = null;
+  for (let k = 0; k < 15; k++) {
+    const a = rand(0, TAU), d = Math.sqrt(Math.random()) * room;
+    const x = clamp(Storm.x + Math.cos(a) * d, TILE * 8, WORLD_W - TILE * 8);
+    const y = clamp(Storm.y + Math.sin(a) * d, TILE * 8, WORLD_H - TILE * 8);
+    best = { x, y };
+    if (getGround(tileOf(x), tileOf(y)) !== GND.WATER) break;
+  }
+  Storm.nx = best.x; Storm.ny = best.y; Storm.nr = nr;
+}
+
+function updateStorm(dt) {
+  if (Storm.mode === 'done') return;
+  Storm.t -= dt;
+  const p = STORM_PLAN[Storm.phase];
+  if (Storm.mode === 'wait') {
+    if (Storm.t <= 0) {
+      Storm.mode = 'shrink';
+      Storm.t = p.shrink;
+      Storm.sx = Storm.x; Storm.sy = Storm.y; Storm.sr = Storm.r;
+      Storm.dps = p.dps;
+      announce('⚡ STORMEN KRYMPER! ⚡', '#d68bff', 1.1);
+      Sfx.play('storm');
+    }
+  } else {
+    const k = 1 - Math.max(0, Storm.t) / p.shrink;
+    Storm.x = lerp(Storm.sx, Storm.nx, k);
+    Storm.y = lerp(Storm.sy, Storm.ny, k);
+    Storm.r = lerp(Storm.sr, Storm.nr, k);
+    if (Storm.t <= 0) {
+      Storm.phase++;
+      if (Storm.phase < STORM_PLAN.length) {
+        pickNextStorm();
+        Storm.mode = 'wait';
+        Storm.t = STORM_PLAN[Storm.phase].wait;
+      } else {
+        Storm.mode = 'done';
+      }
+    }
+  }
+}
+
+function outsideStorm(x, y, margin = 0) {
+  return dist(x, y, Storm.x, Storm.y) > Storm.r + margin;
+}
+
+// ---------------- Kampbussen ----------------
+const Bus = { x: 0, y: 0, sx: 0, sy: 0, ex: 0, ey: 0, t: 0, dur: 14, active: false, ang: 0 };
+
+function initBus() {
+  const a = rand(0, TAU);
+  const off = rand(-0.15, 0.15) * WORLD_W;
+  const px = -Math.sin(a) * off, py = Math.cos(a) * off;
+  const R = WORLD_W * 0.5;
+  Bus.sx = WORLD_W / 2 - Math.cos(a) * R + px;
+  Bus.sy = WORLD_H / 2 - Math.sin(a) * R + py;
+  Bus.ex = WORLD_W / 2 + Math.cos(a) * R + px;
+  Bus.ey = WORLD_H / 2 + Math.sin(a) * R + py;
+  Bus.ang = a;
+  Bus.t = 0;
+  Bus.x = Bus.sx; Bus.y = Bus.sy;
+  Bus.active = true;
+}
+
+function busProgressFor(x, y) {
+  const dx = Bus.ex - Bus.sx, dy = Bus.ey - Bus.sy;
+  return clamp(((x - Bus.sx) * dx + (y - Bus.sy) * dy) / (dx * dx + dy * dy), 0.08, 0.92);
+}
+
+function updateBus(dt) {
+  if (!Bus.active) return;
+  Bus.t += dt;
+  const k = Math.min(1, Bus.t / Bus.dur);
+  Bus.x = lerp(Bus.sx, Bus.ex, k);
+  Bus.y = lerp(Bus.sy, Bus.ey, k);
+  for (const f of fighters) {
+    if (f.state !== 'bus') continue;
+    if (k >= 1 || (f.bot && k >= f.bot.jumpAt)) jumpFromBus(f);
+  }
+  if (k >= 1) Bus.active = false;
+}
+
+function jumpFromBus(f) {
+  if (f.state !== 'bus') return;
+  f.state = 'glide';
+  f.glideT = 3.4;
+  f.x = Bus.x + rand(-10, 10);
+  f.y = Bus.y + rand(-10, 10);
+  if (f.isPlayer) {
+    Sfx.play('jump');
+    announce('Styr mot et landingssted!', '#fff', 0.7);
+  }
+}
+
+function landFighter(f) {
+  f.state = 'play';
+  const s = findFreeSpot(f.x, f.y, true);
+  f.x = s.x; f.y = s.y;
+  for (let i = 0; i < 10; i++) {
+    particles.push({ x: f.x, y: f.y, vx: rand(-120, 120), vy: rand(-60, 60), z: 2, vz: rand(40, 120), life: 0.5, max: 0.5, color: '#d8d0b8', size: rand(4, 8) });
+  }
+  if (f.isPlayer) {
+    Sfx.play('land');
+    const poi = nearestPOI(f.x, f.y, 14);
+    announce(poi ? `Landet i ${poi.name}!` : 'Du landet!', '#fff', 0.8);
+  }
+}
+
+</script>
+  <script>
+// ===== js/combat.js =====
+'use strict';
+// ============================================================
+//  Kamp: brawlere, skudd, super-evner, bygging, graving, loot
+// ============================================================
+
+let fighters = [], projectiles = [], pickups = [], turrets = [], clouds = [];
+let particles = [], texts = [], beams = [], blasts = [], killFeed = [];
+let player = null;
+let nextId = 1;
+
+function createFighter(bi, name, isPlayer) {
+  const br = BRAWLERS[bi];
+  return {
+    id: nextId++, name, isPlayer, br, x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0, r: br.r,
+    hp: br.hp, baseHp: br.hp, maxHp: br.hp, shield: 0, cubes: 0,
+    ammo: 3, superCharge: 0, superWasReady: false, aim: 0, moveX: 0, moveY: 0,
+    mats: { wood: 0, stone: 0, iron: 0, diamond: 0 },
+    items: { bandage: 0, potion: 0, tnt: 0, turret: 0 },
+    alive: true, kills: 0, lastHurt: -99, lastAttack: -99, lastAttacker: null,
+    state: 'bus', glideT: 0, burst: [], dash: null, flash: 0,
+    mineCd: 0, shootCd: 0, buildCd: 0, swingT: 0, healT: 0, healRate: 0,
+    revealT: 0, inBush: false, inWater: false, walkT: 0, moving: false, stormTick: 0.6, place: 0,
+    slot: 0, bot: null,
+  };
+}
+
+const pw = (f) => 1 + f.cubes * 0.1;
+const aliveCount = () => fighters.reduce((n, f) => n + (f.alive ? 1 : 0), 0);
+
+function addCubes(f, n) {
+  f.cubes += n;
+  const old = f.maxHp;
+  f.maxHp = f.baseHp * (1 + f.cubes * 0.1);
+  f.hp += f.maxHp - old;
+}
+
+// ---------------- Effekter ----------------
+function addText(x, y, text, color, size = 1) {
+  texts.push({ x, y, text: String(text), color, size, life: 1, vy: -50 });
+}
+
+function blockParticles(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    particles.push({
+      x: x + rand(-14, 14), y: y + rand(-14, 14), vx: rand(-90, 90), vy: rand(-90, 90),
+      z: rand(4, 20), vz: rand(60, 200), life: rand(0.4, 0.8), max: 0.8, color, size: rand(4, 7),
+    });
+  }
+}
+
+function sparks(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    particles.push({ x, y, vx: rand(-200, 200), vy: rand(-200, 200), z: 6, vz: rand(30, 120), life: 0.3, max: 0.3, color, size: rand(3, 5) });
+  }
+}
+
+function shake(amount) { Game.cam.shake = Math.max(Game.cam.shake, amount); }
+
+function updateEffects(dt) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= dt;
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= 0.92; p.vy *= 0.92;
+    p.vz -= 600 * dt; p.z = Math.max(0, p.z + p.vz * dt);
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+  if (particles.length > 900) particles.splice(0, particles.length - 900);
+  for (let i = texts.length - 1; i >= 0; i--) {
+    const t = texts[i];
+    t.life -= dt * 1.1; t.y += t.vy * dt; t.vy *= 0.94;
+    if (t.life <= 0) texts.splice(i, 1);
+  }
+  for (let i = beams.length - 1; i >= 0; i--) { beams[i].t -= dt; if (beams[i].t <= 0) beams.splice(i, 1); }
+  for (let i = blasts.length - 1; i >= 0; i--) { blasts[i].t += dt; if (blasts[i].t >= blasts[i].dur) blasts.splice(i, 1); }
+}
+
+// ---------------- Skade og død ----------------
+function hurt(t, amount, attacker, kind) {
+  if (!t.alive || t.state !== 'play' || attacker === t) return;
+  amount = Math.round(amount);
+  if (amount <= 0) return;
+  let rest = amount;
+  if (t.shield > 0) { const a = Math.min(t.shield, rest); t.shield -= a; rest -= a; }
+  t.hp -= rest;
+  t.lastHurt = Game.time;
+  t.flash = 0.12;
+  if (attacker) t.lastAttacker = attacker;
+  const byPlayer = attacker && attacker.isPlayer;
+  addText(t.x + rand(-10, 10), t.y - 58, amount, t.isPlayer ? '#ff5050' : byPlayer ? '#ffffff' : '#ffc8c8', byPlayer ? 1.25 : 0.9);
+  if (attacker && attacker.alive) attacker.superCharge = Math.min(1, attacker.superCharge + amount / attacker.br.superNeed);
+  if (t.isPlayer) { shake(5); Sfx.play('hurt'); } else if (byPlayer) Sfx.play('hit');
+  if (t.hp <= 0) killFighter(t, attacker, kind);
+}
+
+function killFighter(t, killer, kind) {
+  t.alive = false;
+  t.hp = 0;
+  t.dash = null;
+  t.place = aliveCount() + 1;
+  if (killer && killer !== t) killer.kills++;
+
+  // Slipper alt (Brawl Stars-kuber + Fortnite-loot)
+  const cubes = Math.max(1, Math.ceil(t.cubes / 2));
+  for (let k = 0; k < cubes; k++) dropPickup(t.x, t.y, 'cube', 1);
+  for (const m of ['wood', 'stone', 'iron']) if (t.mats[m] >= 5) dropPickup(t.x, t.y, m, Math.ceil(t.mats[m] * 0.6));
+  if (t.mats.diamond > 0) dropPickup(t.x, t.y, 'diamond', t.mats.diamond);
+  for (const it in t.items) if (t.items[it] > 0) dropPickup(t.x, t.y, it, t.items[it]);
+
+  for (let i = 0; i < 26; i++) {
+    particles.push({ x: t.x, y: t.y - 10, vx: rand(-220, 220), vy: rand(-220, 220), z: rand(5, 30), vz: rand(100, 300), life: rand(0.5, 1), max: 1, color: i % 2 ? t.br.color : '#ffffff', size: rand(5, 9) });
+  }
+  sfxAt('explode', t.x, t.y, 0.5);
+
+  const how = kind === 'storm' ? 'ble tatt av stormen' : null;
+  killFeed.unshift({ killer: killer && killer !== t ? killer.name : null, victim: t.name, how, t: Game.time, mine: (killer && killer.isPlayer) || t.isPlayer });
+  if (killFeed.length > 6) killFeed.pop();
+
+  if (killer && killer.isPlayer && !t.isPlayer) {
+    announce(`ELIMINERTE ${t.name.toUpperCase()}!`, '#ffd23f', 0.9);
+    Sfx.play('kill');
+  }
+  if (t.isPlayer) onPlayerDeath(killer, kind);
+  checkWinner();
+}
+
+// ---------------- Skudd ----------------
+function spawnBullet(x, y, ang, dmg, range, speed, owner, opts = {}) {
+  projectiles.push({
+    x, y, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, ang,
+    travel: 0, max: range * TILE, dmg, owner, src: opts.src || null,
+    color: opts.color || owner.br.color, r: opts.r || 6, kind: opts.kind || 'bullet',
+    blockMul: opts.blockMul !== undefined ? opts.blockMul : 0.4,
+  });
+}
+
+function fireBullet(f, ang, dmg, range, speed, opts) {
+  spawnBullet(f.x + Math.cos(ang) * (f.r + 4), f.y - 8 + Math.sin(ang) * (f.r + 4), ang, dmg, range, speed, f, opts);
+}
+
+function lobProjectile(f, tx, ty, kind, opts) {
+  const d = dist(f.x, f.y, tx, ty);
+  projectiles.push(Object.assign({
+    lob: true, sx: f.x, sy: f.y - 10, tx, ty, x: f.x, y: f.y, t: 0, dur: 0.35 + d / 1100, kind, owner: f, z: 0,
+  }, opts));
+}
+
+function clampTarget(f, tx, ty, maxD) {
+  if (tx === undefined || tx === null) {
+    return { x: f.x + Math.cos(f.aim) * maxD * 0.8, y: f.y + Math.sin(f.aim) * maxD * 0.8 };
+  }
+  const d = dist(f.x, f.y, tx, ty);
+  if (d <= maxD) return { x: tx, y: ty };
+  const a = Math.atan2(ty - f.y, tx - f.x);
+  return { x: f.x + Math.cos(a) * maxD, y: f.y + Math.sin(a) * maxD };
+}
+
+function tryAttack(f, ang, tx, ty) {
+  if (f.state !== 'play' || f.ammo < 1 || f.shootCd > 0 || f.dash || f.burst.length) return false;
+  const a = f.br.attack, m = pw(f);
+  f.ammo -= 1;
+  f.shootCd = 0.3;
+  f.lastAttack = Game.time;
+  f.revealT = 1.0;
+  f.aim = ang;
+  switch (a.type) {
+    case 'burst':
+      for (let k = 0; k < a.count; k++) f.burst.push({ t: k * a.gap, ang });
+      break;
+    case 'single':
+      fireBullet(f, ang, a.dmg * m, a.range, a.speed, { r: 7, kind: 'arrow' });
+      sfxAt('arrow', f.x, f.y);
+      break;
+    case 'shotgun':
+    case 'spread':
+      for (let k = 0; k < a.count; k++) {
+        const off = (k / (a.count - 1) - 0.5) * a.spread;
+        const rng = a.type === 'shotgun' ? rand(0.85, 1) : 1;
+        fireBullet(f, ang + off, a.dmg * m, a.range * rng, a.speed, { r: 5, kind: a.type === 'spread' ? 'nail' : 'pellet' });
+      }
+      sfxAt(a.type === 'shotgun' ? 'shotgun' : 'shoot', f.x, f.y);
+      break;
+    case 'lob': {
+      const p = clampTarget(f, tx, ty, a.range * TILE);
+      lobProjectile(f, p.x, p.y, 'potion', { dmg: a.dmg * m, radius: a.radius * TILE });
+      sfxAt('lob', f.x, f.y);
+      break;
+    }
+  }
+  return true;
+}
+
+function updateBurst(f, dt) {
+  if (!f.burst.length) return;
+  const a = f.br.attack;
+  for (let k = f.burst.length - 1; k >= 0; k--) {
+    const b = f.burst[k];
+    b.t -= dt;
+    if (b.t <= 0) {
+      fireBullet(f, b.ang + rand(-a.spread, a.spread), a.dmg * pw(f), a.range, a.speed, { r: 6 });
+      sfxAt('shoot', f.x, f.y);
+      f.burst.splice(k, 1);
+    }
+  }
+}
+
+function updateProjectiles(dt) {
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    let dead = false;
+    if (p.lob) {
+      p.t += dt;
+      const k = Math.min(1, p.t / p.dur);
+      p.x = lerp(p.sx, p.tx, k);
+      p.y = lerp(p.sy, p.ty, k);
+      p.z = Math.sin(k * Math.PI) * (50 + p.dur * 90);
+      if (k >= 1) { landLob(p); dead = true; }
+    } else {
+      const sp = Math.hypot(p.vx, p.vy);
+      const steps = Math.max(1, Math.ceil((sp * dt) / 10));
+      for (let s = 0; s < steps && !dead; s++) {
+        p.x += (p.vx * dt) / steps;
+        p.y += (p.vy * dt) / steps;
+        p.travel += (sp * dt) / steps;
+        const tx = tileOf(p.x), ty = tileOf(p.y);
+        if (isSolid(tx, ty)) {
+          if (inMap(tx, ty)) damageBlock(tx, ty, p.dmg * p.blockMul, p.owner, false);
+          sparks(p.x, p.y, '#fff2a0', 3);
+          dead = true;
+          break;
+        }
+        for (const f of fighters) {
+          if (!f.alive || f.state !== 'play' || f === p.owner) continue;
+          const rr = f.r + p.r;
+          const dx = f.x - p.x, dy = f.y - 8 - p.y;
+          if (dx * dx + dy * dy < rr * rr) {
+            hurt(f, p.dmg, p.owner, p.kind);
+            sparks(p.x, p.y, p.color, 5);
+            dead = true;
+            break;
+          }
+        }
+        if (dead) break;
+        for (const tu of turrets) {
+          if (tu.owner === p.owner || tu.hp <= 0) continue;
+          if (dist(tu.x, tu.y - 10, p.x, p.y) < 20 + p.r) {
+            damageTurret(tu, p.dmg, p.owner);
+            sparks(p.x, p.y, '#ccc', 4);
+            dead = true;
+            break;
+          }
+        }
+        if (p.travel >= p.max) dead = true;
+      }
+    }
+    if (dead) projectiles.splice(i, 1);
+  }
+}
+
+function landLob(p) {
+  switch (p.kind) {
+    case 'potion':
+      explode(p.x, p.y, p.radius, p.dmg, p.owner, p.dmg * 0.3, 'potion');
+      break;
+    case 'tnt':
+      explode(p.x, p.y, p.radius, p.dmg, p.owner, p.blockDmg, 'tnt');
+      break;
+    case 'cloud':
+      clouds.push({ x: p.x, y: p.y, r: p.radius, dps: p.dps, t: p.cloudDur, max: p.cloudDur, tick: 0, owner: p.owner });
+      sfxAt('lob', p.x, p.y);
+      break;
+  }
+}
+
+function explode(x, y, radius, dmg, owner, blockDmg, style) {
+  for (const f of fighters) {
+    if (!f.alive || f.state !== 'play' || f === owner) continue;
+    if (dist(x, y, f.x, f.y) < radius + f.r) hurt(f, dmg, owner, style);
+  }
+  for (const tu of turrets) {
+    if (tu.owner !== owner && dist(x, y, tu.x, tu.y) < radius + 16) damageTurret(tu, dmg, owner);
+  }
+  if (blockDmg > 0) {
+    const tr = Math.ceil(radius / TILE);
+    const tx0 = tileOf(x), ty0 = tileOf(y);
+    for (let ty = ty0 - tr; ty <= ty0 + tr; ty++) {
+      for (let tx = tx0 - tr; tx <= tx0 + tr; tx++) {
+        const d = dist(x, y, (tx + 0.5) * TILE, (ty + 0.5) * TILE);
+        if (d < radius) damageBlock(tx, ty, blockDmg * (1 - (d / radius) * 0.5), owner, false);
+      }
+    }
+  }
+  const tnt = style === 'tnt';
+  const n = tnt ? 34 : 16;
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, TAU), s = rand(50, radius * 3);
+    const col = tnt ? choice(['#ffdd55', '#ff8a2a', '#ff4a1a', '#555', '#888']) : choice(['#c86bff', '#7cff9a', '#e2b6ff']);
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, z: rand(0, 20), vz: rand(80, 260), life: rand(0.4, 0.9), max: 0.9, color: col, size: rand(5, 11) });
+  }
+  blasts.push({ x, y, r: radius, t: 0, dur: tnt ? 0.4 : 0.3, color: tnt ? '255,190,80' : '200,120,255' });
+  const d = dist(x, y, Game.cam.x, Game.cam.y);
+  if (tnt) shake(clamp(14 - d / 60, 0, 14));
+  sfxAt(tnt ? 'explode' : 'hit', x, y, tnt ? 1 : 0.7);
+}
+
+// ---------------- Super-evner ----------------
+function superRange(f) {
+  const s = f.br.sup;
+  switch (s.type) {
+    case 'tnt': case 'cloud': return s.range * TILE;
+    case 'laser': return 14 * TILE;
+    case 'charge': return 6 * TILE;
+    default: return 5 * TILE;
+  }
+}
+
+function trySuper(f, ang, tx, ty) {
+  if (f.state !== 'play' || f.superCharge < 1 || f.dash) return false;
+  const s = f.br.sup, m = pw(f);
+  f.aim = ang;
+  switch (s.type) {
+    case 'tnt': {
+      const p = clampTarget(f, tx, ty, s.range * TILE);
+      lobProjectile(f, p.x, p.y, 'tnt', { dmg: s.dmg * m, radius: s.radius * TILE, blockDmg: 2500, big: true });
+      break;
+    }
+    case 'laser':
+      fireLaser(f, ang, s.dmg * m, s.range);
+      break;
+    case 'charge':
+      f.dash = { ang, left: s.range * TILE, hit: new Set(), dmg: s.dmg * m };
+      break;
+    case 'cloud': {
+      const p = clampTarget(f, tx, ty, s.range * TILE);
+      lobProjectile(f, p.x, p.y, 'cloud', { dps: s.dps * m, radius: s.radius * TILE, cloudDur: s.dur });
+      break;
+    }
+    case 'fort':
+      superFort(f, ang);
+      break;
+  }
+  f.superCharge = 0;
+  f.superWasReady = false;
+  f.lastAttack = Game.time;
+  f.revealT = 1.2;
+  sfxAt('super', f.x, f.y);
+  return true;
+}
+
+function fireLaser(f, ang, dmg, rangeTiles) {
+  const len = rangeTiles * TILE;
+  const x1 = f.x, y1 = f.y - 8, x2 = x1 + Math.cos(ang) * len, y2 = y1 + Math.sin(ang) * len;
+  for (const o of fighters) {
+    if (o === f || !o.alive || o.state !== 'play') continue;
+    if (distToSegment(o.x, o.y - 8, x1, y1, x2, y2) < o.r + 12) hurt(o, dmg, f, 'laser');
+  }
+  for (const tu of turrets) {
+    if (tu.owner !== f && distToSegment(tu.x, tu.y, x1, y1, x2, y2) < 26) damageTurret(tu, dmg, f);
+  }
+  const done = new Set();
+  for (let d = 0; d < len; d += TILE / 4) {
+    const tx = tileOf(x1 + Math.cos(ang) * d), ty = tileOf(y1 + Math.sin(ang) * d);
+    const k = tx + ',' + ty;
+    if (done.has(k)) continue;
+    done.add(k);
+    damageBlock(tx, ty, 3000, f, false);
+  }
+  beams.push({ x1, y1, x2, y2, t: 0.4, max: 0.4, color: '#7ff8ff' });
+  shake(dist(f.x, f.y, Game.cam.x, Game.cam.y) < 600 ? 8 : 0);
+  sfxAt('laser', f.x, f.y);
+}
+
+function updateDash(f, dt) {
+  const d = f.dash;
+  let move = Math.min(d.left, 950 * dt);
+  d.left -= move;
+  const cx = Math.cos(d.ang), cy = Math.sin(d.ang);
+  while (move > 0) {
+    const st = Math.min(8, move);
+    move -= st;
+    f.x += cx * st;
+    f.y += cy * st;
+    // Knus blokker i veien
+    const tx0 = tileOf(f.x - f.r), tx1 = tileOf(f.x + f.r), ty0 = tileOf(f.y - f.r), ty1 = tileOf(f.y + f.r);
+    for (let ty = ty0; ty <= ty1; ty++) {
+      for (let tx = tx0; tx <= tx1; tx++) {
+        if (!inMap(tx, ty)) { d.left = 0; continue; }
+        if (isSolid(tx, ty) && circleRectOverlap(f.x, f.y, f.r, tx * TILE, ty * TILE, TILE)) {
+          damageBlock(tx, ty, 2500, f, false);
+          shake(dist(f.x, f.y, Game.cam.x, Game.cam.y) < 500 ? 4 : 0);
+        }
+      }
+    }
+    for (const o of fighters) {
+      if (o === f || !o.alive || o.state !== 'play' || d.hit.has(o)) continue;
+      if (dist(f.x, f.y, o.x, o.y) < f.r + o.r + 8) {
+        d.hit.add(o);
+        hurt(o, d.dmg, f, 'charge');
+        if (o.alive) moveFighter(o, cx * 70, cy * 70);
+      }
+    }
+    for (const tu of turrets) if (tu.owner !== f && dist(f.x, f.y, tu.x, tu.y) < f.r + 20) damageTurret(tu, d.dmg, f);
+    pushOut(f);
+  }
+  particles.push({ x: f.x, y: f.y, vx: rand(-40, 40), vy: rand(-40, 40), z: 2, vz: 40, life: 0.4, max: 0.4, color: '#bbb', size: 7 });
+  if (d.left <= 0) f.dash = null;
+}
+
+function superFort(f, ang) {
+  const cx = f.x + Math.cos(ang) * 2.2 * TILE, cy = f.y + Math.sin(ang) * 2.2 * TILE;
+  const px = -Math.sin(ang), py = Math.cos(ang);
+  for (let k = -2; k <= 2; k++) {
+    const tx = tileOf(cx + px * k * TILE * 0.95), ty = tileOf(cy + py * k * TILE * 0.95);
+    if (canBuildAt(f, tx, ty, true)) setBlock(tx, ty, BLK.METAL, true);
+  }
+  const s = findFreeSpot(f.x - Math.cos(ang) * TILE * 0.9, f.y - Math.sin(ang) * TILE * 0.9);
+  spawnTurret(f, s.x, s.y);
+  blockParticles(cx, cy, '#b8c0c8', 16);
+  sfxAt('build', f.x, f.y);
+}
+
+// ---------------- Giftsky ----------------
+function updateClouds(dt) {
+  for (let i = clouds.length - 1; i >= 0; i--) {
+    const c = clouds[i];
+    c.t -= dt;
+    c.tick -= dt;
+    if (c.tick <= 0) {
+      c.tick = 0.5;
+      for (const f of fighters) {
+        if (!f.alive || f.state !== 'play' || f === c.owner) continue;
+        if (dist(c.x, c.y, f.x, f.y) < c.r + f.r * 0.5) hurt(f, c.dps * 0.5, c.owner, 'cloud');
+      }
+    }
+    if (Math.random() < 0.5) {
+      const a = rand(0, TAU), r = Math.sqrt(Math.random()) * c.r;
+      particles.push({ x: c.x + Math.cos(a) * r, y: c.y + Math.sin(a) * r, vx: 0, vy: -10, z: 0, vz: 60, life: 0.7, max: 0.7, color: choice(['#9dff7a', '#c46bff']), size: rand(4, 8) });
+    }
+    if (c.t <= 0) clouds.splice(i, 1);
+  }
+}
+
+// ---------------- Vakttårn ----------------
+function spawnTurret(owner, x, y) {
+  turrets.push({ x, y, owner, hp: 2200, maxHp: 2200, cd: 0.6, aim: 0, life: 25, flash: 0 });
+}
+
+function damageTurret(tu, dmg, attacker) {
+  tu.hp -= dmg;
+  tu.flash = 0.1;
+  addText(tu.x, tu.y - 40, Math.round(dmg), '#ddd', 0.8);
+  if (attacker && attacker.alive) attacker.superCharge = Math.min(1, attacker.superCharge + (dmg * 0.5) / attacker.br.superNeed);
+}
+
+function canSee(viewer, target) {
+  if (!target.inBush || target.revealT > 0) return true;
+  const range = viewer.br && viewer.br.id === 'siri' ? 3.6 * TILE : 2.3 * TILE;
+  return dist(viewer.x, viewer.y, target.x, target.y) < range;
+}
+
+function updateTurrets(dt) {
+  for (let i = turrets.length - 1; i >= 0; i--) {
+    const tu = turrets[i];
+    tu.life -= dt;
+    tu.cd -= dt;
+    tu.flash -= dt;
+    if (tu.hp <= 0 || tu.life <= 0) {
+      blockParticles(tu.x, tu.y, '#9aa0a6', 14);
+      sfxAt('break', tu.x, tu.y);
+      turrets.splice(i, 1);
+      continue;
+    }
+    let best = null, bd = 8.5 * TILE;
+    for (const f of fighters) {
+      if (!f.alive || f.state !== 'play' || f === tu.owner) continue;
+      const d = dist(tu.x, tu.y, f.x, f.y);
+      if (d < bd && canSee({ x: tu.x, y: tu.y }, f) && los(tu.x, tu.y - 10, f.x, f.y - 8)) { bd = d; best = f; }
+    }
+    if (best) {
+      tu.aim = Math.atan2(best.y - tu.y, best.x - tu.x);
+      if (tu.cd <= 0) {
+        tu.cd = 0.55;
+        spawnBullet(tu.x + Math.cos(tu.aim) * 20, tu.y - 14 + Math.sin(tu.aim) * 20, tu.aim, 300 * pw(tu.owner), 8.5, 1000, tu.owner, { src: tu, r: 5, color: '#ff6060' });
+        sfxAt('shoot', tu.x, tu.y, 0.6);
+      }
+    }
+  }
+}
+
+// ---------------- Bygging (Fortnite) ----------------
+const buildCost = (f) => (f.br.id === 'bjorn' ? 5 : BUILD_COST);
+
+function canBuildAt(f, tx, ty, free) {
+  if (!inMap(tx, ty) || tx < 1 || ty < 1 || tx > MAP_W - 2 || ty > MAP_H - 2) return false;
+  const b = World.block[tIdx(tx, ty)];
+  if (b && b !== BLK.BUSH) return false;
+  if (!free && dist(f.x, f.y, (tx + 0.5) * TILE, (ty + 0.5) * TILE) > BUILD_REACH) return false;
+  for (const o of fighters) {
+    if (o.alive && o.state === 'play' && circleRectOverlap(o.x, o.y, o.r * 0.8, tx * TILE, ty * TILE, TILE)) return false;
+  }
+  for (const tu of turrets) if (circleRectOverlap(tu.x, tu.y, 14, tx * TILE, ty * TILE, TILE)) return false;
+  return true;
+}
+
+function placeBuild(f, tx, ty, mat) {
+  const cost = buildCost(f);
+  if (f.mats[mat] < cost || !canBuildAt(f, tx, ty)) return false;
+  f.mats[mat] -= cost;
+  setBlock(tx, ty, MAT_BLOCK[mat], true);
+  blockParticles((tx + 0.5) * TILE, (ty + 0.5) * TILE, BLOCK_INFO[MAT_BLOCK[mat]].color, 5);
+  sfxAt('build', f.x, f.y, 0.8);
+  return true;
+}
+
+function bestMat(f) {
+  const c = buildCost(f);
+  const order = ['iron', 'stone', 'wood'].filter((m) => f.mats[m] >= c);
+  if (!order.length) return null;
+  // Velg det materialet du har mest av (men foretrekk sterkere ved likt)
+  return order.sort((a, b) => f.mats[b] - f.mats[a])[0];
+}
+
+// Rask 3-blokkers vegg foran deg (tast Q)
+function quickWall(f, ang, mat) {
+  mat = mat && f.mats[mat] >= buildCost(f) ? mat : bestMat(f);
+  if (!mat) return 0;
+  const c = Math.cos(ang), s = Math.sin(ang);
+  const horiz = Math.abs(c) > Math.abs(s);
+  let fx = tileOf(f.x + c * TILE * 1.25), fy = tileOf(f.y + s * TILE * 1.25);
+  if (horiz) fy = tileOf(f.y); else fx = tileOf(f.x);
+  if (circleRectOverlap(f.x, f.y, f.r, fx * TILE, fy * TILE, TILE)) {
+    if (horiz) fx += Math.sign(c); else fy += Math.sign(s);
+  }
+  let n = 0;
+  for (let k = -1; k <= 1; k++) {
+    const tx = horiz ? fx : fx + k, ty = horiz ? fy + k : fy;
+    if (f.mats[mat] < buildCost(f)) break;
+    if (canBuildAt(f, tx, ty, true)) {
+      f.mats[mat] -= buildCost(f);
+      setBlock(tx, ty, MAT_BLOCK[mat], true);
+      n++;
+    }
+  }
+  if (n) sfxAt('build', f.x, f.y);
+  return n;
+}
+
+// ---------------- Graving (Minecraft) ----------------
+function mineTarget(f, ang, px, py) {
+  if (px !== undefined && px !== null) {
+    const tx = tileOf(px), ty = tileOf(py);
+    if (getBlock(tx, ty) > 0 && dist(f.x, f.y, (tx + 0.5) * TILE, (ty + 0.5) * TILE) <= MINE_REACH) return { tx, ty };
+  }
+  for (let d = 8; d <= MINE_REACH; d += 8) {
+    const tx = tileOf(f.x + Math.cos(ang) * d), ty = tileOf(f.y + Math.sin(ang) * d);
+    const b = getBlock(tx, ty);
+    if (b > 0) return { tx, ty };
+    if (b < 0) return null;
+  }
+  return null;
+}
+
+function tryMine(f, ang, px, py) {
+  if (f.state !== 'play' || f.mineCd > 0 || f.dash) return;
+  f.mineCd = f.br.id === 'kube' ? 0.2 : 0.3;
+  f.swingT = 0.2;
+  f.aim = ang;
+  // Hakka er også et nærkampvåpen
+  let hit = false;
+  for (const o of fighters) {
+    if (o === f || !o.alive || o.state !== 'play') continue;
+    if (dist(f.x, f.y, o.x, o.y) < f.r + o.r + 30 && Math.abs(angDiff(ang, angTo(f, o))) < 1.1) {
+      hurt(o, 260 * pw(f), f, 'pickaxe');
+      hit = true;
+    }
+  }
+  for (const tu of turrets) {
+    if (tu.owner !== f && dist(f.x, f.y, tu.x, tu.y) < f.r + 46) { damageTurret(tu, 260, f); hit = true; }
+  }
+  if (hit) return;
+  const t = mineTarget(f, ang, px, py);
+  if (!t) { sfxAt('swish', f.x, f.y, 0.5); return; }
+  damageBlock(t.tx, t.ty, 80, f, true);
+  sfxAt('mine', f.x, f.y, 0.7);
+}
+
+function giveDrops(f, drops, x, y) {
+  let line = [];
+  for (const k in drops) {
+    f.mats[k] = Math.min(999, f.mats[k] + drops[k]);
+    line.push(`+${drops[k]} ${MAT_NAME[k]}`);
+  }
+  if (f.isPlayer && line.length) {
+    addText(x, y - 20, line.join('  '), '#b6ffb0', 0.85);
+    Sfx.play('pickup', 0.6);
+  }
+}
+
+// ---------------- Gjenstander og crafting ----------------
+function useItem(f, item, tx, ty) {
+  if (f.state !== 'play' || !(f.items[item] > 0)) return false;
+  switch (item) {
+    case 'bandage':
+      if (f.hp >= f.maxHp || f.healT > 0) return false;
+      f.healT = 1.2;
+      f.healRate = (f.maxHp * (f.br.id === 'hedda' ? 0.8 : 0.4)) / 1.2;
+      sfxAt('heal', f.x, f.y);
+      break;
+    case 'potion':
+      if (f.shield >= f.maxHp * 0.5 - 1) return false;
+      f.shield = Math.min(f.maxHp * 0.5, f.shield + f.maxHp * 0.5);
+      sfxAt('heal', f.x, f.y);
+      for (let i = 0; i < 12; i++) particles.push({ x: f.x, y: f.y, vx: rand(-80, 80), vy: rand(-80, 80), z: 10, vz: rand(80, 200), life: 0.6, max: 0.6, color: '#5aa8ff', size: 6 });
+      break;
+    case 'tnt': {
+      const p = clampTarget(f, tx, ty, 7 * TILE);
+      lobProjectile(f, p.x, p.y, 'tnt', { dmg: 1500 * pw(f), radius: 2.3 * TILE, blockDmg: 2200 });
+      sfxAt('lob', f.x, f.y);
+      break;
+    }
+    case 'turret': {
+      const p = clampTarget(f, tx, ty, 3 * TILE);
+      const s = findFreeSpot(p.x, p.y);
+      spawnTurret(f, s.x, s.y);
+      sfxAt('build', f.x, f.y);
+      break;
+    }
+    default:
+      return false;
+  }
+  f.items[item]--;
+  return true;
+}
+
+function canCraft(f, rec) {
+  for (const k in rec.cost) if (f.mats[k] < rec.cost[k]) return false;
+  return true;
+}
+
+function craft(f, item) {
+  const rec = RECIPES.find((r) => r.item === item);
+  if (!rec || !canCraft(f, rec)) return false;
+  for (const k in rec.cost) f.mats[k] -= rec.cost[k];
+  if (item === 'cube') {
+    addCubes(f, 1);
+    if (f.isPlayer) Sfx.play('cube');
+  } else {
+    f.items[item]++;
+    if (f.isPlayer) Sfx.play('pickup');
+  }
+  return true;
+}
+
+// ---------------- Ting på bakken ----------------
+function dropPickup(x, y, type, amount) {
+  const a = rand(0, TAU), s = rand(80, 220);
+  pickups.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, type, amount, t: 0 });
+}
+
+function dropChestLoot(x, y) {
+  dropPickup(x, y, 'cube', 1);
+  const r = Math.random();
+  dropPickup(x, y, r < 0.35 ? 'bandage' : r < 0.6 ? 'potion' : r < 0.83 ? 'tnt' : 'turret', 1);
+  if (Math.random() < 0.6) dropPickup(x, y, choice(['wood', 'stone', 'iron']), randi(10, 25));
+  if (Math.random() < 0.3) dropPickup(x, y, 'diamond', 1);
+  sparks(x, y, '#ffd23f', 14);
+  sfxAt('cube', x, y, 0.6);
+}
+
+function collectPickup(f, p) {
+  const t = p.type;
+  if (t === 'cube') {
+    addCubes(f, p.amount);
+    if (f.isPlayer) { Sfx.play('cube'); addText(f.x, f.y - 70, '+1 KRAFTKUBE', '#5dff6a', 1.1); }
+  } else if (t in f.mats) {
+    f.mats[t] = Math.min(999, f.mats[t] + p.amount);
+    if (f.isPlayer) { Sfx.play('pickup'); addText(f.x, f.y - 70, `+${p.amount} ${MAT_NAME[t]}`, '#b6ffb0', 0.9); }
+  } else {
+    f.items[t] += p.amount;
+    if (f.isPlayer) { Sfx.play('pickup'); addText(f.x, f.y - 70, `+${p.amount} ${ITEM_NAME[t]}`, RARITY[t], 1); }
+  }
+}
+
+function updatePickups(dt) {
+  for (let i = pickups.length - 1; i >= 0; i--) {
+    const p = pickups[i];
+    p.t += dt;
+    if (p.vx || p.vy) {
+      const nx = p.x + p.vx * dt, ny = p.y + p.vy * dt;
+      if (!solidAtPx(nx, p.y)) p.x = nx; else p.vx = 0;
+      if (!solidAtPx(p.x, ny)) p.y = ny; else p.vy = 0;
+      p.vx *= 0.9; p.vy *= 0.9;
+      if (Math.abs(p.vx) + Math.abs(p.vy) < 5) { p.vx = 0; p.vy = 0; }
+    }
+    if (p.t < 0.45) continue;
+    for (const f of fighters) {
+      if (!f.alive || f.state !== 'play') continue;
+      if (dist(f.x, f.y, p.x, p.y) < f.r + 18) {
+        collectPickup(f, p);
+        pickups.splice(i, 1);
+        break;
+      }
+    }
+  }
+}
+
+// ---------------- Bevegelse og kollisjon ----------------
+function pushOut(e) {
+  const r = e.r * 0.8;
+  for (let iter = 0; iter < 2; iter++) {
+    const x0 = tileOf(e.x - r), x1 = tileOf(e.x + r), y0 = tileOf(e.y - r), y1 = tileOf(e.y + r);
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        if (!isSolid(tx, ty)) continue;
+        const rx = tx * TILE, ry = ty * TILE;
+        const cx = clamp(e.x, rx, rx + TILE), cy = clamp(e.y, ry, ry + TILE);
+        const dx = e.x - cx, dy = e.y - cy;
+        const d2 = dx * dx + dy * dy;
+        if (d2 >= r * r) continue;
+        if (d2 > 0.0001) {
+          const d = Math.sqrt(d2);
+          e.x += (dx / d) * (r - d);
+          e.y += (dy / d) * (r - d);
+        } else {
+          const l = e.x - rx, rr = rx + TILE - e.x, t = e.y - ry, b = ry + TILE - e.y;
+          const m = Math.min(l, rr, t, b);
+          if (m === l) e.x = rx - r; else if (m === rr) e.x = rx + TILE + r; else if (m === t) e.y = ry - r; else e.y = ry + TILE + r;
+        }
+      }
+    }
+  }
+  e.x = clamp(e.x, TILE + r, WORLD_W - TILE - r);
+  e.y = clamp(e.y, TILE + r, WORLD_H - TILE - r);
+}
+
+function moveFighter(f, dx, dy) {
+  const steps = Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / 10));
+  for (let s = 0; s < steps; s++) {
+    f.x += dx / steps;
+    f.y += dy / steps;
+    pushOut(f);
+  }
+}
+
+function updateFighter(f, dt) {
+  if (!f.alive) return;
+  f.flash = Math.max(0, f.flash - dt);
+  f.revealT -= dt; f.swingT -= dt; f.mineCd -= dt; f.shootCd -= dt; f.buildCd -= dt;
+  f.px = f.x; f.py = f.y;
+
+  if (f.state === 'bus') { f.x = Bus.x; f.y = Bus.y; return; }
+  if (f.state === 'glide') {
+    f.glideT -= dt;
+    const len = Math.hypot(f.moveX, f.moveY);
+    if (len > 0.05) {
+      f.x += (f.moveX / Math.max(1, len)) * 380 * dt;
+      f.y += (f.moveY / Math.max(1, len)) * 380 * dt;
+      f.aim = Math.atan2(f.moveY, f.moveX);
+    }
+    f.x = clamp(f.x, TILE * 3, WORLD_W - TILE * 3);
+    f.y = clamp(f.y, TILE * 3, WORLD_H - TILE * 3);
+    if (f.glideT <= 0) landFighter(f);
+    return;
+  }
+
+  // Ammo lades opp (Brawl Stars)
+  if (f.ammo < 3) f.ammo = Math.min(3, f.ammo + dt / f.br.reload);
+  // Automatisk helbredelse når du ikke slåss
+  if (Game.time - Math.max(f.lastHurt, f.lastAttack) > 3 && f.hp < f.maxHp) {
+    f.hp = Math.min(f.maxHp, f.hp + f.maxHp * 0.12 * dt);
+  }
+  if (f.healT > 0) {
+    f.healT -= dt;
+    f.hp = Math.min(f.maxHp, f.hp + f.healRate * dt);
+    if (Math.random() < 0.3) particles.push({ x: f.x + rand(-14, 14), y: f.y, vx: 0, vy: 0, z: 10, vz: 90, life: 0.6, max: 0.6, color: '#6dff7a', size: 5 });
+  }
+  if (f.superCharge >= 1 && !f.superWasReady) {
+    f.superWasReady = true;
+    if (f.isPlayer) { announce('SUPER KLAR! (E / mellomrom)', '#ffd23f', 0.7); Sfx.play('ready'); }
+  }
+
+  updateBurst(f, dt);
+
+  if (f.dash) {
+    updateDash(f, dt);
+  } else {
+    let mx = f.moveX, my = f.moveY;
+    const len = Math.hypot(mx, my);
+    if (len > 1) { mx /= len; my /= len; }
+    const spd = f.br.speed * (f.inWater ? 0.6 : 1) * (f.healT > 0 ? 0.85 : 1);
+    if (len > 0.05) {
+      moveFighter(f, mx * spd * dt, my * spd * dt);
+      f.walkT += dt * 12;
+      f.moving = true;
+    } else f.moving = false;
+  }
+
+  const ivx = (f.x - f.px) / Math.max(dt, 0.001), ivy = (f.y - f.py) / Math.max(dt, 0.001);
+  f.vx = lerp(f.vx, ivx, 0.3);
+  f.vy = lerp(f.vy, ivy, 0.3);
+
+  const tx = tileOf(f.x), ty = tileOf(f.y);
+  f.inBush = getBlock(tx, ty) === BLK.BUSH;
+  f.inWater = getGround(tx, ty) === GND.WATER;
+
+  if (outsideStorm(f.x, f.y)) {
+    f.stormTick += dt;
+    if (f.stormTick >= 1) {
+      f.stormTick = 0;
+      hurt(f, Storm.dps * (f.br.id === 'tor' ? 0.65 : 1), null, 'storm');
+    }
+  } else f.stormTick = 0.6;
+}
+
+</script>
+  <script>
+// ===== js/ai.js =====
+'use strict';
+// ============================================================
+//  Bots: looter kister, graver, bygger, slåss og flykter fra stormen
+// ============================================================
+
+function newBrain() {
+  return {
+    think: rand(0, 0.3), mode: 'roam', target: null, goal: null, goalTile: null,
+    strafe: Math.random() < 0.5 ? 1 : -1, strafeT: 0, fireCd: 0, buildCd: 0, itemCd: 0,
+    stuck: 0, digT: 0, lastX: 0, lastY: 0, skill: rand(0.35, 0.85), jumpAt: 0.5, dropGoal: null,
+  };
+}
+
+function planBotDrop(f) {
+  const b = f.bot;
+  // Spre botene utover øya så ikke alle lander på samme sted
+  const taken = fighters.filter((o) => o.bot && o.bot.dropGoal).map((o) => o.bot.dropGoal);
+  let goal = null, bestGap = -1;
+  for (let k = 0; k < 25; k++) {
+    let g;
+    if (World.pois.length && Math.random() < 0.45) {
+      const p = choice(World.pois);
+      g = { x: (p.x + rand(-4, 4)) * TILE, y: (p.y + rand(-4, 4)) * TILE };
+    } else {
+      g = { x: rand(0.18, 0.82) * WORLD_W, y: rand(0.18, 0.82) * WORLD_H };
+    }
+    if (getGround(tileOf(g.x), tileOf(g.y)) === GND.WATER) continue;
+    const gap = taken.reduce((m, o) => Math.min(m, dist(g.x, g.y, o.x, o.y)), 1e9);
+    if (gap > bestGap) { bestGap = gap; goal = g; }
+    if (gap > 20 * TILE) break;
+  }
+  goal = goal || { x: WORLD_W / 2, y: WORLD_H / 2 };
+  b.dropGoal = goal;
+  b.jumpAt = clamp(busProgressFor(goal.x, goal.y) + rand(-0.06, 0.03), 0.05, 0.95);
+}
+
+function findEnemy(f, range) {
+  // Hevn: gå etter den som nettopp skjøt deg
+  const la = f.lastAttacker;
+  if (la && la.alive && la.state === 'play' && Game.time - f.lastHurt < 2.5 && dist(f.x, f.y, la.x, la.y) < range * 1.3) return la;
+  let best = null, bd = range;
+  for (const o of fighters) {
+    if (o === f || !o.alive || o.state !== 'play') continue;
+    const d = dist(f.x, f.y, o.x, o.y);
+    if (d >= bd || !canSee(f, o)) continue;
+    if (d > 5 * TILE && !los(f.x, f.y, o.x, o.y)) continue;
+    bd = d;
+    best = o;
+  }
+  return best;
+}
+
+function nearestPickup(f, range) {
+  let best = null, bd = range;
+  for (const p of pickups) {
+    const d = dist(f.x, f.y, p.x, p.y);
+    if (d < bd) { bd = d; best = p; }
+  }
+  return best;
+}
+
+function randomSafePoint() {
+  const useNext = Storm.mode === 'wait';
+  const cx = useNext ? Storm.nx : Storm.x, cy = useNext ? Storm.ny : Storm.y;
+  const r = (useNext ? Storm.nr : Storm.r) * 0.7;
+  for (let k = 0; k < 8; k++) {
+    const a = rand(0, TAU), d = Math.sqrt(Math.random()) * r;
+    const x = clamp(cx + Math.cos(a) * d, TILE * 3, WORLD_W - TILE * 3);
+    const y = clamp(cy + Math.sin(a) * d, TILE * 3, WORLD_H - TILE * 3);
+    if (getGround(tileOf(x), tileOf(y)) !== GND.WATER) return { x, y };
+  }
+  return { x: cx, y: cy };
+}
+
+function botCraft(f) {
+  if (f.mats.diamond >= 3) craft(f, 'cube');
+  if (f.mats.wood >= 45 && f.items.bandage < 2) craft(f, 'bandage');
+  if (f.mats.iron >= 10 && f.mats.diamond >= 1 && f.mats.diamond < 3 && f.items.potion < 1) craft(f, 'potion');
+  if (f.mats.stone >= 35 && f.mats.iron >= 15 && f.items.tnt < 1) craft(f, 'tnt');
+}
+
+function botUpdate(f, dt) {
+  const b = f.bot;
+  b.fireCd -= dt; b.buildCd -= dt; b.itemCd -= dt; b.strafeT -= dt; b.think -= dt; b.digT -= dt;
+
+  if (f.state === 'glide') {
+    const g = b.dropGoal;
+    const dx = g.x - f.x, dy = g.y - f.y, d = Math.hypot(dx, dy);
+    f.moveX = d > 20 ? dx / d : 0;
+    f.moveY = d > 20 ? dy / d : 0;
+    return;
+  }
+  if (f.state !== 'play') return;
+
+  if (b.think <= 0) {
+    b.think = rand(0.2, 0.35);
+    botThink(f, b);
+  }
+  botAct(f, b, dt);
+}
+
+function botThink(f, b) {
+  // Sitter vi fast? Da graver vi oss gjennom (Minecraft-stil)
+  const moved = dist(f.x, f.y, b.lastX, b.lastY);
+  if ((Math.abs(f.moveX) + Math.abs(f.moveY)) > 0.3 && moved < 6 && !f.dash) b.stuck++;
+  else b.stuck = 0;
+  if (b.stuck >= 3) { b.digT = 1.4; b.stuck = 0; }
+  b.lastX = f.x; b.lastY = f.y;
+
+  const hpFrac = f.hp / f.maxHp;
+  // I starten vil de fleste heller loote enn å slåss
+  const enemy = findEnemy(f, (Game.time < 45 ? 4.5 : 8) * TILE);
+  const out = outsideStorm(f.x, f.y, -TILE * 1.5);
+  const nextOut = Storm.mode === 'wait' && Storm.t < 14 && dist(f.x, f.y, Storm.nx, Storm.ny) > Storm.nr - TILE;
+
+  if (enemy) {
+    b.target = enemy;
+    const theirFrac = enemy.hp / enemy.maxHp;
+    b.mode = hpFrac < 0.4 && theirFrac > hpFrac + 0.15 ? 'flee' : 'fight';
+  } else {
+    b.target = null;
+    if (b.mode === 'fight' || b.mode === 'flee') { b.mode = 'roam'; b.goal = null; }
+  }
+
+  if (!enemy || b.mode === 'flee') {
+    if (out || nextOut) {
+      if (b.mode !== 'flee') b.mode = 'storm';
+      const cx = out ? Storm.x : Storm.nx, cy = out ? Storm.y : Storm.ny;
+      if (!b.goal || b.mode === 'storm') b.goal = { x: cx + rand(-2, 2) * TILE, y: cy + rand(-2, 2) * TILE };
+    } else if (!enemy) {
+      const pk = nearestPickup(f, 9 * TILE);
+      const ch = findBlockNear(f, [BLK.CHEST], 12);
+      const totalMats = f.mats.wood + f.mats.stone + f.mats.iron;
+      if (pk) { b.mode = 'collect'; b.goal = { x: pk.x, y: pk.y }; }
+      else if (ch) { b.mode = 'loot'; b.goalTile = ch; b.goal = tileCenter(ch.tx, ch.ty); }
+      else if (totalMats < 70) {
+        const want = f.mats.diamond < 3 ? [BLK.TREE, BLK.STONE, BLK.IRON, BLK.DIAMOND] : [BLK.TREE, BLK.STONE, BLK.IRON];
+        const t = findBlockNear(f, want, 8);
+        if (t) { b.mode = 'gather'; b.goalTile = t; b.goal = tileCenter(t.tx, t.ty); }
+        else if (b.mode !== 'roam' || !b.goal) { b.mode = 'roam'; b.goal = randomSafePoint(); }
+      } else if (b.mode !== 'roam' || !b.goal) { b.mode = 'roam'; b.goal = randomSafePoint(); }
+    }
+  }
+
+  botCraft(f);
+  if (f.healT <= 0 && hpFrac < 0.55 && f.items.bandage > 0 && Game.time - f.lastHurt > 1) useItem(f, 'bandage');
+  if (f.items.potion > 0 && f.shield < f.maxHp * 0.15) useItem(f, 'potion');
+}
+
+function steer(f, b, mx, my) {
+  const len = Math.hypot(mx, my);
+  if (len < 0.01) { f.moveX = 0; f.moveY = 0; return; }
+  mx /= len; my /= len;
+  const base = Math.atan2(my, mx);
+  if (b.digT > 0) {
+    // Grav/skyt deg gjennom hindringen
+    f.aim = base;
+    const t = mineTarget(f, base);
+    if (t) {
+      const blk = getBlock(t.tx, t.ty);
+      if (f.ammo >= 2.5 && blk !== BLK.METAL) tryAttack(f, base, (t.tx + 0.5) * TILE, (t.ty + 0.5) * TILE);
+      else tryMine(f, base);
+    }
+    f.moveX = mx; f.moveY = my;
+    return;
+  }
+  const probe = f.r + 16;
+  for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.5, -1.5]) {
+    const a = base + off;
+    if (!solidAtPx(f.x + Math.cos(a) * probe, f.y + Math.sin(a) * probe)) {
+      f.moveX = Math.cos(a); f.moveY = Math.sin(a);
+      return;
+    }
+  }
+  f.moveX = mx; f.moveY = my;
+}
+
+function botAct(f, b) {
+  const t = b.target;
+  if ((b.mode === 'fight' || b.mode === 'flee') && t && t.alive && t.state === 'play') {
+    const d = dist(f.x, f.y, t.x, t.y);
+    const ang = angTo(f, t);
+    const a = f.br.attack;
+    const range = a.range * TILE;
+    const visible = canSee(f, t);
+    let mx, my;
+    if (b.mode === 'fight') {
+      const pref = range * (a.type === 'shotgun' ? 0.45 : 0.7);
+      mx = 0; my = 0;
+      if (d > pref * 1.15) { mx = Math.cos(ang); my = Math.sin(ang); }
+      else if (d < pref * 0.7) { mx = -Math.cos(ang); my = -Math.sin(ang); }
+      if (b.strafeT <= 0) { b.strafe *= -1; b.strafeT = rand(0.5, 1.4); }
+      mx += -Math.sin(ang) * b.strafe * 0.8;
+      my += Math.cos(ang) * b.strafe * 0.8;
+    } else {
+      mx = -Math.cos(ang); my = -Math.sin(ang);
+      if (b.buildCd <= 0 && quickWall(f, ang)) b.buildCd = rand(2.5, 4.5);
+    }
+    if (outsideStorm(f.x, f.y, -TILE)) {
+      const sa = Math.atan2(Storm.y - f.y, Storm.x - f.x);
+      mx += Math.cos(sa) * 1.5; my += Math.sin(sa) * 1.5;
+    }
+    steer(f, b, mx, my);
+
+    if (visible && d < range && b.fireCd <= 0 && f.ammo >= 1 && (b.mode === 'fight' || Math.random() < 0.4)) {
+      const clear = a.type === 'lob' || los(f.x, f.y, t.x, t.y);
+      if (clear || Math.random() < 0.3) {
+        const tt = a.type === 'lob' ? 0.55 : d / (a.speed || 1000);
+        const px = t.x + t.vx * tt * b.skill, py = t.y + t.vy * tt * b.skill;
+        const aimA = Math.atan2(py - f.y, px - f.x) + (1 - b.skill) * 0.5 * rand(-1, 1);
+        tryAttack(f, aimA, px, py);
+        b.fireCd = rand(0.25, 0.7) * (1.5 - b.skill);
+      }
+    }
+    if (f.superCharge >= 1 && visible && d < superRange(f)) trySuper(f, ang, t.x, t.y);
+    if (f.items.tnt > 0 && d < 7 * TILE && b.itemCd <= 0 && Math.random() < 0.03) { useItem(f, 'tnt', t.x, t.y); b.itemCd = 3; }
+    if (f.items.turret > 0 && d < 8 * TILE && b.itemCd <= 0 && Math.random() < 0.03) { useItem(f, 'turret', f.x + Math.cos(ang) * TILE, f.y + Math.sin(ang) * TILE); b.itemCd = 3; }
+    // Fortnite-refleks: bygg en vegg når du blir skutt
+    if (b.mode === 'fight' && Game.time - f.lastHurt < 0.5 && b.buildCd <= 0 && f.hp / f.maxHp < 0.6 && Math.random() < 0.35) {
+      if (quickWall(f, ang)) b.buildCd = rand(3, 6);
+    }
+    if (!f.burst.length) f.aim = ang;
+    return;
+  }
+
+  if (b.goal) {
+    const dx = b.goal.x - f.x, dy = b.goal.y - f.y, d = Math.hypot(dx, dy);
+    if (b.mode === 'loot' || b.mode === 'gather') {
+      const gt = b.goalTile;
+      if (!gt || getBlock(gt.tx, gt.ty) <= 0) { b.goal = null; b.think = 0; f.moveX = 0; f.moveY = 0; return; }
+      if (d < MINE_REACH * 0.85) {
+        f.moveX = 0; f.moveY = 0;
+        const a = Math.atan2(dy, dx);
+        f.aim = a;
+        if (b.mode === 'loot' && f.ammo >= 2 && b.fireCd <= 0) { tryAttack(f, a, b.goal.x, b.goal.y); b.fireCd = 0.4; }
+        else tryMine(f, a, b.goal.x, b.goal.y);
+        return;
+      }
+    } else if (d < 26) {
+      b.goal = null; f.moveX = 0; f.moveY = 0;
+      return;
+    }
+    steer(f, b, dx / d, dy / d);
+    if (f.moveX || f.moveY) f.aim = Math.atan2(f.moveY, f.moveX);
+  } else {
+    f.moveX = 0; f.moveY = 0;
+  }
+}
+
+</script>
+  <script>
+// ===== js/render.js =====
+'use strict';
+// ============================================================
+//  Tegning av verden, blokker, figurer og effekter
+// ============================================================
+
+function drawCharacter(g, br, x, y, aim, walkT, moving, flash, swingT, scale) {
+  const L = br.look;
+  const s = scale * (br.r / 17);
+  g.save();
+  g.translate(x, y);
+  g.scale(s, s);
+  const C = (c) => (flash ? '#ffffff' : c);
+  const face = Math.cos(aim) >= 0 ? 1 : -1;
+  const back = Math.sin(aim) < -0.5;
+  const sw = moving ? Math.sin(walkT) : 0;
+
+  // Bein
+  g.fillStyle = C(L.pants);
+  const l1 = Math.max(0, sw) * 3, l2 = Math.max(0, -sw) * 3;
+  g.fillRect(-7, -14, 6, 14 - l1);
+  g.fillRect(1, -14, 6, 14 - l2);
+  g.fillStyle = C('rgba(0,0,0,0.25)');
+  g.fillRect(-7, -2 - l1, 6, 2);
+  g.fillRect(1, -2 - l2, 6, 2);
+
+  const drawArm = () => {
+    g.save();
+    g.translate(0, -24);
+    if (swingT > 0) {
+      const k = 1 - swingT / 0.2;
+      g.rotate(aim + (k - 0.5) * 2.2 * face);
+      g.fillStyle = C(L.shirt); g.fillRect(0, -3, 12, 6);
+      g.fillStyle = C(L.skin); g.fillRect(10, -3, 4, 6);
+      g.fillStyle = C('#7a5230'); g.fillRect(10, -2, 18, 4);
+      g.fillStyle = C('#6ff0e8'); g.fillRect(24, -10, 5, 20);
+    } else {
+      g.rotate(aim);
+      g.fillStyle = C(L.shirt); g.fillRect(0, -3, 10, 6);
+      g.fillStyle = C(L.skin); g.fillRect(9, -3, 4, 6);
+      g.fillStyle = C(L.gun);
+      if (br.attack.type === 'lob') {
+        g.fillRect(12, -6, 8, 9);
+        g.fillStyle = C('#cfe8ff'); g.fillRect(14, -9, 4, 3);
+      } else if (br.attack.type === 'single') {
+        g.fillRect(10, -2, 16, 4);
+        g.fillStyle = C('#3a2410'); g.fillRect(20, -9, 3, 18);
+      } else {
+        g.fillRect(10, -3.5, br.attack.type === 'shotgun' ? 18 : 14, 7);
+        g.fillStyle = C('#222'); g.fillRect(br.attack.type === 'shotgun' ? 26 : 22, -2.5, 3, 5);
+      }
+    }
+    g.restore();
+  };
+
+  if (back) drawArm();
+
+  // Kropp
+  const bw = L.golem ? 26 : 18;
+  g.fillStyle = C(L.shirt);
+  g.fillRect(-bw / 2, -32, bw, 19);
+  if (L.witch) { g.fillRect(-11, -20, 22, 13); g.fillStyle = C('#ffd23f'); g.fillRect(-11, -16, 22, 2); }
+  if (L.golem) { g.fillStyle = C('#4e8f3a'); g.fillRect(-9, -32, 3, 12); g.fillRect(6, -30, 3, 9); g.fillRect(-2, -22, 3, 6); }
+  if (L.helmet) { g.fillStyle = C('#e6f04a'); g.fillRect(-9, -22, 18, 3); }
+  if (L.hood) { g.fillStyle = C('#7a5230'); g.fillRect(-9, -18, 18, 2); }
+  if (!L.golem && !L.witch && !L.helmet && !L.hood) { g.fillStyle = C('rgba(0,0,0,0.15)'); g.fillRect(-9, -15, 18, 2); }
+
+  // Hode
+  const hs = L.golem ? 20 : 18;
+  const hy = -32 - hs;
+  g.fillStyle = C(L.skin);
+  g.fillRect(-hs / 2, hy, hs, hs);
+  if (L.hair) {
+    g.fillStyle = C(L.hair);
+    if (back) g.fillRect(-hs / 2, hy, hs, hs - 3);
+    else {
+      g.fillRect(-hs / 2, hy, hs, 5);
+      g.fillRect(face > 0 ? -hs / 2 : hs / 2 - 4, hy, 4, 11);
+    }
+  }
+  if (!back) {
+    const ex = face * 2.5;
+    if (L.golem) {
+      g.fillStyle = C('#5b5850'); g.fillRect(-hs / 2, hy + 6, hs, 3);
+      g.fillStyle = C('#d33'); g.fillRect(ex - 6, hy + 9, 3, 3); g.fillRect(ex + 3, hy + 9, 3, 3);
+      g.fillStyle = C('#a8a397'); g.fillRect(ex - 2, hy + 9, 4, 8);
+    } else {
+      g.fillStyle = C('#fff');
+      g.fillRect(ex - 6, hy + 8, 4, 3); g.fillRect(ex + 2, hy + 8, 4, 3);
+      g.fillStyle = C(L.witch ? '#c0f' : '#3b2a7a');
+      g.fillRect(ex - 6 + (face > 0 ? 2 : 0), hy + 8, 2, 3);
+      g.fillRect(ex + 2 + (face > 0 ? 2 : 0), hy + 8, 2, 3);
+      g.fillStyle = C('rgba(0,0,0,0.25)'); g.fillRect(ex - 3, hy + 13, 6, 2);
+    }
+  }
+  if (L.hood) {
+    g.fillStyle = C(L.hood);
+    g.fillRect(-hs / 2 - 2, hy - 2, hs + 4, 6);
+    g.fillRect(-hs / 2 - 2, hy, 3, hs - 2);
+    g.fillRect(hs / 2 - 1, hy, 3, hs - 2);
+  }
+  if (L.helmet) {
+    g.fillStyle = C(L.helmet);
+    g.fillRect(-hs / 2 - 1, hy - 4, hs + 2, 7);
+    g.fillRect(-hs / 2 - 3, hy + 2, hs + 6, 2);
+    g.fillStyle = C('#fff27a'); g.fillRect(-2, hy - 4, 4, 6);
+  }
+  if (L.witch) {
+    g.fillStyle = C(L.witch);
+    g.fillRect(-hs / 2 - 4, hy, hs + 8, 3);
+    g.beginPath();
+    g.moveTo(-hs / 2 + 1, hy);
+    g.lineTo(hs / 2 - 1, hy);
+    g.lineTo(-face * 7, hy - 19);
+    g.closePath();
+    g.fill();
+    g.fillStyle = C('#ffd23f'); g.fillRect(-hs / 2 + 2, hy - 3, hs - 4, 2);
+  }
+
+  if (!back) drawArm();
+  g.restore();
+}
+
+function drawBlock(g, tx, ty, b) {
+  const i = tIdx(tx, ty);
+  const x = tx * TILE, y = ty * TILE;
+  const ox = Game.time - World.hitT[i] < 0.09 ? rand(-2, 2) : 0;
+  if (b === BLK.BUSH) {
+    const sway = Math.sin(Game.time * 1.7 + tx * 0.9 + ty * 0.6) * 1.5;
+    g.drawImage(Tex.side[b], x + ox, y + TILE - 6, TILE, 6);
+    g.drawImage(Tex.top[b], x - 4 + ox + sway, y - 9, TILE + 8, TILE + 4);
+    return;
+  }
+  const pt = World.placedT[i];
+  const age = Game.time - pt;
+  const grow = age < 0.25 ? 0.25 + 0.75 * (age / 0.25) : 1;
+  const hh = BLOCK_H * grow;
+  // Skygge mot bakken
+  g.fillStyle = 'rgba(0,0,0,0.18)';
+  g.fillRect(x + 4, y + TILE, TILE, 7);
+  g.drawImage(Tex.side[b], x + ox, y + TILE - hh, TILE + 0.5, hh + 0.5);
+  if (b === BLK.TREE) {
+    g.drawImage(Tex.top[b], x - 4 + ox, y - hh - 4, TILE + 8, TILE + 4);
+  } else {
+    g.drawImage(Tex.top[b], x + ox, y - hh, TILE + 0.5, TILE + 0.5);
+    g.strokeStyle = 'rgba(0,0,0,0.22)';
+    g.lineWidth = 1.5;
+    g.strokeRect(x + ox + 0.75, y - hh + 0.75, TILE - 1.5, TILE - 1.5);
+  }
+  if (age < 0.9) {
+    g.fillStyle = `rgba(120,200,255,${0.35 * (1 - age / 0.9)})`;
+    g.fillRect(x + ox, y - hh, TILE, TILE + hh);
+  } else if (World.hp[i] < World.maxHp[i]) {
+    const st = clamp(Math.floor((1 - World.hp[i] / World.maxHp[i]) * 5), 0, 4);
+    g.drawImage(Tex.crack[st], x + ox, y - hh, TILE, TILE);
+  }
+}
+
+function drawBar(g, x, y, w, h, frac, color, shieldFrac) {
+  g.fillStyle = 'rgba(0,0,0,0.65)';
+  g.fillRect(x - 1.5, y - 1.5, w + 3, h + 3);
+  g.fillStyle = '#3a1a1a';
+  g.fillRect(x, y, w, h);
+  g.fillStyle = color;
+  g.fillRect(x, y, w * clamp(frac, 0, 1), h);
+  g.fillStyle = 'rgba(255,255,255,0.25)';
+  g.fillRect(x, y, w * clamp(frac, 0, 1), h * 0.35);
+  if (shieldFrac > 0) {
+    g.fillStyle = '#4aa8ff';
+    g.fillRect(x, y, w * clamp(shieldFrac, 0, 1), h * 0.45);
+  }
+}
+
+function outlinedText(g, text, x, y, size, color, align = 'center') {
+  g.font = `${size}px "Lilita One", "Arial Black", sans-serif`;
+  g.textAlign = align;
+  g.textBaseline = 'middle';
+  g.lineWidth = Math.max(2, size / 5);
+  g.strokeStyle = 'rgba(0,0,0,0.85)';
+  g.lineJoin = 'round';
+  g.strokeText(text, x, y);
+  g.fillStyle = color;
+  g.fillText(text, x, y);
+}
+
+function viewerOf() {
+  return player && player.alive ? player : null;
+}
+
+function isHiddenFromPlayer(f) {
+  const v = viewerOf();
+  if (!v || f === v) return false;
+  return !canSee(v, f);
+}
+
+function drawFighter(g, f) {
+  if (isHiddenFromPlayer(f)) {
+    // Busken rister litt når noen beveger seg i den
+    if (f.moving && Math.random() < 0.15) particles.push({ x: f.x + rand(-10, 10), y: f.y, vx: 0, vy: 0, z: 14, vz: 30, life: 0.3, max: 0.3, color: '#4caa40', size: 4 });
+    return;
+  }
+  const s = f.r / 17;
+  const fy = f.y + f.r * 0.55;
+  g.save();
+  if (f.inBush) g.globalAlpha = 0.55;
+  g.fillStyle = 'rgba(0,0,0,0.3)';
+  g.beginPath(); g.ellipse(f.x, fy, 15 * s, 6 * s, 0, 0, TAU); g.fill();
+  if (f.superCharge >= 1) {
+    g.strokeStyle = `rgba(255,210,63,${0.6 + Math.sin(Game.time * 8) * 0.3})`;
+    g.lineWidth = 3;
+    g.beginPath(); g.ellipse(f.x, fy, 21 * s, 9 * s, 0, 0, TAU); g.stroke();
+  }
+  if (f.inWater) {
+    g.strokeStyle = 'rgba(255,255,255,0.5)';
+    g.lineWidth = 2;
+    g.beginPath(); g.ellipse(f.x, fy - 2, 17 * s + Math.sin(Game.time * 5) * 2, 6 * s, 0, 0, TAU); g.stroke();
+  }
+  drawCharacter(g, f.br, f.x, fy, f.aim, f.walkT, f.moving, f.flash > 0, f.swingT, 1);
+  if (f.dash) {
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.beginPath(); g.arc(f.x, f.y - 10, f.r + 12, 0, TAU); g.fill();
+  }
+  g.restore();
+  drawOverhead(g, f, fy - 54 * s - 6);
+}
+
+function drawOverhead(g, f, y) {
+  const w = 58, h = 8, x = f.x - w / 2;
+  const enemy = !f.isPlayer;
+  outlinedText(g, f.isPlayer ? 'DU' : f.name, f.x, y - 16, 12, enemy ? '#ffb4b4' : '#a8ffb0');
+  drawBar(g, x, y, w, h, f.hp / f.maxHp, enemy ? '#ff4a4a' : '#4cff5a', f.shield / f.maxHp);
+  outlinedText(g, Math.ceil(f.hp + f.shield), f.x, y + 4, 9, '#fff');
+  if (f.cubes > 0) {
+    drawIcon(g, 'cube', x - 18, y - 5, 16);
+    outlinedText(g, f.cubes, x - 10, y + 3, 10, '#fff');
+  }
+  if (f.isPlayer) {
+    for (let k = 0; k < 3; k++) {
+      const fill = clamp(f.ammo - k, 0, 1);
+      g.fillStyle = 'rgba(0,0,0,0.65)';
+      g.fillRect(x + k * 20 - 1, y + h + 3, 18 + 2, 6);
+      g.fillStyle = fill >= 1 ? '#ff9a1f' : '#8a5a20';
+      g.fillRect(x + k * 20, y + h + 4, 18 * fill, 4);
+    }
+  }
+}
+
+function drawTurret(g, tu) {
+  const x = tu.x, y = tu.y;
+  g.fillStyle = 'rgba(0,0,0,0.3)';
+  g.beginPath(); g.ellipse(x, y + 10, 18, 7, 0, 0, TAU); g.fill();
+  g.drawImage(Tex.side[BLK.COBBLE], x - 16, y - 2, 32, 12);
+  g.drawImage(Tex.top[BLK.COBBLE], x - 16, y - 22, 32, 22);
+  g.save();
+  g.translate(x, y - 16);
+  g.rotate(tu.aim);
+  g.fillStyle = tu.flash > 0 ? '#fff' : '#3a4048';
+  g.fillRect(0, -4, 24, 8);
+  g.restore();
+  g.fillStyle = tu.flash > 0 ? '#fff' : '#5a636e';
+  g.fillRect(x - 9, y - 25, 18, 14);
+  g.fillStyle = tu.owner.isPlayer ? '#4cff5a' : '#ff4a4a';
+  g.fillRect(x - 3, y - 22, 6, 4);
+  drawBar(g, x - 20, y - 36, 40, 5, tu.hp / tu.maxHp, tu.owner.isPlayer ? '#4cff5a' : '#ff4a4a', 0);
+}
+
+function drawPickup(g, p) {
+  const bob = Math.sin(Game.time * 4 + p.x) * 3;
+  const col = RARITY[p.type] || '#fff';
+  g.fillStyle = 'rgba(0,0,0,0.25)';
+  g.beginPath(); g.ellipse(p.x, p.y + 10, 11, 4, 0, 0, TAU); g.fill();
+  g.save();
+  g.globalAlpha = 0.35 + Math.sin(Game.time * 5) * 0.1;
+  g.fillStyle = col;
+  g.beginPath(); g.arc(p.x, p.y - 4 + bob, 17, 0, TAU); g.fill();
+  g.restore();
+  // Lysstråle (Fortnite-loot)
+  g.fillStyle = col;
+  g.globalAlpha = 0.25;
+  g.fillRect(p.x - 2, p.y - 40 + bob, 4, 34);
+  g.globalAlpha = 1;
+  drawIcon(g, p.type, p.x - 12, p.y - 16 + bob, 24);
+  if (p.amount > 1) outlinedText(g, p.amount, p.x + 12, p.y + 4 + bob, 11, '#fff');
+}
+
+function drawProjectile(g, p) {
+  if (p.lob) {
+    const s = clamp(1 - p.z / 400, 0.2, 1);
+    g.fillStyle = 'rgba(0,0,0,0.3)';
+    g.beginPath(); g.ellipse(p.x, p.y, 10 * s, 4 * s, 0, 0, TAU); g.fill();
+    g.save();
+    g.translate(p.x, p.y - p.z);
+    g.rotate(p.t * 10);
+    const icon = p.kind === 'tnt' ? 'tnt' : 'potion';
+    const sz = p.big ? 30 : 22;
+    if (p.kind === 'cloud') { g.shadowColor = '#9dff7a'; g.shadowBlur = 12; }
+    drawIcon(g, icon, -sz / 2, -sz / 2, sz);
+    g.restore();
+    // Landingsmarkør
+    g.strokeStyle = 'rgba(255,80,80,0.5)';
+    g.lineWidth = 2;
+    g.beginPath(); g.arc(p.tx, p.ty, p.radius || 30, 0, TAU); g.stroke();
+    return;
+  }
+  const tl = p.kind === 'arrow' ? 0.035 : 0.02;
+  g.strokeStyle = p.color;
+  g.lineCap = 'round';
+  g.globalAlpha = 0.5;
+  g.lineWidth = p.r * 1.4;
+  g.beginPath(); g.moveTo(p.x - p.vx * tl, p.y - p.vy * tl); g.lineTo(p.x, p.y); g.stroke();
+  g.globalAlpha = 1;
+  if (p.kind === 'arrow') {
+    g.save();
+    g.translate(p.x, p.y);
+    g.rotate(p.ang);
+    g.fillStyle = '#7a5230'; g.fillRect(-18, -2, 20, 4);
+    g.fillStyle = '#6ff0e8'; g.fillRect(2, -4, 6, 8);
+    g.fillStyle = '#fff'; g.fillRect(-20, -4, 4, 8);
+    g.restore();
+  } else {
+    g.fillStyle = p.color;
+    g.beginPath(); g.arc(p.x, p.y, p.r, 0, TAU); g.fill();
+    g.fillStyle = '#fff';
+    g.beginPath(); g.arc(p.x, p.y, p.r * 0.5, 0, TAU); g.fill();
+  }
+  g.lineCap = 'butt';
+}
+
+function drawBus(g) {
+  if (!Bus.active) return;
+  const x = Bus.x, y = Bus.y;
+  g.fillStyle = 'rgba(0,0,0,0.22)';
+  g.beginPath(); g.ellipse(x, y + 110, 80, 20, 0, 0, TAU); g.fill();
+  g.save();
+  g.translate(x, y - 40 + Math.sin(Game.time * 2) * 6);
+  if (Math.cos(Bus.ang) < 0) g.scale(-1, 1);
+  // Ballong
+  g.strokeStyle = '#333'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(-40, -22); g.lineTo(-30, -90); g.moveTo(40, -22); g.lineTo(30, -90); g.stroke();
+  g.save();
+  g.beginPath(); g.arc(0, -125, 52, 0, TAU); g.clip();
+  for (let k = -3; k <= 3; k++) {
+    g.fillStyle = k % 2 ? '#3a7bd5' : '#ffffff';
+    g.fillRect(k * 16 - 8, -180, 16, 110);
+  }
+  g.restore();
+  g.strokeStyle = '#1d3f7a'; g.lineWidth = 3;
+  g.beginPath(); g.arc(0, -125, 52, 0, TAU); g.stroke();
+  // Buss
+  g.fillStyle = '#2f6fd0'; g.fillRect(-64, -24, 128, 50);
+  g.fillStyle = '#6fa8ff'; g.fillRect(-64, -24, 128, 8);
+  g.fillStyle = '#c8e8ff';
+  for (let k = 0; k < 5; k++) g.fillRect(-56 + k * 22, -12, 16, 14);
+  g.fillStyle = '#ffd23f'; g.fillRect(-64, 8, 128, 5);
+  g.fillStyle = '#9fd4ff'; g.fillRect(52, -12, 12, 18);
+  g.fillStyle = '#222';
+  g.beginPath(); g.arc(-38, 28, 9, 0, TAU); g.arc(38, 28, 9, 0, TAU); g.fill();
+  g.fillStyle = '#ff4a4a'; g.fillRect(60, 14, 5, 6);
+  g.restore();
+  outlinedText(g, 'KAMPBUSSEN', x, y + 30, 16, '#fff');
+}
+
+function drawGlider(g, f) {
+  if (isHiddenFromPlayer(f)) return;
+  const k = clamp(f.glideT / 3.4, 0, 1);
+  const lift = 90 * k;
+  const s = 1 + 0.5 * k;
+  g.fillStyle = 'rgba(0,0,0,0.25)';
+  g.beginPath(); g.ellipse(f.x, f.y + 8, 14, 5, 0, 0, TAU); g.fill();
+  const cy = f.y - lift;
+  // Glidefallskjerm
+  g.save();
+  g.translate(f.x, cy - 62 * s);
+  g.fillStyle = f.br.color;
+  g.beginPath(); g.arc(0, 0, 34 * s, Math.PI, 0); g.closePath(); g.fill();
+  g.fillStyle = 'rgba(255,255,255,0.6)';
+  g.beginPath(); g.arc(0, 0, 34 * s, Math.PI * 1.33, Math.PI * 1.66); g.lineTo(0, 0); g.closePath(); g.fill();
+  g.strokeStyle = '#222'; g.lineWidth = 1.5;
+  g.beginPath();
+  g.moveTo(-32 * s, 0); g.lineTo(-6, 30 * s);
+  g.moveTo(32 * s, 0); g.lineTo(6, 30 * s);
+  g.stroke();
+  g.restore();
+  drawCharacter(g, f.br, f.x, cy, Math.PI / 2, 0, false, false, 0, s);
+  if (!f.isPlayer) outlinedText(g, f.name, f.x, cy - 100 * s, 12, '#ffb4b4');
+}
+
+function drawStorm(g, left, top, vw, vh) {
+  g.save();
+  g.beginPath();
+  g.rect(left - 50, top - 50, vw + 100, vh + 100);
+  g.arc(Storm.x, Storm.y, Math.max(1, Storm.r), 0, TAU, true);
+  g.fillStyle = 'rgba(105,30,185,0.42)';
+  g.fill('evenodd');
+  // Regn i stormen
+  g.strokeStyle = 'rgba(230,200,255,0.35)';
+  g.lineWidth = 2;
+  g.beginPath();
+  for (let i = 0; i < 50; i++) {
+    const x = left + Math.random() * vw, y = top + Math.random() * vh;
+    if (outsideStorm(x, y)) { g.moveTo(x, y); g.lineTo(x - 6, y + 18); }
+  }
+  g.stroke();
+  g.strokeStyle = `rgba(225,150,255,${0.75 + Math.sin(Game.time * 6) * 0.2})`;
+  g.lineWidth = 8;
+  g.beginPath(); g.arc(Storm.x, Storm.y, Math.max(1, Storm.r), 0, TAU); g.stroke();
+  if (Storm.mode === 'wait') {
+    g.setLineDash([26, 18]);
+    g.strokeStyle = 'rgba(255,255,255,0.75)';
+    g.lineWidth = 4;
+    g.beginPath(); g.arc(Storm.nx, Storm.ny, Math.max(1, Storm.nr), 0, TAU); g.stroke();
+    g.setLineDash([]);
+  }
+  g.restore();
+}
+
+function drawPlayerOverlay(g) {
+  const p = player;
+  if (!p || !p.alive || p.state !== 'play') return;
+  if (Input.usingTouch && !Input.touch.aim) {
+    // Viser likevel graveblokken på mobil
+  } else {
+    const slot = HOTBAR[p.slot];
+    const wx = Input.wx, wy = Input.wy;
+    if (slot === 'weapon') {
+      const a = p.br.attack;
+      if (a.type === 'lob') {
+        const t = clampTarget(p, wx, wy, a.range * TILE);
+        g.fillStyle = 'rgba(255,255,255,0.15)';
+        g.strokeStyle = 'rgba(255,255,255,0.6)';
+        g.lineWidth = 2;
+        g.beginPath(); g.arc(t.x, t.y, a.radius * TILE, 0, TAU); g.fill(); g.stroke();
+        g.setLineDash([6, 8]);
+        g.beginPath(); g.moveTo(p.x, p.y - 10);
+        g.quadraticCurveTo((p.x + t.x) / 2, Math.min(p.y, t.y) - 120, t.x, t.y);
+        g.stroke(); g.setLineDash([]);
+      } else {
+        const len = a.range * TILE;
+        g.save();
+        g.translate(p.x, p.y - 8);
+        g.rotate(p.aim);
+        g.fillStyle = 'rgba(255,255,255,0.13)';
+        if (a.type === 'shotgun' || a.type === 'spread') {
+          g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, len, -a.spread / 2 - 0.05, a.spread / 2 + 0.05); g.closePath(); g.fill();
+        } else {
+          g.fillRect(0, -9, len, 18);
+        }
+        g.restore();
+      }
+    } else if (slot === 'wood' || slot === 'stone' || slot === 'iron') {
+      const tx = tileOf(wx), ty = tileOf(wy);
+      const ok = canBuildAt(p, tx, ty) && p.mats[slot] >= buildCost(p);
+      g.globalAlpha = 0.5;
+      g.drawImage(Tex.top[MAT_BLOCK[slot]], tx * TILE, ty * TILE - BLOCK_H, TILE, TILE);
+      g.globalAlpha = 1;
+      g.strokeStyle = ok ? 'rgba(80,255,120,0.95)' : 'rgba(255,70,70,0.95)';
+      g.lineWidth = 3;
+      g.strokeRect(tx * TILE, ty * TILE - BLOCK_H, TILE, TILE + BLOCK_H);
+    } else if (slot === 'tnt' || slot === 'turret') {
+      const t = clampTarget(p, wx, wy, (slot === 'tnt' ? 7 : 3) * TILE);
+      g.strokeStyle = 'rgba(255,255,255,0.7)';
+      g.lineWidth = 2;
+      g.beginPath(); g.arc(t.x, t.y, slot === 'tnt' ? 2.3 * TILE : 20, 0, TAU); g.stroke();
+    }
+  }
+  // Blokken du kan grave i
+  const mt = mineTarget(p, p.aim, Input.usingTouch ? null : Input.wx, Input.usingTouch ? null : Input.wy);
+  if (mt) {
+    g.strokeStyle = 'rgba(255,255,255,0.85)';
+    g.lineWidth = 2;
+    g.strokeRect(mt.tx * TILE + 1, mt.ty * TILE - BLOCK_H + 1, TILE - 2, TILE - 2);
+  }
+}
+
+function render() {
+  const g = ctx;
+  const cw = canvas.width, ch = canvas.height;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.imageSmoothingEnabled = false;
+  g.fillStyle = '#3676d4';
+  g.fillRect(0, 0, cw, ch);
+  if (!World.groundCanvas) return;
+  flushMinimap();
+
+  const cam = Game.cam;
+  const z = cam.zoom * DPR;
+  const shx = cam.shake > 0 ? rand(-1, 1) * cam.shake : 0;
+  const shy = cam.shake > 0 ? rand(-1, 1) * cam.shake : 0;
+  const camX = cam.x + shx, camY = cam.y + shy;
+  g.setTransform(z, 0, 0, z, Math.round(cw / 2 - camX * z), Math.round(ch / 2 - camY * z));
+  const vw = cw / z, vh = ch / z;
+  const left = camX - vw / 2, top = camY - vh / 2;
+
+  // Bakken
+  const gx0 = clamp(Math.floor(left / TILE), 0, MAP_W), gx1 = clamp(Math.ceil((left + vw) / TILE), 0, MAP_W);
+  const gy0 = clamp(Math.floor(top / TILE), 0, MAP_H), gy1 = clamp(Math.ceil((top + vh) / TILE) + 1, 0, MAP_H);
+  if (gx1 > gx0 && gy1 > gy0) {
+    g.drawImage(World.groundCanvas, gx0 * 16, gy0 * 16, (gx1 - gx0) * 16, (gy1 - gy0) * 16,
+      gx0 * TILE, gy0 * TILE, (gx1 - gx0) * TILE, (gy1 - gy0) * TILE);
+  }
+  // Glitrende vann
+  g.fillStyle = 'rgba(255,255,255,0.18)';
+  const wx0 = Math.floor(left / TILE) - 1, wx1 = Math.ceil((left + vw) / TILE) + 1;
+  const wy0 = Math.floor(top / TILE) - 1, wy1 = Math.ceil((top + vh) / TILE) + 1;
+  for (let ty = wy0; ty <= wy1; ty++) {
+    for (let tx = wx0; tx <= wx1; tx++) {
+      if (getGround(tx, ty) !== GND.WATER) continue;
+      const ph = Math.sin(Game.time * 1.6 + tx * 0.9 + ty * 1.7);
+      if (ph > 0.75) g.fillRect(tx * TILE + 10 + ph * 8, ty * TILE + 20, 16, 3);
+    }
+  }
+
+  // Giftskyer på bakken
+  for (const c of clouds) {
+    const a = clamp(c.t / c.max, 0, 1);
+    const grad = g.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r);
+    grad.addColorStop(0, `rgba(150,255,110,${0.45 * a})`);
+    grad.addColorStop(1, `rgba(170,70,255,${0.15 * a})`);
+    g.fillStyle = grad;
+    g.beginPath(); g.arc(c.x, c.y, c.r * (0.95 + Math.sin(Game.time * 6) * 0.05), 0, TAU); g.fill();
+  }
+
+  // Rad for rad: blokker og figurer (gir riktig dybde)
+  const tx0 = clamp(Math.floor(left / TILE) - 1, 0, MAP_W - 1), tx1 = clamp(Math.ceil((left + vw) / TILE) + 1, 0, MAP_W - 1);
+  const ty0 = clamp(Math.floor(top / TILE) - 1, 0, MAP_H - 1), ty1 = clamp(Math.ceil((top + vh) / TILE) + 2, 0, MAP_H - 1);
+  const rows = [];
+  const addRow = (y, obj) => {
+    const r = tileOf(y) - ty0;
+    if (r < 0 || r > ty1 - ty0) return;
+    (rows[r] || (rows[r] = [])).push(obj);
+  };
+  for (const p of pickups) addRow(p.y, { k: 0, o: p });
+  for (const tu of turrets) addRow(tu.y, { k: 1, o: tu });
+  for (const f of fighters) if (f.alive && f.state === 'play') addRow(f.y, { k: 2, o: f });
+
+  for (let ty = ty0; ty <= ty1; ty++) {
+    const rowOff = ty * MAP_W;
+    for (let tx = tx0; tx <= tx1; tx++) {
+      const b = World.block[rowOff + tx];
+      if (b) drawBlock(g, tx, ty, b);
+    }
+    const list = rows[ty - ty0];
+    if (list) {
+      list.sort((a, b) => a.o.y - b.o.y);
+      for (const d of list) {
+        if (d.k === 0) drawPickup(g, d.o);
+        else if (d.k === 1) drawTurret(g, d.o);
+        else drawFighter(g, d.o);
+      }
+    }
+  }
+
+  drawPlayerOverlay(g);
+
+  for (const p of projectiles) drawProjectile(g, p);
+
+  for (const b of blasts) {
+    const k = b.t / b.dur;
+    g.fillStyle = `rgba(${b.color},${0.55 * (1 - k)})`;
+    g.beginPath(); g.arc(b.x, b.y, b.r * (0.4 + 0.6 * k), 0, TAU); g.fill();
+    g.strokeStyle = `rgba(255,255,255,${0.7 * (1 - k)})`;
+    g.lineWidth = 4;
+    g.stroke();
+  }
+  for (const bm of beams) {
+    const k = bm.t / bm.max;
+    g.lineCap = 'round';
+    g.strokeStyle = `rgba(110,250,255,${0.6 * k})`;
+    g.lineWidth = 26 * k;
+    g.beginPath(); g.moveTo(bm.x1, bm.y1); g.lineTo(bm.x2, bm.y2); g.stroke();
+    g.strokeStyle = `rgba(255,255,255,${k})`;
+    g.lineWidth = 8 * k;
+    g.stroke();
+    g.lineCap = 'butt';
+  }
+  for (const p of particles) {
+    g.globalAlpha = clamp(p.life / p.max, 0, 1);
+    g.fillStyle = p.color;
+    g.fillRect(p.x - p.size / 2, p.y - p.z - p.size / 2, p.size, p.size);
+  }
+  g.globalAlpha = 1;
+
+  // Himmelen: glidere og Kampbussen
+  for (const f of fighters) if (f.alive && f.state === 'glide') drawGlider(g, f);
+  drawBus(g);
+
+  drawStorm(g, left, top, vw, vh);
+
+  for (const t of texts) {
+    g.globalAlpha = clamp(t.life * 1.5, 0, 1);
+    outlinedText(g, t.text, t.x, t.y, Math.round(18 * t.size), t.color);
+  }
+  g.globalAlpha = 1;
+
+  g.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (Game.state !== 'menu') drawHUD(g);
+}
+
+</script>
+  <script>
+// ===== js/hud.js =====
+'use strict';
+// ============================================================
+//  HUD (tegnes på lerretet) + menyer (HTML)
+// ============================================================
+
+function announce(text, color = '#fff', size = 1) {
+  Game.announces.unshift({ text, color, size, t: 0, dur: 2.4 });
+  if (Game.announces.length > 3) Game.announces.pop();
+}
+
+function hudLayout() {
+  const s = Math.floor(clamp((W - 24) / 8, 34, 54));
+  const x0 = Math.round(W / 2 - s * 4);
+  const y0 = H - s - (Input.usingTouch ? 8 : 12);
+  const mm = Math.round(clamp(Math.min(W, H) * 0.24, 100, 180));
+  return { s, x0, y0, mm };
+}
+
+function hotbarHit(x, y) {
+  const L = hudLayout();
+  if (y < L.y0 || y > L.y0 + L.s || x < L.x0 || x > L.x0 + L.s * 8) return -1;
+  return Math.floor((x - L.x0) / L.s);
+}
+
+function slotCount(p, name) {
+  if (name === 'weapon') return null;
+  if (name in p.mats) return p.mats[name];
+  return p.items[name];
+}
+
+function roundRect(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+
+function drawMinimap(g, x, y, size) {
+  g.save();
+  g.fillStyle = 'rgba(0,0,0,0.55)';
+  roundRect(g, x - 4, y - 4, size + 8, size + 8, 8);
+  g.fill();
+  g.beginPath(); g.rect(x, y, size, size); g.clip();
+  g.imageSmoothingEnabled = false;
+  g.drawImage(World.mini, x, y, size, size);
+  const k = size / WORLD_W;
+  g.beginPath();
+  g.rect(x, y, size, size);
+  g.arc(x + Storm.x * k, y + Storm.y * k, Math.max(0.5, Storm.r * k), 0, TAU, true);
+  g.fillStyle = 'rgba(130,40,210,0.5)';
+  g.fill('evenodd');
+  g.strokeStyle = '#e39bff'; g.lineWidth = 2;
+  g.beginPath(); g.arc(x + Storm.x * k, y + Storm.y * k, Math.max(0.5, Storm.r * k), 0, TAU); g.stroke();
+  if (Storm.mode === 'wait') {
+    g.strokeStyle = '#fff'; g.lineWidth = 1.5;
+    g.beginPath(); g.arc(x + Storm.nx * k, y + Storm.ny * k, Math.max(0.5, Storm.nr * k), 0, TAU); g.stroke();
+  }
+  if (Bus.active) {
+    g.strokeStyle = 'rgba(255,255,255,0.8)'; g.setLineDash([4, 4]); g.lineWidth = 2;
+    g.beginPath(); g.moveTo(x + Bus.sx * k, y + Bus.sy * k); g.lineTo(x + Bus.ex * k, y + Bus.ey * k); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle = '#3a7bd5';
+    g.fillRect(x + Bus.x * k - 4, y + Bus.y * k - 3, 8, 6);
+  }
+  if (size >= 120) {
+    for (const p of World.pois) outlinedText(g, p.name, x + (p.x + 0.5) * TILE * k, y + (p.y + 0.5) * TILE * k, 9, '#fff');
+  }
+  const me = player && player.alive ? player : null;
+  if (me && me.state !== 'bus') {
+    g.save();
+    g.translate(x + me.x * k, y + me.y * k);
+    g.rotate(me.aim);
+    g.fillStyle = '#ffd23f'; g.strokeStyle = '#000'; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(7, 0); g.lineTo(-5, -5); g.lineTo(-2, 0); g.lineTo(-5, 5); g.closePath();
+    g.fill(); g.stroke();
+    g.restore();
+  }
+  g.restore();
+}
+
+function drawHUD(g) {
+  const L = hudLayout();
+  const p = player;
+
+  // --- Info øverst til venstre ---
+  const storm = Storm.mode === 'wait' ? `Stormen krymper om ${fmtTime(Storm.t)}`
+    : Storm.mode === 'shrink' ? `Stormen krymper! ${fmtTime(Storm.t)}` : 'Siste sirkel!';
+  g.fillStyle = 'rgba(0,0,0,0.5)';
+  roundRect(g, 10, 10, 210, 58, 10); g.fill();
+  outlinedText(g, `👤 ${aliveCount()}`, 20, 26, 18, '#fff', 'left');
+  outlinedText(g, `💀 ${p ? p.kills : 0}`, 85, 26, 18, '#fff', 'left');
+  if (p) {
+    drawIcon(g, 'diamond', 142, 17, 18);
+    outlinedText(g, p.mats.diamond, 164, 26, 18, '#9ff6ff', 'left');
+  }
+  outlinedText(g, storm, 20, 52, 13, Storm.mode === 'shrink' ? '#e6a8ff' : '#ddd', 'left');
+  if (p && p.alive && p.state === 'play' && outsideStorm(p.x, p.y)) {
+    outlinedText(g, '⚠ DU ER I STORMEN – KOM DEG INN! ⚠', W / 2, 86, 18, '#ff8bff');
+  }
+
+  // --- Minikart ---
+  drawMinimap(g, W - L.mm - 12, 12, L.mm);
+
+  // --- Drapsliste ---
+  let ky = L.mm + 34;
+  for (const k of killFeed) {
+    const age = Game.time - k.t;
+    if (age > 6) continue;
+    g.globalAlpha = clamp(6 - age, 0, 1);
+    const text = k.killer ? `${k.killer} ⚔ ${k.victim}` : `${k.victim} ${k.how || 'ble eliminert'}`;
+    outlinedText(g, text, W - 14, ky, 13, k.mine ? '#ffd23f' : '#fff', 'right');
+    ky += 18;
+  }
+  g.globalAlpha = 1;
+
+  // --- Kunngjøringer ---
+  let ay = H * 0.2;
+  for (const a of Game.announces) {
+    const al = a.t < 0.15 ? a.t / 0.15 : clamp((a.dur - a.t) / 0.5, 0, 1);
+    g.globalAlpha = al;
+    const pop = 1 + Math.max(0, 0.15 - a.t) * 2;
+    outlinedText(g, a.text, W / 2, ay, Math.round(Math.min(34, W / 18) * a.size * pop), a.color);
+    ay += 40 * a.size;
+  }
+  g.globalAlpha = 1;
+
+  if (!p || !p.alive) return;
+
+  if (p.state === 'bus') {
+    const pulse = 1 + Math.sin(Game.time * 6) * 0.05;
+    outlinedText(g, Input.usingTouch ? 'TRYKK PÅ SKJERMEN FOR Å HOPPE!' : 'TRYKK MELLOMROM FOR Å HOPPE!', W / 2, H * 0.72, Math.round(Math.min(30, W / 16) * pulse), '#ffd23f');
+    outlinedText(g, 'Følg den stiplede linjen på kartet – hopp der du vil lande', W / 2, H * 0.72 + 34, 14, '#fff');
+    return;
+  }
+
+  // --- Hotbar (Minecraft) ---
+  const { s, x0, y0 } = L;
+  for (let i = 0; i < 8; i++) {
+    const x = x0 + i * s;
+    const name = HOTBAR[i];
+    const n = slotCount(p, name);
+    g.fillStyle = 'rgba(30,30,30,0.7)';
+    g.fillRect(x, y0, s, s);
+    g.strokeStyle = '#8b8b8b'; g.lineWidth = 2;
+    g.strokeRect(x + 1, y0 + 1, s - 2, s - 2);
+    g.globalAlpha = n === 0 ? 0.3 : 1;
+    drawIcon(g, name, x + s * 0.18, y0 + s * 0.14, s * 0.64);
+    g.globalAlpha = 1;
+    if (n !== null) outlinedText(g, n, x + s - 5, y0 + s - 9, 13, '#fff', 'right');
+    if (!Input.usingTouch) outlinedText(g, i + 1, x + 6, y0 + 8, 9, '#ccc', 'left');
+  }
+  const sx = x0 + p.slot * s;
+  g.strokeStyle = '#fff'; g.lineWidth = 4;
+  g.strokeRect(sx - 1, y0 - 1, s + 2, s + 2);
+
+  if (Game.time - Game.slotNameT < 1.6) {
+    const nm = HOTBAR[p.slot];
+    const label = nm === 'weapon' ? p.br.attack.label
+      : nm in MAT_BLOCK ? `Bygg: ${MAT_NAME[nm]} (${buildCost(p)} per blokk)` : ITEM_NAME[nm];
+    g.globalAlpha = clamp(1.6 - (Game.time - Game.slotNameT), 0, 1);
+    outlinedText(g, label, W / 2, y0 - 46, 15, '#fff');
+    g.globalAlpha = 1;
+  }
+
+  // --- Liv, skjold, kuber ---
+  const bw = s * 8, by = y0 - 26;
+  drawBar(g, x0, by, bw, 16, p.hp / p.maxHp, '#4cff5a', p.shield / p.maxHp);
+  outlinedText(g, `${Math.ceil(p.hp)}${p.shield > 0 ? ' + ' + Math.ceil(p.shield) : ''} / ${Math.ceil(p.maxHp)}`, x0 + bw / 2, by + 8, 12, '#fff');
+  if (p.cubes > 0) {
+    drawIcon(g, 'cube', x0 - 4, by - 24, 20);
+    outlinedText(g, `x${p.cubes}`, x0 + 18, by - 14, 13, '#a6ff9a', 'left');
+  }
+  for (let k = 0; k < 3; k++) {
+    const fill = clamp(p.ammo - k, 0, 1);
+    const ax = x0 + bw - 3 * 34 + k * 34;
+    g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(ax, by - 12, 32, 8);
+    g.fillStyle = fill >= 1 ? '#ff9a1f' : '#8a5a20'; g.fillRect(ax + 1, by - 11, 30 * fill, 6);
+  }
+
+  // --- Super-måler ---
+  if (!Input.usingTouch) {
+    let cx = x0 + bw + 44, cy = y0 + s / 2;
+    if (cx + 34 > W) { cx = W - 40; cy = by - 50; }
+    Game.superBtn = { x: cx, y: cy, r: 30 };
+    const ready = p.superCharge >= 1;
+    g.fillStyle = 'rgba(0,0,0,0.6)';
+    g.beginPath(); g.arc(cx, cy, 30, 0, TAU); g.fill();
+    g.strokeStyle = ready ? `rgba(255,210,63,${0.7 + Math.sin(Game.time * 8) * 0.3})` : '#ffd23f';
+    g.lineWidth = 6;
+    g.beginPath(); g.arc(cx, cy, 26, -Math.PI / 2, -Math.PI / 2 + TAU * p.superCharge); g.stroke();
+    if (ready) { g.fillStyle = 'rgba(255,210,63,0.35)'; g.beginPath(); g.arc(cx, cy, 22, 0, TAU); g.fill(); }
+    outlinedText(g, 'SUPER', cx, cy - 3, 12, ready ? '#ffd23f' : '#aaa');
+    outlinedText(g, '[E]', cx, cy + 11, 10, '#ccc');
+  }
+
+  // --- Kontrollhjelp ---
+  if (!Input.usingTouch && Game.time < 45 && p.state === 'play') {
+    const lines = ['WASD: gå   •   Mus: sikt', 'Venstreklikk: skyt / bygg / bruk', 'Høyreklikk (eller F): grav med hakka',
+      '1–8 / hjul: velg i hotbar   •   Q: rask vegg', 'E / mellomrom: SUPER   •   C: crafting'];
+    g.globalAlpha = clamp((45 - Game.time) / 3, 0, 0.9);
+    g.fillStyle = 'rgba(0,0,0,0.45)';
+    roundRect(g, 10, H - 20 - lines.length * 18, 270, lines.length * 18 + 10, 8); g.fill();
+    lines.forEach((l, i) => outlinedText(g, l, 18, H - 6 - (lines.length - i) * 18, 12, '#fff', 'left'));
+    g.globalAlpha = 1;
+  }
+
+  // --- Joysticker på mobil ---
+  if (Input.usingTouch) {
+    const drawStick = (st, color) => {
+      if (!st) return;
+      g.fillStyle = 'rgba(255,255,255,0.15)';
+      g.beginPath(); g.arc(st.ox, st.oy, 60, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,0.4)'; g.lineWidth = 2; g.stroke();
+      const dx = st.x - st.ox, dy = st.y - st.oy, d = Math.hypot(dx, dy), k = d > 60 ? 60 / d : 1;
+      g.fillStyle = color;
+      g.beginPath(); g.arc(st.ox + dx * k, st.oy + dy * k, 26, 0, TAU); g.fill();
+    };
+    drawStick(Input.touch.move, 'rgba(255,255,255,0.6)');
+    drawStick(Input.touch.aim, 'rgba(255,90,90,0.7)');
+    const btn = document.getElementById('btnSuper');
+    if (btn) {
+      const pct = Math.round(p.superCharge * 100);
+      btn.style.background = `conic-gradient(#ffd23f ${pct}%, rgba(0,0,0,0.55) ${pct}%)`;
+      btn.classList.toggle('ready', p.superCharge >= 1);
+    }
+  }
+}
+
+// ============================================================
+//  HTML-menyer
+// ============================================================
+const $ = (id) => document.getElementById(id);
+
+function show(id) { $(id).classList.remove('hidden'); }
+function hide(id) { $(id).classList.add('hidden'); }
+
+function drawPortrait(canvasEl, br) {
+  const g = canvasEl.getContext('2d');
+  g.clearRect(0, 0, canvasEl.width, canvasEl.height);
+  g.imageSmoothingEnabled = false;
+  const grad = g.createRadialGradient(canvasEl.width / 2, canvasEl.height * 0.6, 5, canvasEl.width / 2, canvasEl.height * 0.6, canvasEl.width * 0.6);
+  grad.addColorStop(0, br.color);
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, canvasEl.width, canvasEl.height);
+  drawCharacter(g, br, canvasEl.width / 2, canvasEl.height * 0.9, 0.35, 0, false, false, 0, canvasEl.height / 70);
+}
+
+function buildMenu() {
+  const list = $('brawlerList');
+  list.innerHTML = '';
+  BRAWLERS.forEach((br, i) => {
+    const card = document.createElement('button');
+    card.className = 'card' + (i === Game.selected ? ' selected' : '');
+    card.style.setProperty('--c', br.color);
+    const cv = document.createElement('canvas');
+    cv.width = 96; cv.height = 96;
+    drawPortrait(cv, br);
+    card.appendChild(cv);
+    const nm = document.createElement('div');
+    nm.className = 'card-name';
+    nm.textContent = br.name;
+    const rl = document.createElement('div');
+    rl.className = 'card-role';
+    rl.textContent = br.role;
+    card.append(nm, rl);
+    card.addEventListener('click', () => {
+      Game.selected = i;
+      storageSet('br_brawler', i);
+      Sfx.init(); Sfx.play('click');
+      buildMenu();
+    });
+    list.appendChild(card);
+  });
+  const br = BRAWLERS[Game.selected];
+  const stat = (label, v, max) => `<div class="stat"><span>${label}</span><div class="statbar"><i style="width:${Math.round((v / max) * 100)}%"></i></div></div>`;
+  const dmgPerAmmo = br.attack.dmg * (br.attack.count || 1);
+  $('brawlerInfo').innerHTML = `
+    <h3 style="color:${br.color}">${br.name}</h3>
+    ${stat('Liv', br.hp, 5400)}
+    ${stat('Skade', dmgPerAmmo, 1800)}
+    ${stat('Rekkevidde', br.attack.range, 13)}
+    ${stat('Fart', br.speed - 150, 60)}
+    <p><b>Angrep:</b> ${br.attack.label}</p>
+    <p><b>Super:</b> ${br.sup.label}</p>
+    <p><b>Passiv:</b> ${br.passive}</p>`;
+  $('trophies').textContent = `🏆 ${Game.trophies}   •   👑 ${Game.wins} seire`;
+}
+
+function openCraft() {
+  if (!player || !player.alive || Game.state !== 'play') return;
+  Game.craftOpen = true;
+  show('craftPanel');
+  refreshCraft();
+}
+
+function closeCraft() {
+  Game.craftOpen = false;
+  hide('craftPanel');
+}
+
+function refreshCraft() {
+  if (!Game.craftOpen || !player) return;
+  const box = $('craftList');
+  const p = player;
+  const sig = RECIPES.map((r) => (canCraft(p, r) ? 1 : 0)).join('') + JSON.stringify(p.mats) + JSON.stringify(p.items) + p.cubes;
+  if (box.dataset.sig === sig) return;
+  box.dataset.sig = sig;
+  box.innerHTML = '';
+  for (const r of RECIPES) {
+    const row = document.createElement('div');
+    row.className = 'recipe' + (canCraft(p, r) ? '' : ' disabled');
+    const ic = document.createElement('canvas');
+    ic.width = 40; ic.height = 40;
+    drawIcon(ic.getContext('2d'), r.item, 4, 4, 32);
+    const cost = Object.entries(r.cost).map(([k, v]) => `<span class="${p.mats[k] >= v ? 'ok' : 'no'}">${v} ${MAT_NAME[k]}</span>`).join(' + ');
+    const have = r.item === 'cube' ? p.cubes : p.items[r.item];
+    const info = document.createElement('div');
+    info.className = 'recipe-info';
+    info.innerHTML = `<b>${ITEM_NAME[r.item]}</b> <small>(har ${have})</small><br><small>${r.desc}</small><br>${cost}`;
+    const btn = document.createElement('button');
+    btn.textContent = 'LAG';
+    btn.disabled = !canCraft(p, r);
+    btn.addEventListener('click', () => { craft(p, r.item); refreshCraft(); });
+    row.append(ic, info, btn);
+    box.appendChild(row);
+  }
+  $('craftMats').innerHTML = ['wood', 'stone', 'iron', 'diamond'].map((m) => `${MAT_NAME[m]}: <b>${p.mats[m]}</b>`).join(' &nbsp; ');
+}
+
+function showEndScreen(win) {
+  const p = player;
+  const place = win ? 1 : p.place;
+  const table = [10, 8, 6, 4, 2, 0, -1, -2, -3, -4];
+  const delta = (table[place - 1] || -4) + p.kills;
+  Game.trophies = Math.max(0, Game.trophies + delta);
+  if (win) Game.wins++;
+  storageSet('br_trophies', Game.trophies);
+  storageSet('br_wins', Game.wins);
+  $('endTitle').innerHTML = win ? '#1 VICTORY ROYALE!' : `Du ble nr. ${place}`;
+  $('endTitle').className = win ? 'win' : '';
+  $('endSub').textContent = win ? 'Du er den siste brawleren på øya! 👑'
+    : place <= 3 ? 'Så nære! Prøv igjen!' : 'Stormen venter ikke – prøv igjen!';
+  $('endStats').innerHTML = `
+    <div><b>${p.kills}</b><span>Elimineringer</span></div>
+    <div><b>${p.cubes}</b><span>Kraftkuber</span></div>
+    <div><b>${fmtTime(Game.time)}</b><span>Tid overlevd</span></div>
+    <div><b class="${delta >= 0 ? 'plus' : 'minus'}">${delta >= 0 ? '+' : ''}${delta} 🏆</b><span>Trofeer</span></div>`;
+  show('endScreen');
+}
+
+</script>
+  <script>
+// ===== js/input.js =====
+'use strict';
+// ============================================================
+//  Kontroller: tastatur + mus, og joysticker på mobil
+// ============================================================
+
+const Input = {
+  keys: {}, mouse: { x: 0, y: 0, left: false, right: false, leftPressed: false },
+  wx: 0, wy: 0, usingTouch: false,
+  touch: { move: null, aim: null, mineHeld: false },
+};
+
+function selectSlot(i) {
+  if (!player) return;
+  player.slot = ((i % 8) + 8) % 8;
+  Game.slotNameT = Game.time;
+}
+
+function setupInput() {
+  window.addEventListener('keydown', (e) => {
+    if (e.repeat) { Input.keys[e.code] = true; return; }
+    Input.keys[e.code] = true;
+    Sfx.init();
+    if (Game.state !== 'play') return;
+    const p = player;
+    if (e.code === 'Escape') { togglePause(); return; }
+    if (Game.paused) return;
+    if (e.code === 'KeyC') { Game.craftOpen ? closeCraft() : openCraft(); return; }
+    if (!p || !p.alive) return;
+    if (e.code.startsWith('Digit')) {
+      const n = parseInt(e.code.slice(5), 10);
+      if (n >= 1 && n <= 8) selectSlot(n - 1);
+    }
+    if (e.code === 'Space') e.preventDefault();
+    if (p.state === 'bus' && (e.code === 'Space' || e.code === 'KeyE')) { jumpFromBus(p); return; }
+    if (p.state !== 'play') return;
+    if (e.code === 'Space' || e.code === 'KeyE') trySuper(p, p.aim, Input.wx, Input.wy);
+    if (e.code === 'KeyQ') {
+      const nm = HOTBAR[p.slot];
+      quickWall(p, p.aim, nm in MAT_BLOCK ? nm : null);
+    }
+  });
+  window.addEventListener('keyup', (e) => { Input.keys[e.code] = false; });
+  window.addEventListener('blur', () => { Input.keys = {}; Input.mouse.left = Input.mouse.right = false; });
+
+  canvas.addEventListener('mousemove', (e) => { Input.mouse.x = e.clientX; Input.mouse.y = e.clientY; });
+  canvas.addEventListener('mousedown', (e) => {
+    Sfx.init();
+    Input.usingTouch = false;
+    hideTouchUI();
+    Input.mouse.x = e.clientX; Input.mouse.y = e.clientY;
+    if (Game.state !== 'play' || Game.paused) return;
+    if (e.button === 0) {
+      const slot = hotbarHit(e.clientX, e.clientY);
+      if (slot >= 0) { selectSlot(slot); return; }
+      const sb = Game.superBtn;
+      if (sb && player && dist(e.clientX, e.clientY, sb.x, sb.y) < sb.r) { trySuper(player, player.aim, null, null); return; }
+      Input.mouse.left = true;
+      Input.mouse.leftPressed = true;
+      if (player && player.state === 'bus') jumpFromBus(player);
+    }
+    if (e.button === 2) Input.mouse.right = true;
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (e.button === 0) Input.mouse.left = false;
+    if (e.button === 2) Input.mouse.right = false;
+  });
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  canvas.addEventListener('wheel', (e) => {
+    if (Game.state !== 'play' || !player) return;
+    e.preventDefault();
+    selectSlot(player.slot + (e.deltaY > 0 ? 1 : -1));
+  }, { passive: false });
+
+  // ---------------- Berøring ----------------
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    Sfx.init();
+    if (!Input.usingTouch) { Input.usingTouch = true; showTouchUI(); }
+    if (Game.state !== 'play' || Game.paused) return;
+    for (const t of e.changedTouches) {
+      const x = t.clientX, y = t.clientY;
+      if (player && player.state === 'bus') { jumpFromBus(player); continue; }
+      const slot = hotbarHit(x, y);
+      if (slot >= 0) { onTouchSlot(slot); continue; }
+      if (x < W * 0.45 && !Input.touch.move) Input.touch.move = { id: t.identifier, ox: x, oy: y, x, y };
+      else if (!Input.touch.aim) Input.touch.aim = { id: t.identifier, ox: x, oy: y, x, y, dragged: false };
+    }
+  }, { passive: false });
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+      const st = [Input.touch.move, Input.touch.aim].find((s) => s && s.id === t.identifier);
+      if (!st) continue;
+      st.x = t.clientX; st.y = t.clientY;
+      if (st === Input.touch.aim && Math.hypot(st.x - st.ox, st.y - st.oy) > 18) st.dragged = true;
+    }
+  }, { passive: false });
+  const end = (e) => {
+    for (const t of e.changedTouches) {
+      if (Input.touch.move && Input.touch.move.id === t.identifier) Input.touch.move = null;
+      if (Input.touch.aim && Input.touch.aim.id === t.identifier) {
+        const a = Input.touch.aim;
+        Input.touch.aim = null;
+        if (player && player.alive && player.state === 'play' && !Game.paused) {
+          if (a.dragged) {
+            const ang = Math.atan2(a.y - a.oy, a.x - a.ox);
+            const frac = clamp(Math.hypot(a.x - a.ox, a.y - a.oy) / 60, 0.2, 1);
+            touchAction(ang, frac);
+          } else touchAutoFire();
+        }
+      }
+    }
+  };
+  canvas.addEventListener('touchend', end);
+  canvas.addEventListener('touchcancel', end);
+
+  const hold = (id, on, off) => {
+    const el = $(id);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); Sfx.init(); on(); }, { passive: false });
+    el.addEventListener('touchend', (e) => { e.preventDefault(); if (off) off(); }, { passive: false });
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); on(); });
+    el.addEventListener('mouseup', (e) => { e.preventDefault(); if (off) off(); });
+  };
+  hold('btnSuper', () => {
+    if (!player || player.state !== 'play') return;
+    const t = autoTarget(superRange(player));
+    if (t) trySuper(player, angTo(player, t), t.x, t.y);
+    else trySuper(player, player.aim, null, null);
+  });
+  hold('btnMine', () => { Input.touch.mineHeld = true; }, () => { Input.touch.mineHeld = false; });
+  hold('btnWall', () => {
+    if (!player || player.state !== 'play') return;
+    const nm = HOTBAR[player.slot];
+    quickWall(player, player.aim, nm in MAT_BLOCK ? nm : null);
+  });
+  hold('btnCraft', () => { Game.craftOpen ? closeCraft() : openCraft(); });
+  hold('btnPause', () => togglePause());
+}
+
+function showTouchUI() { if (Game.state === 'play') show('touchUI'); }
+function hideTouchUI() { hide('touchUI'); }
+
+function onTouchSlot(slot) {
+  const p = player;
+  if (!p) return;
+  const nm = HOTBAR[slot];
+  if (nm === 'bandage' || nm === 'potion') { useItem(p, nm); return; }
+  selectSlot(slot);
+}
+
+function autoTarget(range) {
+  const p = player;
+  let best = null, bd = range;
+  for (const o of fighters) {
+    if (o === p || !o.alive || o.state !== 'play' || !canSee(p, o)) continue;
+    const d = dist(p.x, p.y, o.x, o.y);
+    if (d < bd) { bd = d; best = o; }
+  }
+  return best;
+}
+
+function touchAction(ang, frac) {
+  const p = player;
+  p.aim = ang;
+  const nm = HOTBAR[p.slot];
+  const a = p.br.attack;
+  if (nm === 'weapon') {
+    const d = a.range * TILE * frac;
+    tryAttack(p, ang, p.x + Math.cos(ang) * d, p.y + Math.sin(ang) * d);
+  } else if (nm in MAT_BLOCK) {
+    placeBuild(p, tileOf(p.x + Math.cos(ang) * TILE * 1.6), tileOf(p.y + Math.sin(ang) * TILE * 1.6), nm);
+  } else if (nm === 'tnt') {
+    const d = 7 * TILE * frac;
+    useItem(p, 'tnt', p.x + Math.cos(ang) * d, p.y + Math.sin(ang) * d);
+  } else if (nm === 'turret') {
+    useItem(p, 'turret', p.x + Math.cos(ang) * TILE * 1.5, p.y + Math.sin(ang) * TILE * 1.5);
+  }
+}
+
+function touchAutoFire() {
+  const p = player;
+  const nm = HOTBAR[p.slot];
+  const range = nm === 'weapon' ? p.br.attack.range * TILE * 1.05 : 7 * TILE;
+  const t = autoTarget(range);
+  if (t) {
+    const ang = angTo(p, t);
+    p.aim = ang;
+    if (nm === 'weapon') tryAttack(p, ang, t.x, t.y);
+    else touchAction(ang, clamp(dist(p.x, p.y, t.x, t.y) / range, 0.2, 1));
+  } else touchAction(p.aim, 0.8);
+}
+
+// Leses av hver frame
+function handlePlayerInput() {
+  const p = player;
+  if (!p || !p.alive) return;
+  const K = Input.keys;
+  let mx = 0, my = 0;
+  if (K.KeyW || K.ArrowUp) my -= 1;
+  if (K.KeyS || K.ArrowDown) my += 1;
+  if (K.KeyA || K.ArrowLeft) mx -= 1;
+  if (K.KeyD || K.ArrowRight) mx += 1;
+  const tm = Input.touch.move;
+  if (tm) {
+    const dx = tm.x - tm.ox, dy = tm.y - tm.oy, d = Math.hypot(dx, dy);
+    if (d > 8) { mx = (dx / d) * Math.min(1, d / 50); my = (dy / d) * Math.min(1, d / 50); }
+  }
+  p.moveX = mx; p.moveY = my;
+
+  if (Input.usingTouch) {
+    const ta = Input.touch.aim;
+    if (ta && ta.dragged) p.aim = Math.atan2(ta.y - ta.oy, ta.x - ta.ox);
+    else if (Math.hypot(mx, my) > 0.2) p.aim = Math.atan2(my, mx);
+    const frac = ta ? clamp(Math.hypot(ta.x - ta.ox, ta.y - ta.oy) / 60, 0.2, 1) : 0.8;
+    const nm = HOTBAR[p.slot];
+    const range = nm === 'weapon' ? p.br.attack.range * TILE : nm === 'tnt' ? 7 * TILE : TILE * 1.6;
+    const d = nm in MAT_BLOCK ? TILE * 1.6 : range * frac;
+    Input.wx = p.x + Math.cos(p.aim) * d;
+    Input.wy = p.y + Math.sin(p.aim) * d;
+  } else {
+    const z = Game.cam.zoom;
+    Input.wx = Game.cam.x + (Input.mouse.x - W / 2) / z;
+    Input.wy = Game.cam.y + (Input.mouse.y - H / 2) / z;
+    if (p.state === 'play') p.aim = Math.atan2(Input.wy - (p.y - 8), Input.wx - p.x);
+  }
+
+  if (p.state !== 'play') { Input.mouse.leftPressed = false; return; }
+
+  const nm = HOTBAR[p.slot];
+  if (Input.mouse.left && !Game.craftOpen) {
+    if (nm === 'weapon') tryAttack(p, p.aim, Input.wx, Input.wy);
+    else if (nm in MAT_BLOCK) {
+      if (p.buildCd <= 0 && placeBuild(p, tileOf(Input.wx), tileOf(Input.wy), nm)) p.buildCd = 0.12;
+    } else if (Input.mouse.leftPressed) {
+      if (!useItem(p, nm, Input.wx, Input.wy) && p.items[nm] <= 0) announce(`Du har ingen ${ITEM_NAME[nm]} – craft med C!`, '#ffb4b4', 0.6);
+    }
+  }
+  Input.mouse.leftPressed = false;
+
+  if (Input.mouse.right || Input.keys.KeyF || Input.touch.mineHeld) {
+    tryMine(p, p.aim, Input.usingTouch ? null : Input.wx, Input.usingTouch ? null : Input.wy);
+  }
+}
+
+</script>
+  <script>
+// ===== js/main.js =====
+'use strict';
+// ============================================================
+//  Hovedløkke og spillflyt
+// ============================================================
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0, DPR = 1, baseZoom = 1;
+
+const Game = {
+  state: 'menu', paused: false, time: 0, craftOpen: false, over: false,
+  cam: { x: WORLD_W / 2, y: WORLD_H / 2, zoom: 1, shake: 0 },
+  announces: [], slotNameT: -9, superBtn: null, lastPOI: null, spectate: null,
+  selected: clamp(storageGet('br_brawler', 0) | 0, 0, BRAWLERS.length - 1),
+  trophies: storageGet('br_trophies', 0) | 0,
+  wins: storageGet('br_wins', 0) | 0,
+  menuT: 0,
+};
+
+function resize() {
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  baseZoom = clamp(Math.sqrt(W * H) / (19.5 * TILE), 0.5, 1.4);
+}
+
+function resetEntities() {
+  fighters = []; projectiles = []; pickups = []; turrets = []; clouds = [];
+  particles = []; texts = []; beams = []; blasts = []; killFeed = [];
+  Game.announces = [];
+  nextId = 1;
+}
+
+function startGame() {
+  Sfx.init();
+  resetEntities();
+  generateWorld(Math.floor(Math.random() * 1e9));
+  initStorm();
+  initBus();
+  player = createFighter(Game.selected, 'Du', true);
+  fighters.push(player);
+  const names = shuffle(BOT_NAMES.slice());
+  for (let i = 0; i < NUM_FIGHTERS - 1; i++) {
+    const f = createFighter(randi(0, BRAWLERS.length - 1), names[i], false);
+    f.bot = newBrain();
+    fighters.push(f);
+  }
+  for (const f of fighters) {
+    f.state = 'bus';
+    f.x = Bus.x; f.y = Bus.y;
+    if (f.bot) planBotDrop(f);
+  }
+  Game.state = 'play';
+  Game.paused = false;
+  Game.over = false;
+  Game.time = 0;
+  Game.spectate = null;
+  Game.lastPOI = null;
+  Game.craftOpen = false;
+  Game.cam.x = Bus.x; Game.cam.y = Bus.y;
+  Game.cam.zoom = baseZoom * 0.55;
+  hide('menu'); hide('endScreen'); hide('pausePanel'); hide('craftPanel');
+  if (Input.usingTouch) show('touchUI');
+  announce('Velkommen til BLOKK ROYALE!', '#ffd23f', 1);
+}
+
+function goToMenu() {
+  Game.state = 'menu';
+  Game.paused = false;
+  hide('endScreen'); hide('pausePanel'); hide('craftPanel'); hide('touchUI');
+  buildMenu();
+  show('menu');
+  resetEntities();
+  player = null;
+  generateWorld(Math.floor(Math.random() * 1e9));
+  Storm.r = WORLD_W; Storm.x = WORLD_W / 2; Storm.y = WORLD_H / 2; Storm.mode = 'done';
+  Bus.active = false;
+}
+
+function togglePause() {
+  if (Game.state !== 'play' || Game.over) return;
+  Game.paused = !Game.paused;
+  if (Game.paused) {
+    $('soundBtn').textContent = Sfx.enabled ? '🔊 Lyd: PÅ' : '🔇 Lyd: AV';
+    show('pausePanel');
+  } else hide('pausePanel');
+}
+
+function onPlayerDeath() {
+  if (Game.over) return;
+  Game.over = true;
+  Sfx.play('lose');
+  closeCraft();
+  hide('touchUI');
+  setTimeout(() => showEndScreen(false), 1300);
+}
+
+function checkWinner() {
+  if (Game.state !== 'play') return;
+  if (aliveCount() === 1 && player && player.alive && !Game.over) {
+    Game.over = true;
+    Sfx.play('win');
+    closeCraft();
+    hide('touchUI');
+    announce('#1 VICTORY ROYALE!', '#ffd23f', 1.4);
+    for (let i = 0; i < 80; i++) {
+      particles.push({ x: player.x + rand(-200, 200), y: player.y + rand(-150, 50), vx: rand(-60, 60), vy: rand(-60, 60), z: rand(50, 200), vz: rand(50, 250), life: rand(1, 2.5), max: 2.5, color: choice(['#ffd23f', '#4cff5a', '#2fa4d9', '#ff4a4a', '#c86bff']), size: rand(5, 10) });
+    }
+    setTimeout(() => showEndScreen(true), 1800);
+  }
+}
+
+function updateCamera(dt) {
+  const cam = Game.cam;
+  let tx = cam.x, ty = cam.y, tz = baseZoom;
+  let target = player && player.alive ? player : null;
+  if (!target) {
+    if (!Game.spectate || !Game.spectate.alive) Game.spectate = fighters.find((f) => f.alive) || null;
+    target = Game.spectate;
+  }
+  if (target) {
+    if (target.state === 'bus') { tx = Bus.x; ty = Bus.y; tz = baseZoom * 0.55; }
+    else if (target.state === 'glide') { tx = target.x; ty = target.y - 40; tz = baseZoom * (0.65 + 0.35 * (1 - target.glideT / 3.4)); }
+    else {
+      tx = target.x; ty = target.y;
+      // Se litt i retningen du sikter (som i Brawl Stars)
+      if (target === player && !Input.usingTouch) {
+        tx += Math.cos(player.aim) * 50;
+        ty += Math.sin(player.aim) * 40;
+      }
+    }
+  }
+  const k = 1 - Math.pow(0.002, dt);
+  cam.x = lerp(cam.x, tx, k);
+  cam.y = lerp(cam.y, ty, k);
+  cam.zoom = lerp(cam.zoom, tz, 1 - Math.pow(0.05, dt));
+  cam.shake = Math.max(0, cam.shake - dt * 30);
+}
+
+function updatePOIAnnounce() {
+  if (!player || !player.alive || player.state !== 'play') return;
+  const poi = nearestPOI(player.x, player.y, 9);
+  if (poi && poi !== Game.lastPOI) announce(`📍 ${poi.name}`, '#fff', 0.75);
+  Game.lastPOI = poi;
+}
+
+function update(dt) {
+  Game.time += dt;
+  handlePlayerInput(dt);
+  updateBus(dt);
+  updateStorm(dt);
+  for (const f of fighters) if (f.bot && f.alive) botUpdate(f, dt);
+  for (const f of fighters) updateFighter(f, dt);
+  updateProjectiles(dt);
+  updateTurrets(dt);
+  updateClouds(dt);
+  updatePickups(dt);
+  updateGrowing(dt);
+  updateEffects(dt);
+  updateCamera(dt);
+  updatePOIAnnounce();
+  for (const a of Game.announces) a.t += dt;
+  Game.announces = Game.announces.filter((a) => a.t < a.dur);
+  if (Game.craftOpen && Math.floor(Game.time * 5) !== Math.floor((Game.time - dt) * 5)) refreshCraft();
+}
+
+function updateMenuBackdrop(dt) {
+  Game.menuT += dt;
+  Game.time += dt;
+  Game.cam.zoom = baseZoom * 0.8;
+  Game.cam.x = WORLD_W / 2 + Math.cos(Game.menuT * 0.05) * WORLD_W * 0.25;
+  Game.cam.y = WORLD_H / 2 + Math.sin(Game.menuT * 0.07) * WORLD_H * 0.25;
+  updateEffects(dt);
+}
+
+let lastTs = 0;
+function loop(ts) {
+  const dt = Math.min(0.05, (ts - lastTs) / 1000 || 0);
+  lastTs = ts;
+  try {
+    if (Game.state === 'play' && !Game.paused) update(dt);
+    else if (Game.state === 'menu') updateMenuBackdrop(dt);
+    render();
+  } catch (err) {
+    console.error(err);
+  }
+  requestAnimationFrame(loop);
+}
+
+function init() {
+  resize();
+  window.addEventListener('resize', resize);
+  buildTextures();
+  setupInput();
+  $('playBtn').addEventListener('click', () => { Sfx.init(); Sfx.play('click'); startGame(); });
+  $('againBtn').addEventListener('click', () => { Sfx.play('click'); startGame(); });
+  $('menuBtn').addEventListener('click', () => { Sfx.play('click'); goToMenu(); });
+  $('resumeBtn').addEventListener('click', () => togglePause());
+  $('quitBtn').addEventListener('click', () => goToMenu());
+  $('soundBtn').addEventListener('click', () => {
+    const on = Sfx.toggle();
+    $('soundBtn').textContent = on ? '🔊 Lyd: PÅ' : '🔇 Lyd: AV';
+  });
+  $('craftClose').addEventListener('click', () => closeCraft());
+  goToMenu();
+  requestAnimationFrame(loop);
+}
+
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => { if (Game.state === 'menu') buildMenu(); });
+}
+init();
+
+</script>
+</body>
+</html>

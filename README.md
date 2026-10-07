@@ -6,7 +6,7 @@ Grav som i Minecraft, bygg som i Fortnite og slåss som i Brawl Stars. Ti brawle
 
 ## Slik starter du
 
-Ingen installasjon trengs. Åpne `index.html` i nettleseren (Chrome, Edge, Firefox eller Safari).
+Ingen installasjon trengs. Åpne `blokk-royale.html` (hele spillet i én fil) eller `index.html` i nettleseren (Chrome, Edge, Firefox eller Safari).
 Spillet virker både på PC og mobil/nettbrett.
 
 > Tips: Slår du på **GitHub Pages** for repoet (Settings → Pages → «Deploy from a branch»), kan du spille på `https://<brukernavn>.github.io/spillminecraft/` – også på mobilen.
