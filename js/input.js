@@ -5,7 +5,7 @@
 
 const Input = {
   keys: {}, mouse: { x: 0, y: 0, left: false, right: false, leftPressed: false },
-  wx: 0, wy: 0, usingTouch: false, unlockT: 0, expectUnlock: false,
+  wx: 0, wy: 0, usingTouch: false, unlockT: 0, expectUnlock: false, noLock: false,
   touch: { move: null, aim: null, mineHeld: false, fireHeld: false },
 };
 
@@ -48,7 +48,10 @@ function setupInput() {
   window.addEventListener('blur', () => { Input.keys = {}; Input.mouse.left = Input.mouse.right = false; });
 
   canvas.addEventListener('mousemove', (e) => {
-    if (document.pointerLockElement === canvas) {
+    const free = Input.noLock && isLookCam() && Game.state === 'play' && !Game.paused && !Game.craftOpen;
+    if (document.pointerLockElement === canvas || free) {
+      // Uten muselås (f.eks. i en innebygd side) følger kameraet bare musebevegelsene
+      if (free) { Input.mouse.x = e.clientX; Input.mouse.y = e.clientY; }
       R3.yaw += e.movementX * 0.0026;
       R3.pitch = clamp(R3.pitch + e.movementY * 0.0022, 0.06, 1.25);
       return;
@@ -83,6 +86,7 @@ function setupInput() {
     if (e.button === 2) Input.mouse.right = false;
   });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  document.addEventListener('pointerlockerror', () => { Input.noLock = true; });
   document.addEventListener('pointerlockchange', () => {
     if (document.pointerLockElement) return;
     Input.unlockT = performance.now();
@@ -174,11 +178,12 @@ function setupInput() {
 }
 
 function lockPointer() {
-  if (Input.usingTouch || !canvas.requestPointerLock) return;
+  if (Input.usingTouch || Input.noLock) return;
+  if (!canvas.requestPointerLock) { Input.noLock = true; return; }
   try {
     const r = canvas.requestPointerLock();
-    if (r && r.catch) r.catch(() => {});
-  } catch (e) { /* nettleseren sa nei */ }
+    if (r && r.catch) r.catch(() => { Input.noLock = true; });
+  } catch (e) { Input.noLock = true; }
 }
 
 function releasePointer() {

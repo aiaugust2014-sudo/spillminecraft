@@ -138,7 +138,7 @@ function drawHUD(g) {
 
   // --- Trådkors og musehjelp i Fortnite-kameraet ---
   if (isLookCam() && p.state === 'play') {
-    if (document.pointerLockElement === canvas || Input.usingTouch) {
+    if (document.pointerLockElement === canvas || Input.usingTouch || Input.noLock) {
       g.strokeStyle = 'rgba(255,255,255,0.9)';
       g.lineWidth = 2;
       g.beginPath();
